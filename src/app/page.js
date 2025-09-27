@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
+import './login.css'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -12,6 +13,7 @@ const montserrat = Montserrat({
 export default function Home() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleLogin = () => {
     // Xử lý đăng nhập ở đây
@@ -39,46 +41,31 @@ export default function Home() {
     maxWidth: '64rem',
     borderRadius: '1.5rem',
     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    overflow: 'hidden'
+    overflow: 'hidden',
   };
 
   const mainFlexStyle = {
     display: 'flex',
-    minHeight: '500px'
+    minHeight: '500px',
   };
 
   const leftPanelStyle = {
     flex: 1,
-    background: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5))',
     padding: '2rem',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     position: 'relative',
-    opacity: 0.8
+    transition: 'backdrop-filter 0.5s',
+    backdropFilter: isHovered ? 'blur(50px)' : 'blur(10px)'
   };
 
   const logoContainerStyle = {
     display: 'flex',
     justifyContent: 'center',
-    marginBottom: '3rem',
     position: 'relative',
     zIndex: 10
   };
-
-  const soundBarsStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.25rem',
-    marginRight: '0.75rem'
-  };
-
-  const barStyle = (height, color) => ({
-    width: '0.25rem',
-    height,
-    backgroundColor: color,
-    borderRadius: '0.125rem'
-  });
 
   const formStyle = {
     display: 'flex',
@@ -94,12 +81,13 @@ export default function Home() {
 
   const iconContainerStyle = {
     position: 'absolute',
-    left: '1rem',
+    left: '0rem',
     top: '50%',
     transform: 'translateY(-50%)',
     zIndex: 10,
-    width: '2.5rem',
-    height: '2.5rem',
+    '--icon-size': '3rem',
+    width: 'var(--icon-size)',
+    height: 'var(--icon-size)',
     backgroundColor: '#2563eb',
     borderRadius: '50%',
     display: 'flex',
@@ -193,15 +181,17 @@ export default function Home() {
   return (
     <div className="background" style={containerStyle}>
       <div className="card" style={cardStyle}>
-        <div className="main-flex" style={mainFlexStyle}>
+        <div 
+          className="main-flex"
+          style={mainFlexStyle}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}>
           {/* Left Panel - Login Form */}
-          <div className="left-panel" style={leftPanelStyle}>            
-            <div>
+          <div className="left-panel" style={leftPanelStyle}>
+            <div className="left-content">
               {/* Logo */}
-              <div style={logoContainerStyle}>
-                <div>
-                  <img src="/logo&text.png" alt="Logo" style={{ height: '100%', width: '75%', display: 'flex'}} />
-                </div>
+              <div className="logo-container" style={logoContainerStyle}>
+                <img src="/logo&text.png" alt="Logo" style={{height: 'auto', width: '75%'}} />
               </div>
 
               {/* Login Form */}
@@ -209,9 +199,10 @@ export default function Home() {
                 {/* Email Input */}
                 <div className="input-group" style={inputGroupStyle}>
                   <div className="icon-container" style={iconContainerStyle}>
-                    <img id="email-icon" src="/mail.png" alt="Email" style={{height: '5vh', width: 'auto'}}/>
+                    <img id="email-icon" src="/mail.png" alt="Email" style={{height: '100%', width: 'auto'}}/>
                   </div>
                   <input
+                    id="email-input"
                     type="email"
                     placeholder="Email"
                     value={email}
@@ -223,9 +214,10 @@ export default function Home() {
                 {/* Password Input */}
                 <div className="input-group" style={inputGroupStyle}>
                   <div className="icon-container" style={iconContainerStyle}>
-                    <img id="password-icon" src="/pw.png" alt="Password" style={{height: '4vh', width: 'auto'}}/>
+                    <img id="password-icon" src="/pw.png" alt="Password" style={{height: '90%', width: 'auto'}}/>
                   </div>
                   <input
+                    id="password-input"
                     type="password"
                     placeholder="Password"
                     value={password}
