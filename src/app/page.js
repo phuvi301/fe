@@ -4,6 +4,10 @@ import { useState } from 'react';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
 
+
+import './login.css'
+
+
 const montserrat = Montserrat({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700', '800', '900'],
@@ -13,11 +17,17 @@ export default function Home() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+
+  const [isHovered, setIsHovered] = useState(false);
+
   const handleLogin = () => {
+    // Xử lý đăng nhập ở đây
+
     console.log('Login:', { email, password });
   };
 
   const handleRegister = () => {
+
     console.log('Navigate to register');
   };
 
@@ -46,6 +56,8 @@ export default function Home() {
                     <img src="/Mail.png" alt="Mail Icon" className="mail-icon" />
                   </div>
                   <input
+
+   
                     type="email"
                     placeholder="Email"
                     value={email}
@@ -55,6 +67,7 @@ export default function Home() {
                 </div>
 
                 {/* Password Input */}
+
                 <div className="input-group">
                   <div className="icon-container">
                     <img src="/Password.png" alt="Lock Icon" className="password-icon" />
@@ -69,6 +82,7 @@ export default function Home() {
                 </div>
 
                 {/* Login Button */}
+
                 <div className="button-container">
                   <button
                     onClick={handleLogin}
@@ -82,6 +96,7 @@ export default function Home() {
           </div>
 
           {/* Right Panel - Welcome */}
+
           <div className="right-panel">
             <div className="welcome-container">
               <h2 className="welcome-title">Hello, Welcome!</h2>
