@@ -1,4 +1,221 @@
-/* Styles cho các placeholder trong input fields */
-input::placeholder {
+/* Login Page Styles */
+.background {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000000ff;
+  background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(/background.jpg);
+  background-size: cover;
+  padding: 1rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 64rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.main-flex {
+  display: flex;
+  min-height: 500px;
+}
+
+.left-panel {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  backdrop-filter: blur(10px);
+  transition: backdrop-filter 0.5s;
+}
+
+.left-panel:hover{
+  backdrop-filter: blur(50px);
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  top: -3rem;
+  position: relative;
+  z-index: 10;
+}
+
+.logo-container img {
+  height: 11rem;
+  width: 'auto';
+  display: 'flex';
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  z-index: 10;
+  margin-top: -2rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.icon-container {
+  z-index: 10;
+  --icon-size: 3rem;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  background-color: #2563eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-container #email-icon {
+  height: 100%;
+  width: 'auto'
+}
+
+.icon-container #password-icon {
+  height: 80%;
+  width: 'auto'
+}
+
+.login-input {
+  margin-left: 1rem;
+  padding-left: 1.5rem;
+  padding-right: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  height: 3rem;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.879);
+  border-radius: 1.5rem;
+  color: white;
+  font-size: 1rem;
+  width: 80%; 
+  outline: none;
+  font-family: inherit;
+}
+
+.login-input::placeholder {
   color: rgba(255, 255, 255, 0.7);
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+/* Login Button */
+.login-button {
+  background-color: #2563eb;
+  color: white;
+  padding-left: 3rem;
+  padding-right: 3rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  height: 3rem;
+  border-radius: 1.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 1rem;
+  font-weight: 900;
+  font-family: inherit;
+}
+
+/* Login with Google */
+.google-button {
+  margin-left: 1rem;
+  background-color: #ffffff;
+  color: #2563eb;
+  padding-left: 1rem;
+  padding-right: 1.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  align-items: center;
+  display: flex;
+  height: 3rem;
+  border-radius: 1.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 1rem;
+  font-weight: 900;
+  font-family: inherit;
+  
+}
+
+.google-button:hover {
+  background-color: #e5e5e5;
+}
+
+.google-icon {
+  --google-icon-size: 2rem;
+  height: var(--google-icon-size);
+  width: var(--google-icon-size);
+  margin-right: 0.5rem;
+}
+
+.login-button:hover {
+  background-color: #1d4ed8;
+}
+
+.right-panel {
+  flex: 1;
+  background-image: linear-gradient(rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.5));
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.welcome-container {
+  text-align: center;
+}
+
+.welcome-title {
+  font-size: 2.25rem;
+  color: #2563eb;
+  margin-bottom: 1.5rem;
+  margin: 0;
+  font-family: inherit;
+  font-weight: 900;
+}
+
+.welcome-text {
+  color: #6b7280;
+  margin-bottom: 2rem;
+  margin: 0 0 2rem 0;
+}
+
+.register-button {
+  border: 2px solid #2563eb;
+  color: #2563eb;
+  background-color: transparent;
+  padding-left: 3rem;
+  padding-right: 3rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  height: 3rem;
+  border-radius: 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 1rem;
+  font-weight: 900;
+  font-family: inherit;
+}
+
+.register-button:hover {
+  background-color: #ffffff9c;
 }
