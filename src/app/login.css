@@ -1,0 +1,4 @@
+/* Styles cho các placeholder trong input fields */
+input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
