@@ -17,9 +17,9 @@ body {
 }
 
 body {
+  font-family: 'Montserrat', sans-serif;
   color: var(--foreground);
   background: var(--background);
-  font-family: 'Montserrat', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

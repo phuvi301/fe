@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
 import './login.css';
+
 const montserrat = Montserrat({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700', '800', '900'],
@@ -21,72 +22,81 @@ export default function Home() {
     console.log('Navigate to register');
   };
 
+  // Slider login template
+  const signUpButtonRef = useRef(null);
+  const signInButtonRef = useRef(null);
+  const containerRef = useRef(null);
+
+  // Sử dụng useEffect để thao tác DOM sau khi component mount
+  useEffect(() => {
+    const signUpButton = signUpButtonRef.current;
+    const signInButton = signInButtonRef.current;
+    const container = containerRef.current;
+
+    const handleSignUp = () => {
+      container.classList.add("right-panel-active");
+    };
+
+    const handleSignIn = () => {
+      container.classList.remove("right-panel-active");
+    };
+
+    if (signUpButton && signInButton && container) {
+      signUpButton.addEventListener("click", handleSignUp);
+      signInButton.addEventListener("click", handleSignIn);
+    }
+
+    // Cleanup event listeners
+    return () => {
+      if (signUpButton && signInButton) {
+        signUpButton.removeEventListener("click", handleSignUp);
+        signInButton.removeEventListener("click", handleSignIn);
+      }
+    };
+  }, []);
+
   return (
     <div className="background">
-      <div className="card">
-        <div className="main-flex">
-          {/* Left Panel - Login Form */}
-          <div className="left-panel">
-            <div>
-              {/* Logo */}
-              <div className="logo-container">
-                <img src="/logo&text.png" alt="Logo"/>
-              </div>
-
-              {/* Login Form */}
-              <div className="login-form">
-                {/* Email Input */}
-                <div className="input-group">
-                  <div className="icon-container">
-                    <img src="/mail.png" alt="Mail Icon" id="email-icon" />
-                  </div>
-                  <input
-                    className="login-input"
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-
-                {/* Password Input */}
-                <div className="input-group">
-                  <div className="icon-container">
-                    <img src="/pw.png" alt="Lock Icon" id="password-icon" />
-                  </div>
-                  <input
-                    className="login-input"
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-                
-                {/* Button Container */}
-                <div className="button-container">
-                  {/* Login Button */}
-                  <button className="login-button" onClick={handleLogin}>
-                    Login
-                  </button>
-                  {/* Login with Google */}
-                  <button className="google-button">
-                    <img src="/google.png" alt="Google Icon" className="google-icon" />
-                    Login with Google
-                  </button>
-                </div>
-              </div>
+      <div className="container" id="container" ref={containerRef}>
+        <div className="form-container sign-up-container">
+          <form action="#">
+            <h1>Create Account</h1>
+            <div className="social-container">
+              <a href="#" className="social"><img id="facebook-icon" src="/facebook.png" alt="Facebook" /></a>
+              <a href="#" className="social"><img id="google-icon" src="/google.png" alt="Google" /></a>
             </div>
-          </div>
-
-          {/* Right Panel - Welcome */}
-          <div className="right-panel">
-            <div className="welcome-container">
-              <h2 className="welcome-title">Hello, Friend!</h2>
-              <p className="welcome-text">Don't have an account?</p>
-              <button onClick={handleRegister} className="register-button">
-                Register
-              </button>
+            <span>or use your email for registration</span>
+            <input type="text" placeholder="Name" />
+            <input type="email" placeholder="Email" />
+            <input type="password" placeholder="Password" />
+            <button ref={signUpButtonRef}>Sign Up</button>
+          </form>
+        </div>
+        <div className="form-container sign-in-container">
+          <form action="#">
+            <h1>Sign in</h1>
+            <div className="social-container">
+              <a href="#" className="social"><img id="facebook-icon" src="/facebook.png" alt="Facebook" /></a>
+              <a href="#" className="social"><img id="google-icon" src="/google.png" alt="Google" /></a>
+            </div>
+            <span>or use your account</span>
+            <input type="email" placeholder="Email" />
+            <input type="password" placeholder="Password" />
+            <a href="#">Forgot your password?</a>
+            <button ref={signInButtonRef}>Sign In</button>
+          </form>
+        </div>
+        <div className="overlay-container">
+          <div className="overlay">
+            <div className="overlay-panel overlay-left">
+              <h1>Welcome Back!</h1>
+              <p>To keep connected with us please login with your personal info</p>
+              <button className="ghost" id="signIn" ref={signInButtonRef}>Sign In</button>
+            </div>
+            <div className="overlay-panel overlay-right">
+              <h1>Hello, Friend!</h1>
+              <p>Enter your personal details and start journey with us</p>
+              <button className="ghost" id="signUp" ref={signUpButtonRef}>Sign Up</button>
             </div>
           </div>
         </div>
