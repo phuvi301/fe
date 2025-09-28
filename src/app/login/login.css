@@ -122,7 +122,7 @@ input {
   flex-direction: row;
 }
 
-.logo-container #logo_image {
+.logo-container .logo_image {
   width: 15rem;
 }
 
@@ -295,13 +295,13 @@ input {
 	width: 40px;
 }
 
-#facebook-icon {
+.facebook-icon {
   --facebook-icon-size: 25px;
   width: var(--facebook-icon-size);
   height: var(--facebook-icon-size);
 }
 
-#google-icon {
+.google-icon {
   --google-icon-size: 30px;
   width: var(--google-icon-size);
   height: var(--google-icon-size);

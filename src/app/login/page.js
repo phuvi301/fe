@@ -1,26 +1,16 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
-import { Montserrat } from 'next/font/google';
-import './globals.css';
+import { useRouter } from "next/navigation";
 import './login.css';
 
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
-});
 
 export default function Home() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const router = useRouter();
 
-  const handleLogin = () => {
-    console.log('Login:', { email, password });
-  };
-
-  const handleRegister = () => {
-    console.log('Navigate to register');
-  };
+  const homeRouter = () => {
+    router.push("/");
+  }
 
   // Slider login template
   const signUpButtonRef = useRef(null);
@@ -58,18 +48,18 @@ export default function Home() {
   return (
     <div className="background">
       {/* Container */}
-      <div className="container" id="container" ref={containerRef}>
+      <div className="container" ref={containerRef}>
         {/* Sign up container */}
         <div className="form-container sign-up-container">
           <form action="#">
             {/* Logo web */}
             <div className="logo-container">
-              <img id="logo_image" src="/logo&text.png" alt="Logo" />
+              <img className="logo_image" src="/logo&text.png" alt="Logo" />
             </div>
             {/* Social login */}
             <div className="social-container">
-              <a href="#" className="social"><img id="facebook-icon" src="/facebook.png" alt="Facebook" /></a>
-              <a href="#" className="social"><img id="google-icon" src="/google.png" alt="Google" /></a>
+              <a href="#" className="social"><img className="facebook-icon" src="/facebook.png" alt="Facebook" /></a>
+              <a href="#" className="social"><img className="google-icon" src="/google.png" alt="Google" /></a>
             </div>
             <span>or use your email for registration</span>
             {/* Input container */}
@@ -77,38 +67,38 @@ export default function Home() {
               {/* Email input */}
               <div className="email-input">
                 <div className="email-border">
-                  <img src="/mail.png" alt="Email Icon" id="email-icon" />
+                  <img src="/mail.png" alt="Email Icon" className="email-icon" />
                 </div>
-                <input type="email" placeholder="Email" id="email" />
+                <input type="email" placeholder="Email" className="email" />
               </div>
               {/* Password input */}
               <div className="password-input">
                 <div className="password-border">
-                  <img src="/pw.png" alt="Password Icon" id="password-icon" />
+                  <img src="/pw.png" alt="Password Icon" className="password-icon" />
                 </div>
-                <input type="password" placeholder="Password" id="password" />
+                <input type="password" placeholder="Password" className="password" />
               </div>
               {/* Confirm Password input */}
               <div className="confirm-password-input">
                 <div className="confirm-password-border">
-                  <img src="/tick.png" alt="Confirm Password Icon" id="confirm-password-icon" />
+                  <img src="/tick.png" alt="Confirm Password Icon" className="confirm-password-icon" />
                 </div>
-                <input type="password" placeholder="Confirm Password" id="confirm-password" />
+                <input type="password" placeholder="Confirm Password" className="confirm-password" />
               </div>
             </div>
-            <button ref={signUpButtonRef} style={{ marginTop: "20px" }}>Sign Up</button>
+            <button type="button" onClick={homeRouter} ref={signUpButtonRef} style={{ marginTop: "20px" }}>Sign Up</button>
           </form>
         </div>
         {/* Sign in container */}
         <div className="form-container sign-in-container">
           <form action="#">
             <div className="logo-container">
-              <img id="logo_image" src="/logo&text.png" alt="Logo" />
+              <img className="logo_image" src="/logo&text.png" alt="Logo" />
             </div>
             {/* Social login */}
             <div className="social-container">
-              <a href="#" className="social"><img id="facebook-icon" src="/facebook.png" alt="Facebook" /></a>
-              <a href="#" className="social"><img id="google-icon" src="/google.png" alt="Google" /></a>
+              <a href="#" className="social"><img className="facebook-icon" src="/facebook.png" alt="Facebook" /></a>
+              <a href="#" className="social"><img className="google-icon" src="/google.png" alt="Google" /></a>
             </div>
             <span>or use your account</span>
             {/* Input container */}
@@ -116,20 +106,20 @@ export default function Home() {
               {/* Email input */}
               <div className="email-input">
                 <div className="email-border">
-                  <img src="/mail.png" alt="Email Icon" id="email-icon" />
+                  <img src="/mail.png" alt="Email Icon" className="email-icon" />
                 </div>
-                <input type="email" placeholder="Email" id="email" />
+                <input type="email" placeholder="Email" className="email" />
               </div>
               {/* Password input */}
               <div className="password-input">
                 <div className="password-border">
-                  <img src="/pw.png" alt="Password Icon" id="password-icon" />
+                  <img src="/pw.png" alt="Password Icon" className="password-icon" />
                 </div>
-                <input type="password" placeholder="Password" id="password" />
+                <input type="password" placeholder="Password" className="password" />
               </div>
             </div>
             <a href="#">Forgot your password?</a>
-            <button ref={signInButtonRef}>Sign In</button>
+            <button type="button" onClick={homeRouter} ref={signInButtonRef}>Sign In</button>
           </form>
         </div>
         <div className="overlay-container">
