@@ -131,6 +131,35 @@ input {
 	z-index: 2;
 }
 
+.input-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	margin-left: -20px;
+	gap: 5px;
+	width: 100%;
+}
+
+.email-input, .password-input, .confirm-password-input {
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	justify-content: center;
+}
+
+.password-input img, .confirm-password-input img {
+  	height: 30px;
+}
+
+.email-input img {
+	height: 35px;
+	margin-right: -8.89px;
+}
+
+.email-input input, .password-input input, .confirm-password-input input {
+	width: 450px;
+}
+
 .container.right-panel-active .sign-in-container {
 	transform: translateX(100%);
 	opacity: 0;

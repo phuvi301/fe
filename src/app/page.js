@@ -57,36 +57,67 @@ export default function Home() {
 
   return (
     <div className="background">
+      {/* Container */}
       <div className="container" id="container" ref={containerRef}>
+        {/* Sign up container */}
         <div className="form-container sign-up-container">
           <form action="#">
+            {/* Logo web */}
             <div className="logo-container">
               <img id="logo_image" src="/logo&text.png" alt="Logo" />
             </div>
+            {/* Social login */}
             <div className="social-container">
               <a href="#" className="social"><img id="facebook-icon" src="/facebook.png" alt="Facebook" /></a>
               <a href="#" className="social"><img id="google-icon" src="/google.png" alt="Google" /></a>
             </div>
             <span>or use your email for registration</span>
-            <input type="email" placeholder="Email" id="email" />
-            <input type="password" placeholder="Password" id="password" />
-            <input type="password" placeholder="Confirm Password" id="confirm-password" />
+            {/* Input container */}
+            <div className="input-container">
+              {/* Email input */}
+              <div className="email-input">
+                <img src="/mail.png" alt="Email Icon" id="email-icon" />
+                <input type="email" placeholder="Email" id="email" />
+              </div>
+              {/* Password input */}
+              <div className="password-input">
+                <img src="/pw.png" alt="Password Icon" id="password-icon" />
+                <input type="password" placeholder="Password" id="password" />
+              </div>
+              {/* Confirm Password input */}
+              <div className="confirm-password-input">
+                <img src="/pw.png" alt="Confirm Password Icon" id="confirm-password-icon" />
+                <input type="password" placeholder="Confirm Password" id="confirm-password" />
+              </div>
+            </div>
             <button ref={signUpButtonRef}>Sign Up</button>
           </form>
         </div>
+        {/* Sign in container */}
         <div className="form-container sign-in-container">
           <form action="#">
             <div className="logo-container">
               <img id="logo_image" src="/logo&text.png" alt="Logo" />
             </div>
-            {/* <h1>Sign in</h1> */}
+            {/* Social login */}
             <div className="social-container">
               <a href="#" className="social"><img id="facebook-icon" src="/facebook.png" alt="Facebook" /></a>
               <a href="#" className="social"><img id="google-icon" src="/google.png" alt="Google" /></a>
             </div>
             <span>or use your account</span>
-            <input type="email" placeholder="Email" />
-            <input type="password" placeholder="Password" />
+            {/* Input container */}
+            <div className="input-container">
+              {/* Email input */}
+              <div className="email-input">
+                <img src="/mail.png" alt="Email Icon" id="email-icon" />
+                <input type="email" placeholder="Email" id="email" />
+              </div>
+              {/* Password input */}
+              <div className="password-input">
+                <img src="/pw.png" alt="Password Icon" id="password-icon" />
+                <input type="password" placeholder="Password" id="password" />
+              </div>
+            </div>
             <a href="#">Forgot your password?</a>
             <button ref={signInButtonRef}>Sign In</button>
           </form>
