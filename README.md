@@ -22,7 +22,7 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file. \\
+You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file. <br>
 Everytime you want to add a site, following these steps:
 - **Step 1:** Create a new folder inside `src/app` with the name of the site.
 - **Step 2:** Create `page.js` and `.css` (Depends on your own need).
