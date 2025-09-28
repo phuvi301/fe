@@ -22,9 +22,11 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-Everytime you want to add a site, first create a new folder inside `src/app` with the name of the site.
-Then, create `page.js` and `.css` (Depends on your own need). Finally, you can start editing `app.js` inside your new folder.
+You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file. \\
+Everytime you want to add a site, following these steps:
+- Step 1: Create a new folder inside `src/app` with the name of the site.
+- Step 2: Create `page.js` and `.css` (Depends on your own need).
+- Step 3: Start editing `app.js` inside your new folder.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
