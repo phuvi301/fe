@@ -38,8 +38,8 @@ a {
 
 button {
 	border-radius: 20px;
-	border: 1px solid #2563eb;
-	background-color: #2563eb;
+	border: 1px solid #005ff6;
+	background-color: #005ff6;
 	color: #FFFFFF;
 	font-size: 12px;
 	font-weight: bold;
@@ -85,12 +85,13 @@ form {
 }
 
 input {
-	background-color: #eee;
+	background-color: #c9c9c9;
 	border: none;
+	border-radius: 30px;
 	padding: 12px 15px;
 	margin: 8px 0;
 	width: 100%;
-	color:black;
+	color:rgb(0, 0, 0);
 	font-family: inherit;
 }
 
@@ -98,8 +99,8 @@ input {
 	border-radius: 10px;
 	position: relative;
 	overflow: hidden;
-	width: 60vw;
-  	height: 60vh;
+	width: 61vw;
+  	height: 75vh;
 	max-width: 100%;
 	min-height: 480px;
 }
@@ -122,7 +123,7 @@ input {
 }
 
 .logo-container #logo_image {
-  width: 18rem;
+  width: 15rem;
 }
 
 .sign-in-container {
@@ -145,19 +146,40 @@ input {
 	align-items: center;
 	flex-direction: row;
 	justify-content: center;
-}
 
-.password-input img, .confirm-password-input img {
-  	height: 30px;
 }
+.email-border, .password-border, .confirm-password-border {
+  z-index: 10;
+  --icon-size: 2.8rem;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  background-color: #005ff6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;	
 
+}
+.password-input img {
+  	height: 2rem;
+	width: auto;
+
+}
+.confirm-password-input img {
+	height: 2.6rem;
+	width: auto;
+
+}
 .email-input img {
-	height: 35px;
-	margin-right: -8.89px;
+	height: 2rem;
+	width: auto;
+
 }
 
 .email-input input, .password-input input, .confirm-password-input input {
 	width: 450px;
+	height: 2.8rem;
 }
 
 .container.right-panel-active .sign-in-container {
@@ -207,7 +229,7 @@ input {
 }
 
 .overlay {
-	background: linear-gradient(to right, #2563eb, #3b82f6);
+	background: linear-gradient(to right, #005ff6, #005ff6);
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-position: 0 0;
@@ -297,15 +319,3 @@ footer {
     z-index: 999;
 }
 
-footer p {
-    margin: 10px 0;
-}
-
-footer i {
-    color: red;
-}
-
-footer a {
-    color: #3c97bf;
-    text-decoration: none;
-}
