@@ -4,7 +4,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #000000ff;
   background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(/background.jpg);
   background-size: cover;
   padding: 1rem;
@@ -31,7 +30,7 @@ span {
 }
 
 a {
-	color: #333;
+	color: white;
 	font-size: 14px;
 	text-decoration: none;
 	margin: 15px 0;
@@ -39,8 +38,8 @@ a {
 
 button {
 	border-radius: 20px;
-	border: 1px solid #FF4B2B;
-	background-color: #FF4B2B;
+	border: 1px solid #2563eb;
+	background-color: #2563eb;
 	color: #FFFFFF;
 	font-size: 12px;
 	font-weight: bold;
@@ -48,6 +47,13 @@ button {
 	letter-spacing: 1px;
 	text-transform: uppercase;
 	transition: transform 80ms ease-in;
+}
+
+button:hover {
+	cursor: pointer;
+	transition: all 0.3s ease;
+	background-color: #e8dfdf;
+	color: #2563eb;
 }
 
 button:active {
@@ -63,8 +69,12 @@ button.ghost {
 	border-color: #FFFFFF;
 }
 
-form {
+button.ghost:hover {
 	background-color: #FFFFFF;
+	color: #2563eb;
+}
+
+form {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -80,17 +90,16 @@ input {
 	padding: 12px 15px;
 	margin: 8px 0;
 	width: 100%;
+	color:black;
+	font-family: inherit;
 }
 
 .container {
-	background-color: #fff;
 	border-radius: 10px;
-  	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 
-			0 10px 10px rgba(0,0,0,0.22);
 	position: relative;
 	overflow: hidden;
 	width: 60vw;
-  height: 60vh;
+  	height: 60vh;
 	max-width: 100%;
 	min-height: 480px;
 }
@@ -99,8 +108,21 @@ input {
 	position: absolute;
 	top: 0;
 	height: 100%;
-  backdrop-filter: blur(25px);
+  	backdrop-filter: blur(25px);
 	transition: all 0.6s ease-in-out;
+}
+
+.form-container h1, span{
+  color: white;
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.logo-container #logo_image {
+  width: 18rem;
 }
 
 .sign-in-container {
@@ -109,12 +131,9 @@ input {
 	z-index: 2;
 }
 
-.form-container h1, span{
-  color: black;
-}
-
 .container.right-panel-active .sign-in-container {
 	transform: translateX(100%);
+	opacity: 0;
 }
 
 .sign-up-container {
@@ -159,7 +178,7 @@ input {
 }
 
 .overlay {
-	background: linear-gradient(to right, #FF4B2B, #FF416C);
+	background: linear-gradient(to right, #2563eb, #3b82f6);
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-position: 0 0;
@@ -209,9 +228,9 @@ input {
 }
 
 .social-container {
-	margin: 20px;
-  display: flex;
-  flex-direction: row;
+	margin-bottom: 20px;
+  	display: flex;
+  	flex-direction: row;
 }
 
 .social-container a {

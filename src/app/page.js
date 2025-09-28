@@ -60,21 +60,26 @@ export default function Home() {
       <div className="container" id="container" ref={containerRef}>
         <div className="form-container sign-up-container">
           <form action="#">
-            <h1>Create Account</h1>
+            <div className="logo-container">
+              <img id="logo_image" src="/logo&text.png" alt="Logo" />
+            </div>
             <div className="social-container">
               <a href="#" className="social"><img id="facebook-icon" src="/facebook.png" alt="Facebook" /></a>
               <a href="#" className="social"><img id="google-icon" src="/google.png" alt="Google" /></a>
             </div>
             <span>or use your email for registration</span>
-            <input type="text" placeholder="Name" />
-            <input type="email" placeholder="Email" />
-            <input type="password" placeholder="Password" />
+            <input type="email" placeholder="Email" id="email" />
+            <input type="password" placeholder="Password" id="password" />
+            <input type="password" placeholder="Confirm Password" id="confirm-password" />
             <button ref={signUpButtonRef}>Sign Up</button>
           </form>
         </div>
         <div className="form-container sign-in-container">
           <form action="#">
-            <h1>Sign in</h1>
+            <div className="logo-container">
+              <img id="logo_image" src="/logo&text.png" alt="Logo" />
+            </div>
+            {/* <h1>Sign in</h1> */}
             <div className="social-container">
               <a href="#" className="social"><img id="facebook-icon" src="/facebook.png" alt="Facebook" /></a>
               <a href="#" className="social"><img id="google-icon" src="/google.png" alt="Google" /></a>
