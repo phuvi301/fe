@@ -3,7 +3,7 @@
 import { useRef, useEffect } from 'react';
 import { useRouter } from "next/navigation";
 import './login.css';
-
+import { useState } from 'react';
 
 export default function Home() {
   const router = useRouter();
@@ -16,6 +16,11 @@ export default function Home() {
   const signUpButtonRef = useRef(null);
   const signInButtonRef = useRef(null);
   const containerRef = useRef(null);
+
+  //Password visibility toggle
+  const [showSignInPassword, setShowSignInPassword] = useState(true);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(true);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(true);
 
   // Sử dụng useEffect để thao tác DOM sau khi component mount
   useEffect(() => {
@@ -76,14 +81,20 @@ export default function Home() {
                 <div className="password-border">
                   <img src="/pw.png" alt="Password Icon" className="password-icon" />
                 </div>
-                <input type="password" placeholder="Password" className="password" />
+                <input type={showSignUpPassword ? "password" : "text"} placeholder="Password" className="password" />
+                <button type="button" className="toggle-password" onClick={() => setShowSignUpPassword(!showSignUpPassword)}>
+                  {showSignUpPassword ? <img src="/eye_off.svg" alt="Hide Password" /> : <img src="/eye.png" alt="Show Password" />}
+                </button>              
               </div>
               {/* Confirm Password input */}
               <div className="confirm-password-input">
                 <div className="confirm-password-border">
                   <img src="/tick.png" alt="Confirm Password Icon" className="confirm-password-icon" />
                 </div>
-                <input type="password" placeholder="Confirm Password" className="confirm-password" />
+                <input type={showConfirmPassword ? "password" : "text"} placeholder="Confirm Password" className="confirm-password" />
+                <button type="button" className="toggle-password" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                  {showConfirmPassword ? <img src="/eye_off.svg" alt="Hide Password" /> : <img src="/eye.png" alt="Show Password" />}
+                </button>
               </div>
             </div>
             <button type="button" onClick={homeRouter} ref={signUpButtonRef} style={{ marginTop: "20px" }}>Sign Up</button>
@@ -115,7 +126,10 @@ export default function Home() {
                 <div className="password-border">
                   <img src="/pw.png" alt="Password Icon" className="password-icon" />
                 </div>
-                <input type="password" placeholder="Password" className="password" />
+                <input type={showSignInPassword ? "password" : "text"} placeholder="Password" className="password" />
+                <button type="button" className="toggle-password" onClick={() => setShowSignInPassword(!showSignInPassword)}>
+                  {showSignInPassword ? <img src="/eye_off.svg" alt="Hide Password" /> : <img src="/eye.png" alt="Show Password" />}
+                </button>              
               </div>
             </div>
             <a href="#">Forgot your password?</a>
