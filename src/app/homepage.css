@@ -1,0 +1,151 @@
+/* Header navigation */
+.background{
+    background-color: #f0f0f0;
+    --header-height: 7vh;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #333;
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    width: 100%;
+    height: var(--header-height);
+}
+
+header #logo {
+    margin: -35px 0 -35px -75px;
+    height: 120px;
+}
+
+header .search-bar {
+    display: flex;
+    align-items: center;
+}
+
+header .search-bar input{
+    background-color: #c9c9c9;
+	border: none;
+	border-radius: 50px;
+	padding: 12px 15px;
+	margin: 8px 0;
+	width: 300px;
+	color:rgb(0, 0, 0);
+	font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+header .search-bar input:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+}
+
+#search-button{
+    background-color: inherit;
+    border: none;
+    cursor: pointer;
+    margin-left: -40px;
+}
+
+#search-button img{
+    background: none;
+    width: 20px;
+}
+
+/* header .search-bar input::placeholder {
+} */
+
+/* Sidebar details */
+aside {
+    width: 250px;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-right: 1px solid #ccc;
+    height: calc(100vh - var(--header-height));
+    box-sizing: border-box;
+    color: black;
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+}
+
+aside ul {
+    list-style-type: none;
+}
+
+aside ul li a:nth-child(1) {
+    margin: 8px 0;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    border: 1px solid rgb(148, 148, 148);
+    border-radius: 5px;
+    background-color: #e0e0e0;
+}
+
+aside ul li a:hover {
+    text-decoration: underline;
+    background-color: #333;
+}
+
+aside ul li img {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+}
+
+/* Main features */
+main {
+    position: absolute;
+    left: 250px;
+    top: var(--header-height);
+    flex: 1;
+    padding: 20px 80px 20px 80px;
+    background-color: #fff;
+    box-sizing: border-box;
+    min-height: calc(100vh - var(--header-height));
+    width: 100%;
+}
+
+.featured {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 50px;
+}
+
+.featured article{
+    color: black;
+}
+
+.featured article subtitle{
+    color: gray;
+}
+
+/* Song items */
+.featured-container {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.featured-container span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.featured-container img {
+    width: 150px;
+    height: 150px;
+    border-radius: 5px;
+    margin: 20px;
+    object-fit: cover;
+    display: block;
+}
