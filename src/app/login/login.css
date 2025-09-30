@@ -181,10 +181,42 @@ input {
 	width: 450px;
 	height: 2.8rem;
 }
+.email-input input:focus, .password-input input:focus, .confirm-password-input input:focus {
+	outline: none;
+	box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+	border: 1px solid rgba(81, 203, 238, 1);
+}
 
 .container.right-panel-active .sign-in-container {
 	transform: translateX(100%);
 	opacity: 0;
+}
+
+.toggle-password {
+	all: unset;
+	background: transparent;
+	border: none;
+	position: absolute;
+	margin-right: -300px;
+	outline: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+
+.toggle-password img {
+	width: 24px;
+	height: 24px;
+}
+
+.toggle-password:focus {
+	outline: none;
+}
+
+.toggle-password:hover {
+	cursor: pointer;
+	background: none;
 }
 
 .sign-up-container {
