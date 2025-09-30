@@ -75,6 +75,7 @@ export default function Home() {
                   <img src="/mail.png" alt="Email Icon" className="email-icon" />
                 </div>
                 <input type="email" placeholder="Email" className="email" />
+                <span className="nothing"> </span>
               </div>
               {/* Password input */}
               <div className="password-input">
@@ -120,6 +121,7 @@ export default function Home() {
                   <img src="/mail.png" alt="Email Icon" className="email-icon" />
                 </div>
                 <input type="email" placeholder="Email" className="email" />
+                <span className="nothing"> </span>
               </div>
               {/* Password input */}
               <div className="password-input">

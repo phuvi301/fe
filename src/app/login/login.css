@@ -146,6 +146,7 @@ input {
 	align-items: center;
 	flex-direction: row;
 	justify-content: center;
+	position: relative;
 
 }
 .email-border, .password-border, .confirm-password-border {
@@ -178,8 +179,9 @@ input {
 }
 
 .email-input input, .password-input input, .confirm-password-input input {
-	width: 450px;
+	width: 500px;
 	height: 2.8rem;
+	padding-right: 40px;
 }
 .email-input input:focus, .password-input input:focus, .confirm-password-input input:focus {
 	outline: none;
@@ -196,18 +198,20 @@ input {
 	all: unset;
 	background: transparent;
 	border: none;
-	position: absolute;
-	margin-right: -300px;
+	position: relative;
+	margin-left: -40px;
 	outline: none;
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+	z-index: 1;
 }
 
 
 .toggle-password img {
 	width: 24px;
 	height: 24px;
+	object-fit: contain;
 }
 
 .toggle-password:focus {
@@ -218,7 +222,19 @@ input {
 	cursor: pointer;
 	background: none;
 }
+.nothing {
+	all: unset;
+	background: transparent;
+	border: none;
+	position: relative;
+	margin-left: -16px;
+	outline: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1;
 
+}
 .sign-up-container {
 	left: 0;
 	width: 50%;
