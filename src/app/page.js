@@ -1,16 +1,41 @@
+'use client'
+
 import "./homepage.css"
+import { useState, useRef } from "react";
+
 
 export default function Home() {
+
+  const [searchInput, setSearchInput] = useState("");
+  const searchInputRef = useRef(null);
+  const clearInput = () => {
+    setSearchInput("");
+    searchInputRef.current.focus();
+  };
+
   return (
     <div className="background">
       {/* Header */}
       <header>
         {/* Logo */}
-        <img id="logo" src="/logo.png" alt="Music App Logo" />
+        <a href="/"><img id="logo" src="/logo.png"/></a>
         {/* Search bar */}
         <div className="search-bar">
-          <input type="text" id="search-input" placeholder="Search" />
-          <button id="search-button"><img src="/search-button.png" /></button>
+          <button className="search-button" title="Search">
+            <img src="/search-button.png" alt="Search" title="Search"/>
+          </button>
+          <input type="text" placeholder="What do you wanna listen today?" id="search-input" spellCheck="false" autoCorrect="off" autoCapitalize="off" 
+            ref={searchInputRef}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}/>
+          {searchInput && (
+            <button className="clear-btn" onClick={clearInput} title="Clear">
+              <img src="/cancel-icon.png" alt="Cancel" />
+            </button>
+          )}
+          <button className="micro-button" title="Music recognition">
+            <img src="/microphone.png" alt="Recognition" />
+          </button>
         </div>
         {/* Profile */}
         <button id="profile-button"><img src="/profile.png" /></button>
@@ -18,7 +43,6 @@ export default function Home() {
       {/* Sidebar */}
       <aside>
         <ul className="sidebar">
-          <li><a href="/home"><img src="/home.png"></img>Home</a></li>
           <li><a href="/likes"><img src="/unlike.png"></img>Likes</a></li>
           <li><a href="/songs"><img src="/songs.png"></img>Songs</a></li>
           <li><a href="/playlists"><img src="/playlists.png"></img>Playlists</a></li>
@@ -72,6 +96,10 @@ export default function Home() {
               {/* Song 4 */}
               <a href="#">
                 <span><img src="song/8.png" alt="Album 8" />Song Title 8</span>
+              </a>
+              {/* Song 5 */}
+              <a href="#">
+                <span><img src="song/vicuaanh.png" alt="Album 9" />Vị của anh</span>
               </a>
             </div>
           </article>
