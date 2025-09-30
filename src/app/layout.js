@@ -25,8 +25,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="vi">
+      <head>
+        <title>MusicHub - HCMUT</title>
+        <link rel="icon" href="/logo.png" />
+      </head>
       <body className={`${montserrat.variable} ${geistSans.variable} ${geistMono.variable}`}>
         {children}
+        <footer>
+          <p style={{ marginTop: '15px', height: "0.01rem" }}>© 2025 All Rights Reserved. Design by <span style={{ color: '#ff7f50', fontWeight: '600', fontSize: '14px' }}>MusicHub Team - HCMUT</span></p>
+        </footer>
       </body>
     </html>
   );

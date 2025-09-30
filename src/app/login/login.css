@@ -306,16 +306,3 @@ input {
   width: var(--google-icon-size);
   height: var(--google-icon-size);
 }
-
-footer {
-    background-color: #222;
-    color: #fff;
-    font-size: 14px;
-    bottom: 0;
-    position: fixed;
-    left: 0;
-    right: 0;
-    text-align: center;
-    z-index: 999;
-}
-
