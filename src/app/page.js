@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from "react";
-import "./homepage.css"
+import style from "./homepage.module.css"
 
 export default function Home() {
 
@@ -13,39 +13,39 @@ export default function Home() {
   };
 
   return (
-    <div className="background">
+    <div className={style.background}>
       {/* Header */}
       <header>
         {/* Logo */}
-        <a href="/"><img id="logo" src="/logo.png"/></a>
+        <a href="/"><img id={style.logo} src="/logo.png"/></a>
         {/* Search bar */}
-        <div className="search-container">
-          <div className="search-bar">
-            <span className="search-btn" title="Search">
+        <div className={style["search-container"]}>
+          <div className={style["search-bar"]}>
+            <span className={style["search-btn"]} title="Search">
               <img src="/search-button.png" alt="Search" />
             </span>
-            <input type="text" placeholder="What do you wanna listen today?" id="search-input" spellCheck="false" autoCorrect="off" autoCapitalize="off" 
+            <input type="text" placeholder="What do you wanna listen today?" id={style["search-input"]} spellCheck="false" autoCorrect="off" autoCapitalize="off" 
               ref={searchInputRef}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
             {searchInput && (
-              <span className="clear-btn" onClick={clearInput} title="Clear">
+              <span className={style["clear-btn"]} onClick={clearInput} title="Clear">
                 <img src="/cancel-icon.png" alt="Cancel" />
               </span>
             )}
-            <span className="micro-button" title="Music recognition">
+            <span className={style["micro-button"]} title="Music recognition">
               <img src="/microphone.png" alt="Recognition" />
             </span>
           </div>
         </div>
         {/* Profile */}
-        <button id="profile-button" title="Profile"><img src="/hcmut.png" /></button>
+        <button id={style["profile-button"]} title="Profile"><img src="/hcmut.png" /></button>
       </header>
       {/* Sidebar */}
       <aside>
-        <ul className="sidebar">
-          <li><a href="/likes"><img src="/unlike.png"></img>Likes</a></li>
+        <ul className={style.sidebar}>
+          <li><a href="/like"><img src="/unlike.png"></img>Likes</a></li>
           <li><a href="/songs"><img src="/songs.png"></img>Songs</a></li>
           <li><a href="/playlists"><img src="/playlists.png"></img>Playlists</a></li>
           <li><a href="/about"><img src="/about.png"></img>About</a></li>
@@ -54,12 +54,12 @@ export default function Home() {
       {/* Main content */}
       <main>
         {/* Featured section */}
-        <section className="featured">
+        <section className={style.featured}>
           {/* Featured container 1 */}
-          <article className="featured-section">
+          <article className={style["featured-section"]}>
             <h1>More of what you like</h1>
             <p>Recommended for you</p>
-            <div className="featured-container">
+            <div className={style["featured-container"]}>
               {/* Song 1 */}
               <a href="#">
                 <span><img src="song/1.png" alt="Album 1" />Song Title 1</span>
@@ -83,10 +83,10 @@ export default function Home() {
             </div>
           </article>
           {/* Featured container 2 */}
-          <article className="featured-section">
+          <article className={style["featured-section"]}>
             <h1>Trending by genre</h1>
             <p>Discover what's popular</p>
-            <div className="featured-container">
+            <div className={style["featured-container"]}>
               {/* Song 1 */}
               <a href="#">
                 <span><img src="song/5.png" alt="Album 6" />Song Title 6</span>

@@ -3,7 +3,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import style from './login.module.css';
-import { useState } from 'react';
 import clsx from 'clsx';
 
 export default function Home() {
@@ -142,12 +141,12 @@ export default function Home() {
             <div className={clsx(style["overlay-panel"], style["overlay-left"])}>
               <h1>Welcome Back!</h1>
               <p>To keep connected with us please login with your personal info</p>
-              <button className={style.ghost} id="signIn" ref={signInButtonRef}>Sign In</button>
+              <button className={style.ghost} id={style.signIn} ref={signInButtonRef}>Sign In</button>
             </div>
             <div className={clsx(style["overlay-panel"], style["overlay-right"])}>
               <h1>Hello, Friend!</h1>
               <p>Enter your personal details and start journey with us</p>
-              <button className={style.ghost} id="signUp" ref={signUpButtonRef}>Sign Up</button>
+              <button className={style.ghost} id={style.signUp} ref={signUpButtonRef}>Sign Up</button>
             </div>
           </div>
         </div>
