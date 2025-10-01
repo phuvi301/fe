@@ -3,7 +3,6 @@
 import { useState, useRef } from "react";
 import "./homepage.css"
 
-
 export default function Home() {
 
   const [searchInput, setSearchInput] = useState("");
@@ -20,22 +19,25 @@ export default function Home() {
         {/* Logo */}
         <a href="/"><img id="logo" src="/logo.png"/></a>
         {/* Search bar */}
-        <div className="search-bar">
-          <button className="search-button" title="Search">
-            <img src="/search-button.png" alt="Search" title="Search"/>
-          </button>
-          <input type="text" placeholder="What do you wanna listen today?" id="search-input" spellCheck="false" autoCorrect="off" autoCapitalize="off" 
-            ref={searchInputRef}
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}/>
-          {searchInput && (
-            <button className="clear-btn" onClick={clearInput} title="Clear">
-              <img src="/cancel-icon.png" alt="Cancel" />
-            </button>
-          )}
-          <button className="micro-button" title="Music recognition">
-            <img src="/microphone.png" alt="Recognition" />
-          </button>
+        <div className="search-container">
+          <div className="search-bar">
+            <span className="search-btn" title="Search">
+              <img src="/search-button.png" alt="Search" />
+            </span>
+            <input type="text" placeholder="What do you wanna listen today?" id="search-input" spellCheck="false" autoCorrect="off" autoCapitalize="off" 
+              ref={searchInputRef}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+            {searchInput && (
+              <span className="clear-btn" onClick={clearInput} title="Clear">
+                <img src="/cancel-icon.png" alt="Cancel" />
+              </span>
+            )}
+            <span className="micro-button" title="Music recognition">
+              <img src="/microphone.png" alt="Recognition" />
+            </span>
+          </div>
         </div>
         {/* Profile */}
         <button id="profile-button" title="Profile"><img src="/hcmut.png" /></button>

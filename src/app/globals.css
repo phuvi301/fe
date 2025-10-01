@@ -36,17 +36,17 @@ a {
 }
 
 footer {
-  color: #fff;
-  font-size: 14px;
+  display: flex;
+  text-align: center;
+  align-items: flex-start;
+  justify-content: center;
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  text-align: center;
-  z-index: 999;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  z-index: 1000;
+  font-size: 14px;
+  color: #fff;
 }
 
 @media (prefers-color-scheme: dark) {
