@@ -74,8 +74,8 @@ export default function Home() {
                 <div className={style["email-border"]}>
                   <img src="/mail.png" alt="Email Icon" className={style["email-icon"]} />
                 </div>
-                <input type="email" placeholder="Email" className="email" />
-                <span className="nothing"> </span>
+                <input type="email" placeholder="Email" className={style.email} />
+                <span className={style.nothing}> </span>
               </div>
               {/* Password input */}
               <div className={style["password-input"]}>
@@ -120,8 +120,8 @@ export default function Home() {
                 <div className={style["email-border"]}>
                   <img src="/mail.png" alt="Email Icon" className={style["email-icon"]} />
                 </div>
-                <input type="email" placeholder="Email" className="email" />
-                <span className="nothing"> </span>
+                <input type="email" placeholder="Email" className={style.email} />
+                <span className={style.nothing}> </span>
               </div>
               {/* Password input */}
               <div className={style["password-input"]}>
@@ -153,6 +153,9 @@ export default function Home() {
           </div>
         </div>
       </div>
+        <footer>
+          <p>© 2025 All Rights Reserved. Design by <span style={{ color: '#ff7f50', fontWeight: '600', fontSize: '14px' }}>MusicHub Team - HCMUT</span></p>
+        </footer>
     </div>
   );
 }

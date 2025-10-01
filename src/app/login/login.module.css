@@ -194,7 +194,7 @@
 	opacity: 0;
 }
 
-.toggle-password {
+.background .toggle-password {
 	all: unset;
 	background: transparent;
 	border: none;
@@ -208,17 +208,17 @@
 }
 
 
-.toggle-password img {
+.background .toggle-password img {
 	width: 24px;
 	height: 24px;
 	object-fit: contain;
 }
 
-.toggle-password:focus {
+.background .toggle-password:focus {
 	outline: none;
 }
 
-.toggle-password:hover {
+.background .toggle-password:hover {
 	cursor: pointer;
 	background: none;
 }
@@ -353,4 +353,23 @@
   --google-icon-size: 30px;
   width: var(--google-icon-size);
   height: var(--google-icon-size);
+}
+
+/* Footer */
+.background footer {
+  display: flex;
+  text-align: center;
+  align-items: flex-start;
+  justify-content: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  font-size: 14px;
+  color: #fff;
+}
+
+.background footer p {
+  height: 0px;
 }
