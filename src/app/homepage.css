@@ -27,87 +27,75 @@ header #logo {
 }
 
 /* Search bar styles */
+.search-container {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--theme-color);
+    width: 40%;
+    max-width: 520px;
+    height: 40px;
+}
+
 .search-bar {
     display: flex;
     align-items: center;
-    width: 450px;
+    background-color: #1a1a1a; 
+    border: 1px solid #5e5c5c;   
+    border-radius: 20px;       
+    padding: 0.5rem 1rem;
+    width: 450px;              
+    color: rgb(255, 255, 255);
+    height: 80%;
 }
 
-.search-bar input{
+.search-bar:hover {
+    border: 1px solid #ffffff;  
+    box-shadow: 0px 0 10px rgba(251, 251, 251, 0.8); 
+}
+
+.search-bar:focus-within {
+    border: 1px solid #ffffff;   
+    box-shadow: 0px 0 10px rgba(251, 251, 251, 0.8);
+}
+
+/* .search-bar input{
     background-color: #000000;
-	border: 2px solid #ccc;
-	border-radius: 50px;
-	padding: 12px 75px 12px 45px;
-	margin: 8px 0;
-	width: 400px;
-	color:rgb(255, 255, 255);
-	font-family: inherit;
+    border: 2px solid #ccc;
+    border-radius: 50px;
+    padding: 12px 0px 12px 0px;
+    margin: 8px 0;
+    width: 400px;
+    color:rgb(255, 255, 255);
+    font-family: inherit;
     transition: all 0.3s ease;
-}
+} */
 
-.search-bar input::placeholder {
-    color: #ffffff;
-}
-
-.search-bar input:focus {
-    outline: none;
-    box-shadow: 0 0 10px rgba(251, 251, 251, 0.8);
-}
-
-/* Search button */
-.search-button{
-    background-color: inherit;
-    border: none;
-    cursor: pointer;
-    margin-right: -35px;
-    display: flex;
-}
-
-.search-button img{
-    width: 16px;
-    height: 16px;
-    opacity: 0.7;
-}
-
-.search-button:hover img{
-    opacity: 1;
-    filter: brightness(1.2);
-}
-
-/* Clear button */
-.clear-btn {
-    background: none;
-    border: none;
-    color: #aaa;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: color 0.2s;
-    display: flex;
-    position: absolute;
-    right: 40vw;
-}
-
-.clear-btn img {
+.search-bar .search {
     width: 18px;
     height: 18px;
     opacity: 0.7;
 }
 
-.clear-btn:hover img {
-    opacity: 1;
-    filter: brightness(1.2);
+.search-bar input {
+    flex: 1;      
+    background-color: #ffffff;             
+    background: transparent;   
+    border: none;             
+    outline: none;             
+    font-size: 1rem;
+    margin: 0 0.5rem;
 }
 
-/* Microphone button */
+/* Clear button */
 .micro-button {
-    display: flex;
     background: none;
     border: none;
     cursor: pointer;
     padding: 0.5rem;
     transition: filter 0.3s, opacity 0.3s;
-    position: absolute;
-    right: 38vw;
+    display: flex;
 }
 
 .micro-button img {
@@ -117,6 +105,27 @@ header #logo {
 }
 
 .micro-button:hover img {
+    opacity: 1;           
+    filter: brightness(1.2);
+}
+
+.clear-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    display: flex;
+}
+
+.clear-btn img {
+    width: 18px;
+    height: 18px;
+    opacity: 0.7;
+}
+
+.clear-btn:hover img {
     opacity: 1;
     filter: brightness(1.2);
 }

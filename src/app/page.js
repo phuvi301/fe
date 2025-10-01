@@ -20,22 +20,23 @@ export default function Home() {
         {/* Logo */}
         <a href="/"><img id="logo" src="/logo.png"/></a>
         {/* Search bar */}
-        <div className="search-bar">
-          <button className="search-button" title="Search">
-            <img src="/search-button.png" alt="Search" title="Search"/>
-          </button>
-          <input type="text" placeholder="What do you wanna listen today?" id="search-input" spellCheck="false" autoCorrect="off" autoCapitalize="off" 
-            ref={searchInputRef}
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}/>
-          {searchInput && (
-            <button className="clear-btn" onClick={clearInput} title="Clear">
-              <img src="/cancel-icon.png" alt="Cancel" />
+        <div className="search-container">
+          <div className="search-bar">
+            <img src="/search-button.png" alt="Search" className="search" title="Search"/>
+            <input type="text" placeholder="What do you wanna listen today?" id="search-input" spellCheck="false" autoCorrect="off" autoCapitalize="off" 
+              ref={searchInputRef}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+            {searchInput && (
+              <span className="clear-btn" onClick={clearInput} title="Clear">
+                <img src="/cancel-icon.png" alt="Cancel" />
+              </span>
+            )}
+            <button className="micro-button" title="Music recognition">
+              <img src="/microphone.png" alt="Recognition" />
             </button>
-          )}
-          <button className="micro-button" title="Music recognition">
-            <img src="/microphone.png" alt="Recognition" />
-          </button>
+          </div>
         </div>
         {/* Profile */}
         <button id="profile-button"><img src="/profile.png" /></button>
