@@ -1,6 +1,6 @@
 import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 import "./globals.css";
-import { icon } from "@fortawesome/fontawesome-svg-core";
+// import { icon } from "@fortawesome/fontawesome-svg-core";
 
 const montserrat = Montserrat({
   variable: '--font-montserrat',
@@ -31,9 +31,6 @@ export default function RootLayout({ children }) {
       </head>
       <body className={`${montserrat.variable} ${geistSans.variable} ${geistMono.variable}`}>
         {children}
-        <footer>
-          <p style={{ marginTop: '15px', height: "0.01rem" }}>© 2025 All Rights Reserved. Design by <span style={{ color: '#ff7f50', fontWeight: '600', fontSize: '14px' }}>MusicHub Team - HCMUT</span></p>
-        </footer>
       </body>
     </html>
   );
