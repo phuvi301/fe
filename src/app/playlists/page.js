@@ -5,6 +5,10 @@ import Link from "next/link";
 import clsx from "clsx";
 import layout from "../homepage.module.css";
 import styles from "./playlists.module.css";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+
+// --- Constants ---
 
 const DEFAULT_PLAYLIST_COVER = "/playlist-default.png";
 
@@ -225,54 +229,10 @@ export default function PlaylistsPage() {
   // --- Render ---
   return (
     <div className={layout.background}>
-      <header>
-        <Link href="/">
-          <img id={layout.logo} src="/logo&text.png"/>
-        </Link>
-        <div className={layout["search-container"]}>
-          <div className={layout["search-bar"]}>
-            <span className={layout["search-btn"]} title="Search">
-              <img src="/search-button.png" alt="Search" />
-            </span>
-            <input type="text" placeholder="What do you wanna listen today?" />
-            <span className={layout["micro-button"]} title="Music recognition">
-              <img src="/microphone.png" alt="Recognition" />
-            </span>
-          </div>
-        </div>
-        <button id={layout["profile-button"]} title="Profile">
-          <img src="/hcmut.png" alt="Avatar" />
-        </button>
-      </header>
-
-      <aside>
-        <ul className={layout.sidebar}>
-          <li>
-            <Link href="/like">
-              <img src="/unlike.png" alt="Likes" />
-              Likes
-            </Link>
-          </li>
-          <li>
-            <Link href="/songs">
-              <img src="/songs.png" alt="Songs" />
-              Songs
-            </Link>
-          </li>
-          <li>
-            <Link href="/playlists">
-              <img src="/playlists.png" alt="Playlists" />
-              Playlists
-            </Link>
-          </li>
-          <li>
-            <Link href="/about">
-              <img src="/about.png" alt="About" />
-              About
-            </Link>
-          </li>
-        </ul>
-      </aside>
+      {/* Header */}
+      <Header />
+      {/* Sidebar */}
+      <Sidebar />
 
       <main className={clsx(styles.main)}>
         {loading ? (

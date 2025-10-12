@@ -5,6 +5,8 @@ import Link from "next/link";
 import axios from "axios";
 import Hls from "hls.js";
 
+import Header from "./components/Header";
+import Sidebar from "./components/Sidebar";
 export default function Home() {
 
 	const [trackPlaying, setTrackPlaying] = useState("");
@@ -59,129 +61,9 @@ export default function Home() {
   return (
     <div className={style.background}>
       {/* Header */}
-      <header>
-        {/* Logo */}
-        <Link href="/">
-          <img id={style.logo} src="/logo&text.png"/>
-        </Link>
-        {/* Search bar */}
-        <div className={style["search-container"]}>
-          <div className={style["search-bar"]}>
-            <span className={style["search-btn"]} title="Search">
-              <img src="/search-button.png" alt="Search" />
-            </span>
-            <input type="text" placeholder="What do you wanna listen today?" id={style["search-input"]} spellCheck="false" autoCorrect="off" autoCapitalize="off" 
-              ref={searchInputRef}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-            />
-            {searchInput && (
-              <span className={style["clear-btn"]} onClick={clearInput} title="Clear">
-                <img src="/cancel-icon.png" alt="Cancel" />
-              </span>
-            )}
-            <span className={style["micro-button"]} title="Music recognition">
-              <img src="/microphone.png" alt="Recognition" />
-            </span>
-          </div>
-        </div>
-        {/* Notification and Profile */}
-        <div className={style["header-actions"]}>
-          {/* Notification button */}
-          <div className={style["notification-container"]}>
-            <button 
-              className={style["notification-button"]} 
-              onClick={toggleNotifications}
-              title="Notifications"
-            >
-              <img src="/notification.png" alt="Notifications" />
-              {notifications.length > 0 && (
-                <span className={style["notification-badge"]}>{notifications.length}</span>
-              )}
-            </button>
-            
-            {/* Notification dropdown */}
-            {showNotifications && (
-              <div className={style["notification-dropdown"]}>
-                <div className={style["notification-header"]}>
-                  <h3>Notifications</h3>
-                </div>
-                <div className={style["notification-list"]}>
-                  {notifications.length > 0 ? (
-                    notifications.map((notification) => (
-                      <div key={notification.id} className={style["notification-item"]}>
-                        <p className={style["notification-message"]}>{notification.message}</p>
-                        <span className={style["notification-time"]}>{notification.time}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <div className={style["no-notifications"]}>
-                      <p>No new notifications</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* Profile */}
-          <div className={style["profile-container"]}>
-            <button id={style["profile-button"]} title="Profile" onClick={toggleProfileMenu}>
-              <img src="/hcmut.png" />
-            </button>
-            {showProfileMenu && (
-              <div className={style["profile-dropdown"]}>
-                <div className={style["profile-header"]}>
-                  <div className={style["profile-info"]}>
-                    <img src="/hcmut.png" alt="Profile" className={style["profile-avatar"]} />
-                    <div className={style["profile-details"]}>
-                      <h4>User Name</h4>
-                      <p>user@example.com</p>
-                    </div>
-                  </div>
-                </div>
-                <div className={style["profile-menu"]}>
-                  <Link href="/account" className={style["profile-menu-item"]} >
-                    <img src="/account.png" alt="Account" />
-                    <span>Account</span>
-                  </Link>
-                  <Link href="/settings" className={style["profile-menu-item"]} >
-                    <img src="/setting.png" alt="Settings" />
-                    <span>Settings</span>
-                  </Link>
-                  <Link href="/login" className={style["profile-menu-item"]} >
-                    <img src="/logout.png" alt="Logout" />
-                    <span>Log out</span>
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-      
-      {/* Overlay để đóng notification khi click bên ngoài */}
-      {showNotifications && (
-        <div 
-          className={style["notification-overlay"]} 
-          onClick={() => setShowNotifications(false)}
-        />
-      )}
-      {showProfileMenu && (
-        <div 
-          className={style["profile-overlay"]} 
-          onClick={() => setShowProfileMenu(false)}
-        />
-      )}
+      <Header />
       {/* Sidebar */}
-      <aside>
-        <ul className={style.sidebar}>
-          <li><a href="/like"><img src="/unlike.png"></img>Likes</a></li>
-          <li><a href="/upload"><img src="/upload.png"></img>Upload</a></li>
-          <li><a href="/playlists"><img src="/playlists.png"></img>Playlists</a></li>
-          <li><a href="/about"><img src="/about.png"></img>About</a></li>
-        </ul>
-      </aside>
+      <Sidebar />
       {/* Main content */}
       <main>
         {/* Featured section */}

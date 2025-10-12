@@ -5,38 +5,62 @@ import clsx from "clsx";
 import User from "./User";
 import Security from "./Security";
 import Artist from "./Artist";
+import Header from "../components/Header";
+import style from "../homepage.module.css";
+import Sidebar from "../components/Sidebar";
 
 const sidebarList = [
     {
-        tab: "Tài khoản",
+        icon: './account.png',
+        tab: "Account",
     },
     {
-        tab: "Thông tin cá nhân",
+        icon: './info.png',
+        tab: "Personal Information",
     },
     {
-        tab: "Phương thức bảo mật",
+        icon: './security.png',
+        tab: "Security Methods",
     },
 ];
 
 const AccountManager = () => {
     const [tabChoosing, setTabChoosing] = useState(0);
 
-    const handleTabChoosing = (index) => setTabChoosing(index)
+    const handleTabChoosing = (index) => setTabChoosing(index);
 
     return (
-        <div className={clsx(styles["overview"])}>
-            <header className={clsx(styles["header"])}></header>
-            <div className={clsx(styles["main"])}>
-                <div className={clsx(styles["sidebar-list"])}>
-                    {sidebarList.map((item, index) => <button key={index} val={index} className={clsx(styles["sidebar-item"], {
-                        [styles["active"]]: index === tabChoosing
-                    })} onClick={() => handleTabChoosing(index)}>{item.tab}</button>)}
-                </div>
-                <div className={clsx(styles["main-wrapper"])}>
-                    {tabChoosing === 0 ? <Artist /> : tabChoosing === 1 ? <User /> : <Security />}
+        <div className={style.background}>
+            <Header />
+            <Sidebar />
+            <div className={clsx(styles["overview"])}>
+                <div className={clsx(styles["main"])}>
+                    {/* Main wrapper nằm bên trái */}
+                    <div className={clsx(styles["main-wrapper"])}>
+                        {tabChoosing === 0 ? <Artist /> : tabChoosing === 1 ? <User /> : <Security />}
+                    </div>
+                    {/* Sidebar nằm bên phải */}
+                    <div className={clsx(styles["sidebar-list"])}>
+                        {sidebarList.map((item, index) => (
+                            <button 
+                                key={index} 
+                                className={clsx(styles["sidebar-item"], {
+                                    [styles["active"]]: index === tabChoosing
+                                })} 
+                                onClick={() => handleTabChoosing(index)}
+                            >
+                                <img 
+                                    src={item.icon} 
+                                    alt={item.tab} 
+                                    className={clsx(styles["sidebar-icon"])} 
+                                />
+                                <span>{item.tab}</span>
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
-        </div>
+        </div> 
     );
 };
 
