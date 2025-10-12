@@ -1,16 +1,79 @@
 'use client'
-
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import style from "./homepage.module.css"
+import Link from "next/link";
+import axios from "axios";
+import Hls from "hls.js";
 
 export default function Home() {
+	const [trackPlaying, setTrackPlaying] = useState("");
+	const [searchInput, setSearchInput] = useState("");
+	const [showNotifications, setShowNotifications] = useState(false);
+	const [showProfileMenu, setShowProfileMenu] = useState(false);
+	const searchInputRef = useRef(null);
+	const clearInput = () => {
+		setSearchInput("");
+		searchInputRef.current.focus();
+	};
 
-  const [searchInput, setSearchInput] = useState("");
-  const searchInputRef = useRef(null);
-  const clearInput = () => {
-    setSearchInput("");
-    searchInputRef.current.focus();
-  };
+	const toggleNotifications = () => {
+		setShowNotifications(!showNotifications);
+	};
+
+	const toggleProfileMenu = () => {
+		setShowProfileMenu(!showProfileMenu);
+	};
+
+	const playTrack = async (track) => {
+		console.log(track);
+		axios
+			.post("http://localhost:8080/api/tracks/getTrack/", { title: track })
+			.then((response) => {
+				console.log("Response data:", response.data);
+				const url = response.data.data.audioUrl;
+				if (!url) throw "Audio URL not found";
+				setTrackPlaying(url);
+        console.log("vl:", trackPlaying);
+				console.log("Playing track:", track);
+				console.log("Audio URL:", url);
+			})
+			.catch((error) => {
+				console.error("Error playing track:", error);
+			});
+	};
+
+  // Mock data cho notifications
+  const notifications = [
+    { id: 1, message: "New song added to your playlist", time: "2 minutes ago" },
+    { id: 2, message: "Your friend liked your song", time: "1 hour ago" },
+    { id: 3, message: "New album from your favorite artist", time: "3 hours ago" },
+    { id: 4, message: "Vinh cu qua luoi", time: "1 day ago" },
+  ];
+
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(trackPlaying);
+      hls.attachMedia(audio);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        audio.play();
+      });
+
+      return () => {
+        hls.destroy();
+      };
+    } else if (audio.canPlayType('application/vnd.apple.mpegurl')) {
+      // Safari hỗ trợ HLS native
+      audio.src = src;
+      audio.addEventListener('loadedmetadata', () => {
+        audio.play();
+      });
+    }
+  }, [trackPlaying]);
 
   return (
     <div className={style.background}>
@@ -61,7 +124,7 @@ export default function Home() {
             <p>Recommended for you</p>
             <div className={style["featured-container"]}>
               {/* Song 1 */}
-              <a href="#">
+              <a onClick={() => playTrack("keshi - beside you")}>
                 <span><img src="song/1.png" alt="Album 1" />Song Title 1</span>
               </a>
               {/* Song 2 */}
@@ -110,6 +173,12 @@ export default function Home() {
             </div>
           </article>
         </section>
+        {/* Audio player */}
+        {trackPlaying && (
+          <div className={style["audio-player"]}>
+            <audio ref={audioRef} controls style={{ width: '100%' }} />
+          </div>
+        )}
       </main>
     </div>
   );
