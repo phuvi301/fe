@@ -4,6 +4,7 @@
     --aside-width: 350px;
     --theme-color-black: #000000;
     --theme-color-blue: #0d046f;
+    
 }
 
 /* Header styles */
@@ -218,7 +219,7 @@
     /* padding: 20px 80px 20px 80px; */
     padding: 20px 20px 20px calc(var(--aside-width) + 40px);
     box-sizing: border-box;
-    background: linear-gradient(to top, var(--theme-color-blue) 0%, var(--theme-color-black) 68%);
+    background-image: linear-gradient(#000000 50%, #0d046f );
     min-height: calc(100vh - var(--header-height));
     width: 100%;
 }
@@ -317,7 +318,7 @@
     position: absolute;
     top: 100%;
     right: 0;
-    margin-top: 8px;
+    margin-top: 20px;
     width: 350px;
     max-height: 400px;
     background-color: #1a1a1a;
@@ -400,7 +401,7 @@
     position: absolute;
     top: 100%;
     right: 0;
-    margin-top: 8px;
+    margin-top: 20px;
     width: 280px;
     background-color: #1a1a1a;
     border: 1px solid #333;

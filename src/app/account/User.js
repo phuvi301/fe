@@ -19,7 +19,7 @@ function User() {
 
     return (
         <>
-            <h2 className={clsx(styles["user-title"])}>Thông tin cá nhân</h2>
+            <h2 className={clsx(styles["user-title"])}>Information</h2>
             <div className={clsx(styles["user-wrapper"])}>
                 <form className={clsx(styles["user-form-wrapper"])}>
                     <div className={clsx(styles["user-form-group"])}>

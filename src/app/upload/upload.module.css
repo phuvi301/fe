@@ -1,0 +1,107 @@
+.uploadContainer {
+    flex: 1;
+    padding: 20px;
+    color: white;
+}
+.uploadBox {
+    border: 2px dashed #888;
+    border-radius: 10px;
+    padding: 40px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    margin-bottom: 30px;
+}
+.uploadBox .uploadIcon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-items: center;
+    align-items: center;
+    position: relative;
+    
+}
+.uploadBox:hover {
+    border-color: #fff;
+}
+
+.uploadButton {
+    display: absolute;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.uploadButton:hover {
+    background-color: #ffffff;
+    color: #007bff;
+}
+
+.fileInput {
+    display: none !important;
+}
+
+.metadataBox {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+}
+.resetButtonContainer{ 
+    display: flex;
+    justify-items: flex-end;
+    align-items: flex-end;
+}
+
+.resetButton{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    padding: 10px 20px;
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    /* margin-top: 20px; */
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.metadataForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.metadataForm label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.metadataForm input {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.metadataForm input::placeholder {
+    color: #ccc;
+}
