@@ -227,7 +227,7 @@ export default function PlaylistsPage() {
     <div className={layout.background}>
       <header>
         <Link href="/">
-          <img id={layout.logo} src="/logo.png" alt="MusicHUB" />
+          <img id={layout.logo} src="/logo&text.png"/>
         </Link>
         <div className={layout["search-container"]}>
           <div className={layout["search-bar"]}>

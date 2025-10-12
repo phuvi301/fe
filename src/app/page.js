@@ -1,28 +1,45 @@
 'use client'
 import { useState, useRef } from "react";
 import style from "./homepage.module.css"
-import { redirect } from "next/dist/server/api-utils";
 import Link from "next/link";
+import axios from "axios";
+
 export default function Home() {
 
+	const [trackPlaying, setTrackPlaying] = useState("");
+	const [searchInput, setSearchInput] = useState("");
+	const [showNotifications, setShowNotifications] = useState(false);
+	const [showProfileMenu, setShowProfileMenu] = useState(false);
+	const searchInputRef = useRef(null);
+	const clearInput = () => {
+		setSearchInput("");
+		searchInputRef.current.focus();
+	};
 
-  const [searchInput, setSearchInput] = useState("");
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const searchInputRef = useRef(null);
-  const clearInput = () => {
-    setSearchInput("");
-    searchInputRef.current.focus();
-  };
+	const toggleNotifications = () => {
+		setShowNotifications(!showNotifications);
+	};
 
-  const toggleNotifications = () => {
-    setShowNotifications(!showNotifications);
-  };
-  
-  const toggleProfileMenu = () => {
-    setShowProfileMenu(!showProfileMenu);
-  };
+	const toggleProfileMenu = () => {
+		setShowProfileMenu(!showProfileMenu);
+	};
 
+	const playTrack = async (track) => {
+		console.log(track);
+		axios
+			.post("http://localhost:8080/api/tracks/getTrack", { title: track })
+			.then((response) => {
+				console.log("Response data:", response.data);
+				const url = response.data.data.audioUrl;
+				if (!url) throw "Audio URL not found";
+				setTrackPlaying(url);
+				console.log("Playing track:", track);
+				console.log("Audio URL:", url);
+			})
+			.catch((error) => {
+				console.error("Error playing track:", error);
+			});
+	};
 
   // Mock data cho notifications
   const notifications = [
@@ -37,7 +54,9 @@ export default function Home() {
       {/* Header */}
       <header>
         {/* Logo */}
-        <a href="/"><img id={style.logo} src="/logo&text.png"/></a>
+        <Link href="/">
+          <img id={style.logo} src="/logo&text.png"/>
+        </Link>
         {/* Search bar */}
         <div className={style["search-container"]}>
           <div className={style["search-bar"]}>
@@ -166,7 +185,7 @@ export default function Home() {
             <p>Recommended for you</p>
             <div className={style["featured-container"]}>
               {/* Song 1 */}
-              <a href="#">
+              <a onClick={() => playTrack("keshi - LIMBO (Visualizer)")}>
                 <span><img src="song/1.png" alt="Album 1" />Song Title 1</span>
               </a>
               {/* Song 2 */}
@@ -219,6 +238,12 @@ export default function Home() {
             </div>
           </article>
         </section>
+        {/* Audio player */}
+        {trackPlaying && (
+          <div className={style["audio-player"]}>
+            <audio controls type="audio/mpeg" />
+          </div>
+        )}
       </main>
     </div>
   );

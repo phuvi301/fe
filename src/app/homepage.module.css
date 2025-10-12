@@ -247,6 +247,10 @@
     gap: 20px;
 }
 
+.featured-container a {
+    cursor: pointer;
+}
+
 .featured-container span {
     display: flex;
     flex-direction: column;
@@ -501,3 +505,19 @@
     background-color: transparent;
 }
 
+/* Audio player */
+.audio-player {
+    padding: 16px;
+    background-color: #222;
+    border-top: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 2000;
+}
+
+.audio-player audio {
+    width: 100%;
+    outline: none;
+    background-color: transparent;
+}
