@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import style from "./homepage.module.css"
 import Link from "next/link";
 import axios from "axios";
+import Hls from "hls.js";
 
 export default function Home() {
 
@@ -10,6 +11,7 @@ export default function Home() {
 	const [searchInput, setSearchInput] = useState("");
 	const [showNotifications, setShowNotifications] = useState(false);
 	const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const playerRef = useRef(null);
 	const searchInputRef = useRef(null);
 	const clearInput = () => {
 		setSearchInput("");
@@ -24,15 +26,20 @@ export default function Home() {
 		setShowProfileMenu(!showProfileMenu);
 	};
 
-	const playTrack = async (track) => {
-		console.log(track);
+    const handleTrack = (url) => {
+        setTrackPlaying(url);
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(playerRef.current);
+    }
+
+	const playTrack = async (objID) => {
 		axios
-			.post("http://localhost:8080/api/tracks/getTrack", { title: track })
+			.get(`http://localhost:8080/api/tracks/${objID}`)
 			.then((response) => {
-				console.log("Response data:", response.data);
 				const url = response.data.data.audioUrl;
 				if (!url) throw "Audio URL not found";
-				setTrackPlaying(url);
+				handleTrack(url)
 				console.log("Playing track:", track);
 				console.log("Audio URL:", url);
 			})
@@ -185,7 +192,7 @@ export default function Home() {
             <p>Recommended for you</p>
             <div className={style["featured-container"]}>
               {/* Song 1 */}
-              <a onClick={() => playTrack("keshi - LIMBO (Visualizer)")}>
+              <a onClick={() => playTrack("68eaac29ee09d1cc42f4269a")} id="song1">
                 <span><img src="song/1.png" alt="Album 1" />Song Title 1</span>
               </a>
               {/* Song 2 */}
@@ -241,7 +248,7 @@ export default function Home() {
         {/* Audio player */}
         {trackPlaying && (
           <div className={style["audio-player"]}>
-            <audio controls type="audio/mpeg" />
+            <audio controls type="audio/mpeg" ref={playerRef} />
           </div>
         )}
       </main>
