@@ -9,31 +9,17 @@ import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 export default function Home() {
 
-	const [trackPlaying, setTrackPlaying] = useState("");
-	const [searchInput, setSearchInput] = useState("");
-	const [showNotifications, setShowNotifications] = useState(false);
-	const [showProfileMenu, setShowProfileMenu] = useState(false);
+	const [trackPlaying, setTrackPlaying] = useState(false);
   const playerRef = useRef(null);
-	const searchInputRef = useRef(null);
-	const clearInput = () => {
-		setSearchInput("");
-		searchInputRef.current.focus();
-	};
 
-	const toggleNotifications = () => {
-		setShowNotifications(!showNotifications);
-	};
+  const handleTrack = async (url) => {
+    setTrackPlaying(true);
+    const hls = new Hls();
 
-	const toggleProfileMenu = () => {
-		setShowProfileMenu(!showProfileMenu);
-	};
-
-    const handleTrack = async (url) => {
-        setTrackPlaying(url);
-        const hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(playerRef.current);
-    }
+    hls.loadSource(url);
+    hls.attachMedia(playerRef.current);
+    playerRef.current.play();
+  };
 
 	const playTrack = async (songID) => {
 		axios
@@ -41,7 +27,7 @@ export default function Home() {
 			.then((response) => {
 				const url = response.data.data.audioUrl;
 				if (!url) throw "Audio URL not found";
-				handleTrack(url)
+				handleTrack(url);
 				console.log("Playing track:", response.data.data.title);
 				console.log("Audio URL:", url);
 			})
@@ -78,7 +64,7 @@ export default function Home() {
                 <span><img src="song/1.png" alt="Album 1" />Song Title 1</span>
               </a>
               {/* Song 2 */}
-              <a href="#">
+              <a onClick={() => playTrack("68ecae3fdde571b891d23137")} id="song2">
                 <span><img src="song/2.png" alt="Album 2" />Song Title 2</span>
               </a>
               {/* Song 3 */}
