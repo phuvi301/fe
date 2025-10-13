@@ -1,15 +1,17 @@
 'use client'
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import style from "./homepage.module.css"
 import Link from "next/link";
 import axios from "axios";
 import Hls from "hls.js";
 
 export default function Home() {
+
 	const [trackPlaying, setTrackPlaying] = useState("");
 	const [searchInput, setSearchInput] = useState("");
 	const [showNotifications, setShowNotifications] = useState(false);
 	const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const playerRef = useRef(null);
 	const searchInputRef = useRef(null);
 	const clearInput = () => {
 		setSearchInput("");
@@ -24,17 +26,21 @@ export default function Home() {
 		setShowProfileMenu(!showProfileMenu);
 	};
 
-	const playTrack = async (track) => {
-		console.log(track);
+    const handleTrack = async (url) => {
+        setTrackPlaying(url);
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(playerRef.current);
+    }
+
+	const playTrack = async (songID) => {
 		axios
-			.post("http://localhost:8080/api/tracks/getTrack/", { title: track })
+			.get(`http://localhost:8080/api/tracks/${songID}`)
 			.then((response) => {
-				console.log("Response data:", response.data);
 				const url = response.data.data.audioUrl;
 				if (!url) throw "Audio URL not found";
-				setTrackPlaying(url);
-        console.log("vl:", trackPlaying);
-				console.log("Playing track:", track);
+				handleTrack(url)
+				console.log("Playing track:", response.data.data.title);
 				console.log("Audio URL:", url);
 			})
 			.catch((error) => {
@@ -50,37 +56,14 @@ export default function Home() {
     { id: 4, message: "Vinh cu qua luoi", time: "1 day ago" },
   ];
 
-  const audioRef = useRef(null);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(trackPlaying);
-      hls.attachMedia(audio);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        audio.play();
-      });
-
-      return () => {
-        hls.destroy();
-      };
-    } else if (audio.canPlayType('application/vnd.apple.mpegurl')) {
-      // Safari hỗ trợ HLS native
-      audio.src = src;
-      audio.addEventListener('loadedmetadata', () => {
-        audio.play();
-      });
-    }
-  }, [trackPlaying]);
-
   return (
     <div className={style.background}>
       {/* Header */}
       <header>
         {/* Logo */}
-        <a href="/"><img id={style.logo} src="/logo.png"/></a>
+        <Link href="/">
+          <img id={style.logo} src="/logo&text.png"/>
+        </Link>
         {/* Search bar */}
         <div className={style["search-container"]}>
           <div className={style["search-bar"]}>
@@ -102,14 +85,99 @@ export default function Home() {
             </span>
           </div>
         </div>
-        {/* Profile */}
-        <button id={style["profile-button"]} title="Profile"><img src="/hcmut.png" /></button>
+        {/* Notification and Profile */}
+        <div className={style["header-actions"]}>
+          {/* Notification button */}
+          <div className={style["notification-container"]}>
+            <button 
+              className={style["notification-button"]} 
+              onClick={toggleNotifications}
+              title="Notifications"
+            >
+              <img src="/notification.png" alt="Notifications" />
+              {notifications.length > 0 && (
+                <span className={style["notification-badge"]}>{notifications.length}</span>
+              )}
+            </button>
+            
+            {/* Notification dropdown */}
+            {showNotifications && (
+              <div className={style["notification-dropdown"]}>
+                <div className={style["notification-header"]}>
+                  <h3>Notifications</h3>
+                </div>
+                <div className={style["notification-list"]}>
+                  {notifications.length > 0 ? (
+                    notifications.map((notification) => (
+                      <div key={notification.id} className={style["notification-item"]}>
+                        <p className={style["notification-message"]}>{notification.message}</p>
+                        <span className={style["notification-time"]}>{notification.time}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className={style["no-notifications"]}>
+                      <p>No new notifications</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Profile */}
+          <div className={style["profile-container"]}>
+            <button id={style["profile-button"]} title="Profile" onClick={toggleProfileMenu}>
+              <img src="/hcmut.png" />
+            </button>
+            {showProfileMenu && (
+              <div className={style["profile-dropdown"]}>
+                <div className={style["profile-header"]}>
+                  <div className={style["profile-info"]}>
+                    <img src="/hcmut.png" alt="Profile" className={style["profile-avatar"]} />
+                    <div className={style["profile-details"]}>
+                      <h4>User Name</h4>
+                      <p>user@example.com</p>
+                    </div>
+                  </div>
+                </div>
+                <div className={style["profile-menu"]}>
+                  <Link href="/account" className={style["profile-menu-item"]} >
+                    <img src="/account.png" alt="Account" />
+                    <span>Account</span>
+                  </Link>
+                  <Link href="/settings" className={style["profile-menu-item"]} >
+                    <img src="/setting.png" alt="Settings" />
+                    <span>Settings</span>
+                  </Link>
+                  <Link href="/login" className={style["profile-menu-item"]} >
+                    <img src="/logout.png" alt="Logout" />
+                    <span>Log out</span>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </header>
+      
+      {/* Overlay để đóng notification khi click bên ngoài */}
+      {showNotifications && (
+        <div 
+          className={style["notification-overlay"]} 
+          onClick={() => setShowNotifications(false)}
+        />
+      )}
+      {showProfileMenu && (
+        <div 
+          className={style["profile-overlay"]} 
+          onClick={() => setShowProfileMenu(false)}
+        />
+      )}
       {/* Sidebar */}
       <aside>
         <ul className={style.sidebar}>
           <li><a href="/like"><img src="/unlike.png"></img>Likes</a></li>
-          <li><a href="/songs"><img src="/songs.png"></img>Songs</a></li>
+          <li><a href="/upload"><img src="/upload.png"></img>Upload</a></li>
           <li><a href="/playlists"><img src="/playlists.png"></img>Playlists</a></li>
           <li><a href="/about"><img src="/about.png"></img>About</a></li>
         </ul>
@@ -124,7 +192,7 @@ export default function Home() {
             <p>Recommended for you</p>
             <div className={style["featured-container"]}>
               {/* Song 1 */}
-              <a onClick={() => playTrack("keshi - beside you")}>
+              <a onClick={() => playTrack("68eaac29ee09d1cc42f4269a")} id="song1">
                 <span><img src="song/1.png" alt="Album 1" />Song Title 1</span>
               </a>
               {/* Song 2 */}
@@ -170,13 +238,17 @@ export default function Home() {
               <a href="#">
                 <span><img src="song/vicuaanh.png" alt="Album 10" />Vị của anh</span>
               </a>
+              {/* Song 6 */}
+              <a href="#">
+                <span><img src="song/11.jpg" alt="Album 11" />Danh doi</span>
+              </a>
             </div>
           </article>
         </section>
         {/* Audio player */}
         {trackPlaying && (
           <div className={style["audio-player"]}>
-            <audio ref={audioRef} controls style={{ width: '100%' }} />
+            <audio controls type="audio/mpeg" ref={playerRef} />
           </div>
         )}
       </main>
