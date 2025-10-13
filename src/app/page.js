@@ -13,7 +13,7 @@ export default function Home() {
 	const [searchInput, setSearchInput] = useState("");
 	const [showNotifications, setShowNotifications] = useState(false);
 	const [showProfileMenu, setShowProfileMenu] = useState(false);
-    const playerRef = useRef(null);
+  const playerRef = useRef(null);
 	const searchInputRef = useRef(null);
 	const clearInput = () => {
 		setSearchInput("");
@@ -28,21 +28,21 @@ export default function Home() {
 		setShowProfileMenu(!showProfileMenu);
 	};
 
-    const handleTrack = (url) => {
+    const handleTrack = async (url) => {
         setTrackPlaying(url);
         const hls = new Hls();
         hls.loadSource(url);
         hls.attachMedia(playerRef.current);
     }
 
-	const playTrack = async (objID) => {
+	const playTrack = async (songID) => {
 		axios
-			.get(`http://localhost:8080/api/tracks/${objID}`)
+			.get(`http://localhost:8080/api/tracks/${songID}`)
 			.then((response) => {
 				const url = response.data.data.audioUrl;
 				if (!url) throw "Audio URL not found";
 				handleTrack(url)
-				console.log("Playing track:", track);
+				console.log("Playing track:", response.data.data.title);
 				console.log("Audio URL:", url);
 			})
 			.catch((error) => {
