@@ -102,8 +102,8 @@ export default function Home() {
                                 <div className={style["email-border"]}>
                                     <img src="/mail.png" alt="Email Icon" className={style["email-icon"]} />
                                 </div>
-                                <input type="email" placeholder="Email" className={style.email} />
-                                <span className={style.nothing}> </span>
+                                <input type="email" placeholder="Email" />
+                                <span className={style.nothing}></span>
                             </div>
                             {/* Password input */}
                             <div className={style["password-input"]}>
@@ -182,8 +182,8 @@ export default function Home() {
                                 <div className={style["email-border"]}>
                                     <img src="/mail.png" alt="Email Icon" className={style["email-icon"]} />
                                 </div>
-                                <input type="text" id="email" placeholder="Email" className={style.email} />
-                                <span className={style.nothing}> </span>
+                                <input type="text" id="email" placeholder="Email" />
+                                <span className={style.nothing}></span>
                             </div>
                             {/* Password input */}
                             <div className={style["password-input"]}>

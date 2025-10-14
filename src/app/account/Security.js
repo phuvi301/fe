@@ -16,11 +16,11 @@ function Security() {
 
     return (
         <>
-            <h2 className={clsx(styles["security-title"])}>Phương thức bảo mật</h2>
+            <h2 className={clsx(styles["security-title"])}>Security Methods</h2>
             <div className={clsx(styles["security-wrapper"])}>
                 <div className={clsx(styles["security-item"])}>
                     <div className={clsx(styles["security-item-wrapper"])}>
-                        <label className={clsx(styles["security-item-name"])}>Xác thực 2 lớp (2FA)</label>
+                        <label className={clsx(styles["security-item-name"])}>Two-factor authentication (2FA)</label>
                         <button
                             className={clsx(styles["security-item-btn"], {
                                 [styles["active"]]: enable2FA,
@@ -29,18 +29,18 @@ function Security() {
                         ></button>
                     </div>
                     <span className={clsx(styles["security-item-desc"])}>
-                        Khi bật, bạn sẽ cần nhập mã xác minh từ ứng dụng điện thoại mỗi khi đăng nhập.
+                       When 2FA is enabled, you will be required to enter a verification code in addition to your password when logging in.
                     </span>
                 </div>
                 <div className={clsx(styles["security-item"])}>
                     <div className={clsx(styles["security-item-password"])}>
                         <p className={clsx(styles["security-item-name"], styles["security-item-title"])}>
-                            Đổi mật khẩu
+                            Change Password
                         </p>
                         <form className={clsx(styles["user-form-wrapper"])}>
                             <div className={clsx(styles["user-form-group"])}>
                                 <label className={clsx(styles["user-form-label"])} htmlFor="password">
-                                    Mật khẩu hiện tại <span>*</span>
+                                    Current Password <span>*</span>
                                 </label>
                                 <input
                                     className={clsx(styles["user-form-input"])}
@@ -52,7 +52,7 @@ function Security() {
                             </div>
                             <div className={clsx(styles["user-form-group"])}>
                                 <label className={clsx(styles["user-form-label"])} htmlFor="new-password">
-                                    Mật khẩu mới <span>*</span>
+                                    New Password <span>*</span>
                                 </label>
                                 <input
                                     className={clsx(styles["user-form-input"])}
@@ -64,7 +64,7 @@ function Security() {
                             </div>
                             <div className={clsx(styles["user-form-group"])}>
                                 <label className={clsx(styles["user-form-label"])} htmlFor="confirm-password">
-                                    Nhập lại mật khẩu mới <span>*</span>
+                                    Confirm New Password <span>*</span>
                                 </label>
                                 <input
                                     className={clsx(styles["user-form-input"])}

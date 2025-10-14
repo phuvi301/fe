@@ -12,7 +12,7 @@ function Artist() {
         <>
             <div className={clsx(styles["personal-info-wrapper"])}>
                 <Image
-                    src={"/background.jpg"}
+                    src={"/song/11.jpg"}
                     alt=""
                     width={100}
                     height={100}
@@ -28,7 +28,7 @@ function Artist() {
                 </button>
             </div>
             <div className={clsx(styles["personal-upload-wrapper"])}>
-                <p className={clsx(styles["personal-upload-title"])}>Bài hát của bạn</p>
+                <p className={clsx(styles["personal-upload-title"])}>Your Uploaded Songs</p>
                 <div className={clsx(styles["personal-upload-list"])}>
                     <div className={clsx(styles["personal-upload-item"])}>
                         <Image
@@ -59,7 +59,7 @@ function Artist() {
                 </div>
             </div>
             <div className={clsx(styles["personal-playlist-wrapper"])}>
-                <p className={clsx(styles["personal-playlist-title"])}>Danh sách phát đã tạo</p>
+                <p className={clsx(styles["personal-playlist-title"])}>Your Playlists</p>
                 <div className={clsx(styles["personal-playlist-list"])}>
                     <div className={clsx(styles["personal-playlist-item"])}>
                         <Image
