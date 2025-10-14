@@ -36,7 +36,6 @@
 .uploadbuttonContainer{
     display: flex;
     justify-content: center;
-    /* margin-right: 40px; */
 }
 .uploadButton {
     display: absolute;
@@ -344,20 +343,22 @@
     background-color: #218838;
 }
 
+.uploadedImage {
+    width: 30%;
+    border-radius: 10px;
+    object-fit: contain;
+}
+
 /* File Info Popup */
 .fileInfoPopup {
     position: relative;
-    /* top: -300px;
-    right: -20px; */
     z-index: 000;
     background: rgba(2, 0, 9, 0.8);
     border: 1px solid #ccc;
     border-radius: 15px;
     padding: 15px;
-    /* box-shadow: 0 4px 20px rgba(43, 0, 255, 0.3); */
     backdrop-filter: blur(10px);
     min-width: 200px;
-    /* animation: slideInFromTop 0.3s ease-out; */
 }
 .fileInfoPopup:hover{
     box-shadow: 0 2px 20px rgba(232, 231, 238, 0.3);
@@ -434,6 +435,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    align-content: center;
     transition: all 0.3s ease;
     flex-shrink: 0;
 }
