@@ -12,6 +12,7 @@ export default function Upload() {
     const [imgFile, setImgFile] = useState(null);
     const [imgPreview, setImgPreview] = useState(null);
     const [imgZoom, setImgZoom] = useState(100);
+    const [selectedGenre, setSelectedGenre] = useState(""); // Thêm state cho genre
     const imgInputRef = useRef(null);
 
     const genres = [
@@ -57,6 +58,7 @@ export default function Upload() {
         setImgFile(null);
         setImgPreview(null);
         setImgZoom(100);
+        setSelectedGenre(""); // Reset genre
         if (fileInputRef.current) {
             fileInputRef.current.value = null;
         }
@@ -71,6 +73,10 @@ export default function Upload() {
 
     const handleZoomChange = (event) => {
         setImgZoom(event.target.value);
+    };
+
+    const handleGenreChange = (event) => {
+        setSelectedGenre(event.target.value);
     };
 
     return (
@@ -223,8 +229,13 @@ export default function Upload() {
                                 <div className={style.metadataLabel}>
                                     Genre:
                                     <div className={style.metainputcontainer}>
-                                        <select className={style.metadataInput} name="genre">
-                                            <option value="" disabled selected>Select a genre</option>
+                                        <select 
+                                            className={style.metadataInput} 
+                                            name="genre"
+                                            value={selectedGenre}
+                                            onChange={handleGenreChange}
+                                        >
+                                            <option value="" disabled>Select a genre</option>
                                             {genres.map((genre, index) => (
                                                 <option key={index} value={genre.toLowerCase()}>
                                                     {genre}
