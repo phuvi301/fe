@@ -1,7 +1,6 @@
 'use client'
 import { useState, useRef } from "react";
 import style from "./homepage.module.css"
-import Link from "next/link";
 import axios from "axios";
 import Hls from "hls.js";
 

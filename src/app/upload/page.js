@@ -4,6 +4,7 @@ import layout from "../homepage.module.css"
 import style from "./upload.module.css";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import axios from "axios";
 import clsx from "clsx";
 
 export default function Upload() {
@@ -14,10 +15,22 @@ export default function Upload() {
         fileInputRef.current?.click();
     };
 
-    const handleFileChange = (event) => {
+    const handleFileChange = async (event) => {
         const file = event.target.files[0];
         if (file) {
             setSelectedFile(file);  
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = axios.post('http://localhost:8080/api/tracks/', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            console.log('File uploaded successfully:', res.data);
+        } catch (error) {
+            console.error('Error uploading file:', error);
         }
     };
     const handleSubmit = (event) => {
