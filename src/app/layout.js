@@ -1,6 +1,5 @@
 import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 import "./globals.css";
-// import { icon } from "@fortawesome/fontawesome-svg-core";
 
 const montserrat = Montserrat({
   variable: '--font-montserrat',
