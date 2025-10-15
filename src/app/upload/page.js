@@ -38,7 +38,7 @@ export default function Upload() {
         formData.append('file', file);
 
         try {
-            const res = axios.post('http://localhost:8080/api/tracks/', formData, {
+            const res = axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             console.log('File uploaded successfully:', res.data);
@@ -71,7 +71,7 @@ export default function Upload() {
     const handleReset = async () => {
         // Xóa file trên server
         try {
-            await axios.post('http://localhost:8080/api/tracks/reset', { name: selectedFile.name });
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/reset`, { name: selectedFile.name });
             
             setSelectedFile(null);
             setImgFile(null);
@@ -82,7 +82,6 @@ export default function Upload() {
             if (imgInputRef.current) imgInputRef.current.value = null;
             
             console.log('File deleted successfully');
-
         } catch (error) {
             console.error('Error deleting file:', error);
         }
@@ -90,7 +89,16 @@ export default function Upload() {
 
     const handleUpload = async () => {
         try {
-            const res = await axios.post('http://localhost:8080/api/tracks/upload', { name: selectedFile.name });
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, { name: selectedFile.name });
+
+            setSelectedFile(null);
+            setImgFile(null);
+            setImgPreview(null);
+            setImgZoom(100);
+
+            if (fileInputRef.current) fileInputRef.current.value = null;
+            if (imgInputRef.current) imgInputRef.current.value = null;
+
             console.log('Files uploaded successfully:', res.data);
         } catch (error) {
             console.error('Error uploading files:', error);

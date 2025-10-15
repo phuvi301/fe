@@ -4,7 +4,7 @@ import style from "./homepage.module.css"
 import axios from "axios";
 import Hls from "hls.js";
 import Image from "next/image";
-
+import "dotenv/config";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 export default function Home() {
@@ -23,9 +23,9 @@ export default function Home() {
 
 	const playTrack = async (songID) => {
 		axios
-			.get(`http://localhost:8080/api/tracks/${songID}`)
+			.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${songID}`)
 			.then((response) => {
-				const url = response.data.data.audioUrl;
+				const url = `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${response.data.data.audioUrl}`;
 				if (!url) throw "Audio URL not found";
 				handleTrack(url);
 				console.log("Playing track:", response.data.data.title);
@@ -35,14 +35,6 @@ export default function Home() {
 				console.error("Error playing track:", error);
 			});
 	};
-
-  // Mock data cho notifications
-  const notifications = [
-    { id: 1, message: "New song added to your playlist", time: "2 minutes ago" },
-    { id: 2, message: "Your friend liked your song", time: "1 hour ago" },
-    { id: 3, message: "New album from your favorite artist", time: "3 hours ago" },
-    { id: 4, message: "Vinh cu qua luoi", time: "1 day ago" },
-  ];
 
   return (
     <div className={style.background}>
@@ -61,15 +53,15 @@ export default function Home() {
             <div className={style["featured-container"]}>
               {/* Song 1 */}
               <a onClick={() => playTrack("68eaac29ee09d1cc42f4269a")} id="song1">
-                <span><Image src="/song/1.png" width={500} height={500} alt="Album 1" />Song Title 1</span>
+                <span><Image src="/song/1.png" width={500} height={500} alt="Album 1" priority={true} />Song Title 1</span>
               </a>
               {/* Song 2 */}
               <a onClick={() => playTrack("68ecae3fdde571b891d23137")} id="song2">
-                <span><Image src="/song/2.png" width={500} height={500} alt="Album 2" />Song Title 2</span>
+                <span><Image src="/song/2.png" width={500} height={500} alt="Album 2" priority={true} />Song Title 2</span>
               </a>
               {/* Song 3 */}
               <a href="#">
-                <span><Image src="/song/3.png" width={500} height={500} alt="Album 3" />Song Title 3</span>
+                <span><Image src="/song/3.png" width={500} height={500} alt="Album 3" priority={true} />Song Title 3</span>
               </a>
               {/* Song 4 */}
               <a href="#">
@@ -77,7 +69,7 @@ export default function Home() {
               </a>
               {/* Song 5 */}
               <a href="#">
-                <span><Image src="/song/9.png" width={500} height={500} alt="Album 5" />Song Title 5</span>
+                <span><Image src="/song/9.png" width={500} height={500} alt="Album 5" priority={true} />Song Title 5</span>
               </a>
             </div>
           </article>

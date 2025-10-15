@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import style from "./login.module.css";
 import clsx from "clsx";
 import axios from "axios";
+import "dotenv/config";
 
 export default function Home() {
     const router = useRouter();
@@ -26,7 +27,7 @@ export default function Home() {
         console.log("Password:", password.value);
 
         axios
-            .post("http://localhost:8080/api/auth/signin", { email: email.value, password: password.value })
+            .post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signin`, { email: email.value, password: password.value })
             .then((response) => {
                 console.log("Login successful:", response.data);
                 homeRouter();
