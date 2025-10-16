@@ -1,11 +1,11 @@
 'use client'
-import "./play/play.css"
-import { forwardRef, useState, useRef, useImperativeHandle, useEffect } from "react";
+import "../play/play.css"
+import { forwardRef, useState, useRef, useImperativeHandle } from "react";
 import Hls from "hls.js";
 import axios from "axios";
 import Link from "next/link";
 
-const BOTTOMBAR = forwardRef((props, ref) => {
+const BottomBar = forwardRef((props, ref) => {
     const playerRef = useRef(null);
     const hlsRef = useRef(null);
     const [trackPlaying, setTrackPlaying] = useState(false);
@@ -46,7 +46,7 @@ const BOTTOMBAR = forwardRef((props, ref) => {
         hls.on(Hls.Events.ERROR, (event, data) => {
             console.error('HLS error:', data);
         });
-        }
+    }
 
     const loadProgress = (audioDuration) => { 
         const saved = localStorage.getItem("playbackTime");
@@ -164,4 +164,4 @@ const BOTTOMBAR = forwardRef((props, ref) => {
     )
 });
 
-export default BOTTOMBAR;
+export default BottomBar;

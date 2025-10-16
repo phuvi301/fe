@@ -1,5 +1,5 @@
 'use client'
-import BOTTOMBAR from "../bottom-bar"
+import BOTTOMBAR from "../components/BottomBar"
 import { usePlayer } from "~/context/PlayerContext"
 
 export default function PlayerLayout({ children }) {
