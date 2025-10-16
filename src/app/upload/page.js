@@ -7,6 +7,7 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
 import clsx from "clsx";
+import BOTTOMBAR from "../bottom-bar";
 
 export default function Upload() {
     const fileInputRef = useRef(null);
@@ -115,6 +116,7 @@ export default function Upload() {
 
     return (
         <div className={clsx(layout.background)}>
+            <BOTTOMBAR />
             <Header />
             <Sidebar />
 

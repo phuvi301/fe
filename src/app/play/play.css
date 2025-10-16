@@ -178,6 +178,7 @@
     height: 75px; 
     position: fixed;
     bottom: 0%;
+    z-index: 1000;
 }
 
 .song-in-bottom-bar {
@@ -652,22 +653,6 @@
 
 .no-select {
   user-select: none;
-}
-
-.audio-player {
-    padding: 16px;
-    background-color: #222;
-    border-top: 1px solid #333;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    z-index: 2000;
-}
-
-.audio-player audio {
-    width: 100%;
-    outline: none;
-    background-color: transparent;
 }
 
 /* .top-bar-container {

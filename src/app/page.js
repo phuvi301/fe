@@ -1,39 +1,26 @@
 'use client'
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import style from "./homepage.module.css"
-import axios from "axios";
-import Hls from "hls.js";
 import Image from "next/image";
 import "dotenv/config";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
+import { usePlayer } from "~/context/PlayerContext";
 export default function Home() {
+  const { playTrack } = usePlayer()
 
-	const [trackPlaying, setTrackPlaying] = useState(false);
-  const playerRef = useRef(null);
+	const searchInputRef = useRef(null);
+	const clearInput = () => {
+		setSearchInput("");
+		searchInputRef.current.focus();
+	};
 
-  const handleTrack = async (url) => {
-    setTrackPlaying(true);
-    const hls = new Hls();
+	const toggleNotifications = () => {
+		setShowNotifications(!showNotifications);
+	};
 
-    hls.loadSource(url);
-    hls.attachMedia(playerRef.current);
-    playerRef.current.play();
-  };
-
-	const playTrack = async (songID) => {
-		axios
-			.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${songID}`)
-			.then((response) => {
-				const url = `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${response.data.data.audioUrl}`;
-				if (!url) throw "Audio URL not found";
-				handleTrack(url);
-				console.log("Playing track:", response.data.data.title);
-				console.log("Audio URL:", url);
-			})
-			.catch((error) => {
-				console.error("Error playing track:", error);
-			});
+	const toggleProfileMenu = () => {
+		setShowProfileMenu(!showProfileMenu);
 	};
 
   return (
@@ -57,7 +44,7 @@ export default function Home() {
               </a>
               {/* Song 2 */}
               <a onClick={() => playTrack("68ecae3fdde571b891d23137")} id="song2">
-                <span><Image src="/song/2.png" width={500} height={500} alt="Album 2" priority={true} />Song Title 2</span>
+                <span><Image src="/albumcover.jpg" width={500} height={500} alt="Album 2" priority={true} />beside you</span>
               </a>
               {/* Song 3 */}
               <a href="#">
@@ -65,7 +52,7 @@ export default function Home() {
               </a>
               {/* Song 4 */}
               <a href="#">
-                <span><Image src="/song/4.png" width={500} height={500} alt="Album 4" />Song Title 4</span>
+                <span><Image src="/song/4.png" width={500} height={500} alt="Album 4" priority={true}/>Song Title 4</span>
               </a>
               {/* Song 5 */}
               <a href="#">
@@ -105,12 +92,7 @@ export default function Home() {
             </div>
           </article>
         </section>
-        {/* Audio player */}
-        {trackPlaying && (
-          <div className={style["audio-player"]}>
-            <audio controls type="audio/mpeg" ref={playerRef} />
-          </div>
-        )}
+        
       </main>
     </div>
   );
