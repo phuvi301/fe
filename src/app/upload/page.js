@@ -5,21 +5,19 @@ import layout from "../homepage.module.css"
 import style from "./upload.module.css";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import BottomBar from "../components/BottomBar";
 import axios from "axios";
 import clsx from "clsx";
 
 export default function Upload() {
-    const fileInputRef = useRef(null);
     const [selectedFile, setSelectedFile] = useState(null);
     const [imgFile, setImgFile] = useState(null);
     const [imgPreview, setImgPreview] = useState(null);
     const [imgZoom, setImgZoom] = useState(100);
-    const imgInputRef = useRef(null);
 
+    const fileInputRef = useRef(null);
+    const imgInputRef = useRef(null);
     const titleRef = useRef(null);
     const artistRef = useRef(null);
-    const albumRef = useRef(null);
     const genreRef = useRef(null);
 
     const genres = [
@@ -36,7 +34,8 @@ export default function Upload() {
     // Chọn file để upload
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
-        if (file) setSelectedFile(file);
+        if (!file) return;
+        setSelectedFile(file);
 
         const formData = new FormData();
         formData.append('file', file);
@@ -76,13 +75,15 @@ export default function Upload() {
             alert("Please enter an artist name.");
             return;
         }
-        if (albumRef.current.value.trim() === "") {
-            alert("Please enter an album name.");
-            return;
-        }
+
+        const metaData = new FormData();
+        metaData.append('title', titleRef.current.value);
+        metaData.append('artist', artistRef.current.value);
+        metaData.append('genre', genreRef.current.value);
+        metaData.append('thumbnail', imgFile);
 
         try {
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, { name: selectedFile.name });
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, metaData);
 
             setSelectedFile(null);
             setImgFile(null);
@@ -104,6 +105,8 @@ export default function Upload() {
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/reset`, { name: selectedFile.name });
             console.log('File name:', selectedFile.name);
+
+            // Đặt lại trạng thái
             setSelectedFile(null);
             setImgFile(null);
             setImgPreview(null);
@@ -262,7 +265,8 @@ export default function Upload() {
                                 <div className={style.metadataLabel}>
                                     Title:
                                     <div className={style.metainputcontainer}>
-                                        <input className={style.metadataInput} ref={titleRef} type="text" placeholder="Enter song title" />
+                                        <input className={style.metadataInput} ref={titleRef} type="text" placeholder="Enter song title"
+                                        defaultValue={selectedFile.name.replace(".mp3", "")} />
                                     </div>
                                 </div>
                                 <div className={style.metadataLabel}>
@@ -271,12 +275,12 @@ export default function Upload() {
                                         <input className={style.metadataInput} ref={artistRef} type="text" placeholder="Enter artist name" />
                                     </div>
                                 </div>
-                                <div className={style.metadataLabel}>
+                                {/* <div className={style.metadataLabel}>
                                     Album:
                                     <div className={style.metainputcontainer}>
                                         <input className={style.metadataInput} ref={albumRef} type="text" placeholder="Enter album name" />
                                     </div>
-                                </div>
+                                </div> */}
                                 <div className={style.metadataLabel}>
                                     Genre:
                                     <div className={style.metainputcontainer}>

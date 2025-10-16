@@ -1,27 +1,14 @@
-'use client'
-import { useState, useRef, useEffect } from "react";
+'use client';
+
 import style from "./homepage.module.css"
 import Image from "next/image";
 import "dotenv/config";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import { usePlayer } from "~/context/PlayerContext";
+
 export default function Home() {
   const { playTrack } = usePlayer()
-
-	const searchInputRef = useRef(null);
-	const clearInput = () => {
-		setSearchInput("");
-		searchInputRef.current.focus();
-	};
-
-	const toggleNotifications = () => {
-		setShowNotifications(!showNotifications);
-	};
-
-	const toggleProfileMenu = () => {
-		setShowProfileMenu(!showProfileMenu);
-	};
 
   return (
     <div className={style.background}>
