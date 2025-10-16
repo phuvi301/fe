@@ -96,7 +96,7 @@ export default function Home() {
               </a>
               {/* Song 5 */}
               <a href="#">
-                <span><Image src="/song/vicuaanh.png" width={500} height={500} alt="Album 10" />Vị của anh</span>
+                <span><Image src="/song/vicuaanh.png" width={500} height={500} alt="Album 10" unoptimized />Vị của anh</span>
               </a>
               {/* Song 6 */}
               <a href="#">
