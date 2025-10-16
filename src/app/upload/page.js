@@ -29,17 +29,16 @@ export default function Upload() {
     };
 
     // Chọn file để upload
-    const handleFileChange = async (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setSelectedFile(file);  
-        }
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (file) setSelectedFile(file);
 
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('name', file.name);
 
         try {
-            const res = axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/`, formData, {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             console.log('File uploaded successfully:', res.data);
@@ -48,8 +47,9 @@ export default function Upload() {
         }
     };
 
-    const handleImgChange = (event) => {
-        const file = event.target.files[0];
+    const handleImgChange = (e) => {
+        const file = e.target.files[0];
+        
         if (file) {
             setImgFile(file);
             const reader = new FileReader();
@@ -73,7 +73,7 @@ export default function Upload() {
         // Xóa file trên server
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/reset`, { name: selectedFile.name });
-            
+            console.log('File name:', selectedFile.name);
             setSelectedFile(null);
             setImgFile(null);
             setImgPreview(null);
