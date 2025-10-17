@@ -79,7 +79,6 @@ export default function Home() {
             </div>
           </article>
         </section>
-        
       </main>
     </div>
   );
