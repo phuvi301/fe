@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 import "./globals.css";
-// import { icon } from "@fortawesome/fontawesome-svg-core";
+import PlayerLayout from "./layout/playerLayout";
+import { PlayerProvider } from "~/context/PlayerContext";
 
 const montserrat = Montserrat({
   variable: '--font-montserrat',
@@ -30,7 +31,11 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/logo.png" />
       </head>
       <body className={`${montserrat.variable} ${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+        <PlayerProvider>
+          <PlayerLayout>
+            {children}
+          </PlayerLayout>
+        </PlayerProvider>
       </body>
     </html>
   );

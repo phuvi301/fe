@@ -1,9 +1,12 @@
 'use client';
 import { useState, useRef } from "react";
+import Image from "next/image";
 import layout from "../homepage.module.css"
 import style from "./upload.module.css";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import BottomBar from "../components/BottomBar";
+import axios from "axios";
 import clsx from "clsx";
 
 export default function Upload() {
@@ -26,15 +29,28 @@ export default function Upload() {
         fileInputRef.current?.click();
     };
 
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setSelectedFile(file);  
+    // Chọn file để upload
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (file) setSelectedFile(file);
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('name', file.name);
+
+        try {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            console.log('File uploaded successfully:', res.data);
+        } catch (error) {
+            console.error('Error uploading file:', error);
         }
     };
 
-    const handleImgChange = (event) => {
-        const file = event.target.files[0];
+    const handleImgChange = (e) => {
+        const file = e.target.files[0];
+        
         if (file) {
             setImgFile(file);
             const reader = new FileReader();
@@ -53,19 +69,43 @@ export default function Upload() {
         console.log("Image zoom:", imgZoom);
     }
 
-    const handleReset = () => {
-        setSelectedFile(null);
-        setImgFile(null);
-        setImgPreview(null);
-        setImgZoom(100);
-        setSelectedGenre(""); // Reset genre
-        if (fileInputRef.current) {
-            fileInputRef.current.value = null;
-        }
-        if (imgInputRef.current) {
-            imgInputRef.current.value = null;
+    // Đặt lại trạng thái và xóa file trên server
+    const handleReset = async () => {
+        // Xóa file trên server
+        try {
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/reset`, { name: selectedFile.name });
+            console.log('File name:', selectedFile.name);
+            setSelectedFile(null);
+            setImgFile(null);
+            setImgPreview(null);
+            setImgZoom(100);
+            
+            if (fileInputRef.current) fileInputRef.current.value = null;
+            if (imgInputRef.current) imgInputRef.current.value = null;
+            
+            console.log('File deleted successfully');
+        } catch (error) {
+            console.error('Error deleting file:', error);
         }
     };
+
+    const handleUpload = async () => {
+        try {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, { name: selectedFile.name });
+
+            setSelectedFile(null);
+            setImgFile(null);
+            setImgPreview(null);
+            setImgZoom(100);
+
+            if (fileInputRef.current) fileInputRef.current.value = null;
+            if (imgInputRef.current) imgInputRef.current.value = null;
+
+            console.log('Files uploaded successfully:', res.data);
+        } catch (error) {
+            console.error('Error uploading files:', error);
+        }
+    }
 
     const handleImgSelect = () => {
         imgInputRef.current?.click();
@@ -81,6 +121,7 @@ export default function Upload() {
 
     return (
         <div className={clsx(layout.background)}>
+            <BottomBar />
             <Header />
             <Sidebar />
 
@@ -88,7 +129,7 @@ export default function Upload() {
                 <div className={style.uploadContainer}>
                     {!selectedFile ? (
                     <div className={style.uploadBox}>
-                        <img src="/upload_animated.png" alt="Upload Icon" className={style.uploadIcon} />
+                        <Image src="/upload_animated.png" width={1024} height={1024} alt="Upload Icon" className={style.uploadIcon} />
                         <h1>Upload Your Music</h1>
                         <span className="upload-subtitle">
                            Choose a file to upload
@@ -117,7 +158,7 @@ export default function Upload() {
                                     <div className={style.fileInfoPopup}>
                                         <div className={style.popupContent}>
                                             <div className={style.fileInfo}>
-                                                <div className={style.fileIcon}><img src="/songs.png" alt="Music Icon" /></div>
+                                                <div className={style.fileIcon}><Image src="/songs.png" width={1024} height={1024} alt="Music Icon" /></div>
                                                 <div className={style.fileDetails}>
                                                     <div className={style.fileName}>{selectedFile.name}</div>
                                                     <div className={style.fileSize}>
@@ -142,8 +183,10 @@ export default function Upload() {
                                 {imgPreview ? (
                                     <div className={style.imagePreviewContainer}>
                                         <div className={style.fixedImageFrame}>
-                                            <img
+                                            <Image
                                                 src={imgPreview}
+                                                width={1024}
+                                                height={1024}
                                                 alt="Preview"
                                                 className={style.previewImage}
                                                 style={{ 
@@ -174,8 +217,10 @@ export default function Upload() {
                                     </div>
                                 ) : (
                                     <>
-                                        <img
+                                        <Image
                                             src="/image.png"
+                                            width={1024}
+                                            height={1024}
                                             alt="Upload Icon"
                                             className={style.uploadedImage}
                                         />
@@ -229,12 +274,7 @@ export default function Upload() {
                                 <div className={style.metadataLabel}>
                                     Genre:
                                     <div className={style.metainputcontainer}>
-                                        <select 
-                                            className={style.metadataInput} 
-                                            name="genre"
-                                            value={selectedGenre}
-                                            onChange={handleGenreChange}
-                                        >
+                                        <select className={style.metadataInput} name="genre">
                                             <option value="" disabled>Select a genre</option>
                                             {genres.map((genre, index) => (
                                                 <option key={index} value={genre.toLowerCase()}>
@@ -251,7 +291,7 @@ export default function Upload() {
                                     </div>
                                 </div>
                                 <div className={style.uploadbuttonContainer}>
-                                    <button type="submit" className={style.uploadButton}>Upload Song</button>
+                                    <button type="submit" className={style.uploadButton} onClick={handleUpload}>Upload Song</button>
                                 </div>
                             </form>
                         </div>
