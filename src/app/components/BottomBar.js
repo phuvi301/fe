@@ -15,7 +15,7 @@ const BottomBar = forwardRef((props, ref) => {
     const isSeeking = useRef(false);
 
     const playTrack = async (songID) => {
-		axios
+		await axios
 			.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${songID}`)
 			.then((response) => {
 				const url = `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${response.data.data.audioUrl}`;
@@ -98,7 +98,7 @@ const BottomBar = forwardRef((props, ref) => {
     }));
 
     return (
-        <div className="bottom-bar-container">
+        <div className="bottom-bar-container" hidden={true}>
             <div className="audio-player">
                 <audio controls type="audio/mpeg" ref={playerRef} autoPlay hidden />
             </div>
