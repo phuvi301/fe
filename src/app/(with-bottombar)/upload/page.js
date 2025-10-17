@@ -1,11 +1,10 @@
 'use client';
 import { useState, useRef } from "react";
 import Image from "next/image";
-import layout from "../homepage.module.css"
+import layout from "~/app/homepage.module.css"
 import style from "./upload.module.css";
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
-import BottomBar from "../components/BottomBar";
+import Header from "~/app/components/Header";
+import Sidebar from "~/app/components/Sidebar";
 import axios from "axios";
 import clsx from "clsx";
 

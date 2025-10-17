@@ -6,7 +6,7 @@ import songs from './mockData.js'
 import { Sacramento } from "next/font/google";
 import {FixedSizeList as List} from "react-window";
 import axios from "axios";
-import Header from "../components/Header";
+import Header from "../../components/Header";
 
 export default function Home() {
   
@@ -70,25 +70,6 @@ export default function Home() {
       </button>    
     </div>
   );};
-
-  const [trackPlaying, setTrackPlaying] = useState("");
-
-  const playTrack = async (track) => {
-		console.log(track);
-		axios
-			.post("http://localhost:8080/api/tracks/getTrack/", { title: track })
-			.then((response) => {
-				console.log("Response data:", response.data);
-				const url = response.data.data.audioUrl;
-				if (!url) throw "Audio URL not found";
-				setTrackPlaying(url);
-				console.log("Playing track:", track);
-				console.log("Audio URL:", url);
-			})
-			.catch((error) => {
-				console.error("Error playing track:", error);
-			});
-  }
 
   return (
     <div className="background">

@@ -1,42 +1,46 @@
 'use client'
-import "../play/play.css"
+import style from "../homepage.module.css";
 import { forwardRef, useState, useRef, useImperativeHandle } from "react";
 import Hls from "hls.js";
 import axios from "axios";
 import Link from "next/link";
+import clsx from "clsx";
 
 const BottomBar = forwardRef((props, ref) => {
     const playerRef = useRef(null);
     const hlsRef = useRef(null);
-    const [trackPlaying, setTrackPlaying] = useState(false);
+    const trackPlaying = useRef(null);
+    // const [trackPlaying, setTrackPlaying] = useState(false);
     const [progress, setProgress] = useState(0);
     const [duration, setDuration] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const isSeeking = useRef(false);
 
     const playTrack = async (songID) => {
-		axios
-			.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${songID}`)
-			.then((response) => {
-				const url = `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${response.data.data.audioUrl}`;
-				if (!url) throw "Audio URL not found";
-				handleTrack(url);
-				console.log("Playing track:", response.data.data.title);
-				console.log("Audio URL:", url);
-			})
-			.catch((error) => {
-				console.error("Error playing track:", error);
-			});
+		try{
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${songID}`)
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${response.data.data.audioUrl}`;
+            if (!url) throw "Audio URL not found";
+            await handleTrack(url, [response.data.data.title, response.data.data.artist]);
+            console.log("Playing track:", response.data.data.title);
+            console.log("Audio URL:", url);
+            // return [response.data.data.title, response.data.data.artist];
+        }
+        catch(error) {
+            console.error("Error playing track:", error);
+            return "error"; 
+        }
 	};
 
-    const handleTrack = async (url) => {
+    const handleTrack = async (url, info) => {
         if (hlsRef.current) {
             hlsRef.current.destroy();
             hlsRef.current = null;
         }
         const hls = new Hls(); 
         hlsRef.current = hls;
-        setTrackPlaying(true);
+        // setTrackPlaying(true);
+        trackPlaying.current = info;
         hls.attachMedia(playerRef.current); 
         hls.loadSource(url); 
         hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
@@ -58,6 +62,10 @@ const BottomBar = forwardRef((props, ref) => {
         }
 
         const timeUpdate = () => {
+            if (!playerRef.current) {
+                hlsRef.current.destroy();
+                return;
+            }
             if (!isSeeking.current) {
                 setProgress(playerRef.current.currentTime);
                 localStorage.setItem("playbackTime", playerRef.current.currentTime);
@@ -98,45 +106,45 @@ const BottomBar = forwardRef((props, ref) => {
     }));
 
     return (
-        <div className="bottom-bar-container" hidden={true}>
-            <div className="audio-player">
+        <div className={style["bottom-bar-container"]} hidden={true}>
+            <div className={style["audio-player"]}>
                 <audio controls type="audio/mpeg" ref={playerRef} autoPlay hidden />
             </div>
-            <div className="song-in-bottom-bar">
-                <Link href="/play" className="mini-thumbnail2 no-select">
-                    <img src="/albumcover.jpg" className="cover2"/>
+            <div className={style["song-in-bottom-bar"]}>
+                <Link href="/play" className={clsx(style["mini-thumbnail2"], style["no-select"])}>
+                    <img src="/albumcover.jpg" className={style["cover2"]}/>
                 </Link> 
-                <div className="song-detail2">
-                    <Link href="/play" className="mini-song-name">
-                        <div className="bold-text no-select">
-                            beside you
+                <div className={style["song-detail2"]}>
+                    <Link href="/play" className={style["mini-song-name"]}>
+                        <div className={clsx(style["bold-text"], style["no-select"])}>
+                            {trackPlaying.current ? trackPlaying.current[0] : ""}
                         </div>  
                     </Link>
-                    <a href="/play" className="mini-artist-name no-select">
-                    keshi
+                    <a href="/play" className={clsx(style["mini-artist-name"], style["no-select"])}>
+                        {trackPlaying.current ? trackPlaying.current[1] : ""}
                     </a>
                 </div> 
             </div>
-            <div className="music-player">
-                <div className="bottom-menu">
-                    <button className="shuffle">
-                        <img src="/shuffle.png" className="menu-btn"/>
+            <div className={style["music-player"]}>
+                <div className={style["bottom-menu"]}>
+                    <button className={style["shuffle"]}>
+                        <img src="/shuffle.png" className={style["menu-btn"]}/>
                     </button>
-                    <button className="previous">
-                        <img src="/previous.png" className="menu-btn"/>
+                    <button className={style["previous"]}>
+                        <img src="/previous.png" className={style["menu-btn"]}/>
                     </button>
-                    <a className="play" onClick={togglePlay}>
-                        <img src={!isPlaying ? "/play.png" : "pause.png"} className="menu-btn"/>
+                    <a className={style["play"]} onClick={togglePlay}>
+                        <img src={!isPlaying ? "/play.png" : "pause.png"} className={style["menu-btn"]}/>
                     </a>
-                    <button className="next">
-                        <img src="/next.png" className="menu-btn"/>
+                    <button className={style["next"]}>
+                        <img src="/next.png" className={style["menu-btn"]}/>
                     </button>
-                    <button className="repeat">
-                        <img src="/repeat.png" className="menu-btn"/>
+                    <button className={style["repeat"]}>
+                        <img src="/repeat.png" className={style["menu-btn"]}/>
                     </button>
                 </div>
-                <div className="progress">
-                    <div className="current-time no-select">
+                <div className={style["progress"]}>
+                    <div className={clsx(style["current-time"], style["no-select"])}>
                         {minutes}:{String(seconds).padStart(2, "0")}
                     </div>
                     <input
@@ -151,13 +159,13 @@ const BottomBar = forwardRef((props, ref) => {
                             playerRef.current.currentTime = progress;
                             isSeeking.current = false;
                         }}
-                        className="progress-bar"
+                        className={style["progress-bar"]}
                         style={{
                         background: `linear-gradient(to right, #3c74cfff ${progress / duration * 100}%, #333 ${progress / duration * 100}%)`,
                         borderRadius: '50px',
                         }}
                     />
-                    <span className="duration no-select">{Math.floor(duration / 60)}:{String(Math.floor(duration % 60)).padStart(2, "0")}</span>
+                    <span className={clsx(style["duration"], style["no-select"])}>{Math.floor(duration / 60)}:{String(Math.floor(duration % 60)).padStart(2, "0")}</span>
                 </div>
             </div>
         </div>
