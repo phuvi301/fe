@@ -1,10 +1,10 @@
 'use client';
 import { useState, useRef } from "react";
 import Image from "next/image";
-import layout from "../homepage.module.css"
+import layout from "~/app/homepage.module.css"
 import style from "./upload.module.css";
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
+import Header from "~/app/components/Header";
+import Sidebar from "~/app/components/Sidebar";
 import axios from "axios";
 import clsx from "clsx";
 
@@ -43,9 +43,9 @@ export default function Upload() {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            console.log('File uploaded successfully:', res.data);
+            console.log('File converted successfully:', res.data);
         } catch (error) {
-            console.error('Error uploading file:', error);
+            console.error('Error converting file:', error);
         }
     };
 
@@ -78,10 +78,15 @@ export default function Upload() {
         metaData.append('title', titleRef.current.value);
         metaData.append('artist', artistRef.current.value);
         metaData.append('genre', genreRef.current.value);
+        metaData.append('originalName', selectedFile.name);
         metaData.append('thumbnail', imgFile);
 
         try {
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, metaData);
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, metaData, {
+                headers: {
+                    token: `Bearer ${document.accessToken}`
+                }
+            });
 
             setSelectedFile(null);
             setImgFile(null);
@@ -102,7 +107,7 @@ export default function Upload() {
         // Xóa file trên server
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/reset`, { name: selectedFile.name });
-            console.log('File name:', selectedFile.name);
+            const name = selectedFile.name;
 
             // Đặt lại trạng thái
             setSelectedFile(null);
@@ -113,7 +118,7 @@ export default function Upload() {
             if (fileInputRef.current) fileInputRef.current.value = null;
             if (imgInputRef.current) imgInputRef.current.value = null;
             
-            console.log('File deleted successfully');
+            console.log('File deleted successfully:', name);
         } catch (error) {
             console.error('Error deleting file:', error);
         }

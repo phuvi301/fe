@@ -1,14 +1,13 @@
-'use client';
-
-import style from "./homepage.module.css"
+'use client'
+import style from "../homepage.module.css"
 import Image from "next/image";
 import "dotenv/config";
-import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
 import { usePlayer } from "~/context/PlayerContext";
 
 export default function Home() {
-  const { playTrack } = usePlayer()
+  const { bottomBarRef } = usePlayer();
 
   return (
     <div className={style.background}>
@@ -26,11 +25,11 @@ export default function Home() {
             <p>Recommended for you</p>
             <div className={style["featured-container"]}>
               {/* Song 1 */}
-              <a onClick={() => playTrack("68eaac29ee09d1cc42f4269a")} id="song1">
+              <a onClick={async () => bottomBarRef.current.playTrack("68eaac29ee09d1cc42f4269a")} id="song1">
                 <span><Image src="/song/1.png" width={500} height={500} alt="Album 1" priority={true} />Song Title 1</span>
               </a>
               {/* Song 2 */}
-              <a onClick={() => playTrack("68ecae3fdde571b891d23137")} id="song2">
+              <a onClick={async () => bottomBarRef.current.playTrack("68ecae3fdde571b891d23137")} id="song2">
                 <span><Image src="/albumcover.jpg" width={500} height={500} alt="Album 2" priority={true} />beside you</span>
               </a>
               {/* Song 3 */}

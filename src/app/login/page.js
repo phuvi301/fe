@@ -27,9 +27,16 @@ export default function Home() {
         console.log("Password:", password.value);
 
         axios
-            .post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signin`, { email: email.value, password: password.value })
+            .post(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signin`,
+                { email: email.value, password: password.value },
+                {
+                    withCredentials: true,
+                }
+            )
             .then((response) => {
                 console.log("Login successful:", response.data);
+                document.accessToken = response.data.data.accessToken;
                 homeRouter();
             })
             .catch((error) => {

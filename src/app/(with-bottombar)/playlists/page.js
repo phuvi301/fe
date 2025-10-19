@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
-import layout from "../homepage.module.css";
+import layout from "~/app/homepage.module.css"
 import styles from "./playlists.module.css";
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
+import Header from "~/app/components/Header";
+import Sidebar from "~/app/components/Sidebar";
 
 // --- Constants ---
 
