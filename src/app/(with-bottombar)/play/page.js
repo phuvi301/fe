@@ -6,6 +6,7 @@ import songs from './mockData.js'
 import { Sacramento } from "next/font/google";
 import {FixedSizeList as List} from "react-window";
 import axios from "axios";
+import Header from "../../components/Header";
 
 export default function Home() {
   
@@ -20,14 +21,11 @@ export default function Home() {
 
   useEffect(() => {
     const savedCollapsed = localStorage.getItem("Collapsing");
-    const curr = localStorage.getItem("progress");
     if (savedCollapsed !== null) {
       setCollapsed(JSON.parse(savedCollapsed));
     }
 
-    if (curr !== null) {
-      setProgress(JSON.parse(curr));
-    }
+    
   }, []);
 
   // const [collapsed, setCollapsed] = useState(() => {
@@ -73,69 +71,9 @@ export default function Home() {
     </div>
   );};
 
-  const [progress, setProgress] = useState(0);
-
-  const handleProgressChange = (e) => {
-    setProgress(e.target.value);
-  };
-
-  const durationSeconds = 3 * 60 + 45;
-  const currentTimeSeconds = (progress / 100) * durationSeconds;
-  const minutes = Math.floor(currentTimeSeconds / 60);
-  const seconds = Math.floor(currentTimeSeconds % 60);
-
-  useEffect(() => {
-    localStorage.setItem("progress", JSON.stringify(progress))
-  }, [progress]);
-
-  const [trackPlaying, setTrackPlaying] = useState("");
-
-  const playTrack = async (track) => {
-		console.log(track);
-		axios
-			.post("http://localhost:8080/api/tracks/getTrack/", { title: track })
-			.then((response) => {
-				console.log("Response data:", response.data);
-				const url = response.data.data.audioUrl;
-				if (!url) throw "Audio URL not found";
-				setTrackPlaying(url);
-				console.log("Playing track:", track);
-				console.log("Audio URL:", url);
-			})
-			.catch((error) => {
-				console.error("Error playing track:", error);
-			});
-  }
-
   return (
     <div className="background">
-      <header>
-        {/* Logo */}
-        <a href="/"><img id="logo" src="/logo.png"/></a>
-        {/* Search bar */}
-        <div className="search-container">
-          <div className="search-bar">
-            <span className="search-btn" title="Search">
-              <img src="/search-button.png" alt="Search" />
-            </span>
-            <input type="text" placeholder="What do you wanna listen today?" id="search-input" spellCheck="false" autoCorrect="off" autoCapitalize="off" 
-              ref={searchInputRef}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-            />
-            {searchInput && (
-              <span className="clear-btn" onClick={clearInput} title="Clear">
-                <img src="/cancel-icon.png" alt="Cancel" />
-              </span>
-            )}
-            <span className="micro-button" title="Music recognition">
-              <img src="/microphone.png" alt="Recognition" />
-            </span>
-          </div>
-        </div>
-        {/* Profile */}
-        <button id="profile-button" title="Profile"><img src="/hcmut.png" /></button>
-      </header>
+      <Header />
       <div className="child">
         {!collapsed ? (
           <div className="queue-container">
@@ -237,60 +175,6 @@ export default function Home() {
             <audio controls type="audio/mpeg" />
           </div>
         )}
-      </div>
-      <div className="bottom-bar-container">
-        <div className="song-in-bottom-bar">
-          <a href="/play" className="mini-thumbnail2 no-select">
-              <img src="/albumcover.jpg" className="cover2"/>
-          </a> 
-          <div className="song-detail2">
-            <a href="/play" className="mini-song-name">
-              <div className="bold-text no-select">
-                beside you
-              </div>  
-            </a>
-            <a href="/play" className="mini-artist-name no-select">
-              keshi
-            </a>
-          </div> 
-        </div>
-        <div className="music-player">
-          <div className="bottom-menu">
-            <button className="shuffle">
-              <img src="/shuffle.png" className="menu-btn"/>
-            </button>
-            <button className="previous">
-              <img src="/previous.png" className="menu-btn"/>
-            </button>
-            <a className="play" onClick={() => playTrack("keshi - LIMBO (Visualizer)")}>
-              <img src="/play.png" className="menu-btn"/>
-            </a>
-            <button className="next">
-              <img src="/next.png" className="menu-btn"/>
-            </button>
-            <button className="repeat">
-              <img src="/repeat.png" className="menu-btn"/>
-            </button>
-          </div>
-          <div className="progress">
-            <div className="current-time no-select">
-              {minutes}:{String(seconds).padStart(2, "0")}
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={progress}
-              onChange={handleProgressChange}
-              className="progress-bar"
-              style={{
-                background: `linear-gradient(to right, #3c74cfff ${progress}%, #333 ${progress}%)`,
-                borderRadius: '5px',
-              }}
-            />
-            <span className="duration no-select">3:45</span>
-          </div>
-        </div>
       </div>
     </div>
   )

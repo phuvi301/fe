@@ -1,40 +1,13 @@
 'use client'
-import { useState, useRef } from "react";
-import style from "./homepage.module.css"
-import axios from "axios";
-import Hls from "hls.js";
+import style from "../homepage.module.css"
 import Image from "next/image";
 import "dotenv/config";
-import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import { usePlayer } from "~/context/PlayerContext";
+
 export default function Home() {
-
-	const [trackPlaying, setTrackPlaying] = useState(false);
-  const playerRef = useRef(null);
-
-  const handleTrack = async (url) => {
-    setTrackPlaying(true);
-    const hls = new Hls();
-
-    hls.loadSource(url);
-    hls.attachMedia(playerRef.current);
-    playerRef.current.play();
-  };
-
-	const playTrack = async (songID) => {
-		axios
-			.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${songID}`)
-			.then((response) => {
-				const url = `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${response.data.data.audioUrl}`;
-				if (!url) throw "Audio URL not found";
-				handleTrack(url);
-				console.log("Playing track:", response.data.data.title);
-				console.log("Audio URL:", url);
-			})
-			.catch((error) => {
-				console.error("Error playing track:", error);
-			});
-	};
+  const { bottomBarRef } = usePlayer();
 
   return (
     <div className={style.background}>
@@ -52,12 +25,12 @@ export default function Home() {
             <p>Recommended for you</p>
             <div className={style["featured-container"]}>
               {/* Song 1 */}
-              <a onClick={() => playTrack("68eaac29ee09d1cc42f4269a")} id="song1">
+              <a onClick={async () => bottomBarRef.current.playTrack("68eaac29ee09d1cc42f4269a")} id="song1">
                 <span><Image src="/song/1.png" width={500} height={500} alt="Album 1" priority={true} />Song Title 1</span>
               </a>
               {/* Song 2 */}
-              <a onClick={() => playTrack("68ecae3fdde571b891d23137")} id="song2">
-                <span><Image src="/song/2.png" width={500} height={500} alt="Album 2" priority={true} />Song Title 2</span>
+              <a onClick={async () => bottomBarRef.current.playTrack("68ecae3fdde571b891d23137")} id="song2">
+                <span><Image src="/albumcover.jpg" width={500} height={500} alt="Album 2" priority={true} />beside you</span>
               </a>
               {/* Song 3 */}
               <a href="#">
@@ -65,7 +38,7 @@ export default function Home() {
               </a>
               {/* Song 4 */}
               <a href="#">
-                <span><Image src="/song/4.png" width={500} height={500} alt="Album 4" />Song Title 4</span>
+                <span><Image src="/song/4.png" width={500} height={500} alt="Album 4" priority={true}/>Song Title 4</span>
               </a>
               {/* Song 5 */}
               <a href="#">
@@ -96,7 +69,7 @@ export default function Home() {
               </a>
               {/* Song 5 */}
               <a href="#">
-                <span><Image src="/song/vicuaanh.png" width={500} height={500} alt="Album 10" />Vị của anh</span>
+                <span><Image src="/song/vicuaanh.png" width={500} height={500} alt="Album 10" unoptimized />Vị của anh</span>
               </a>
               {/* Song 6 */}
               <a href="#">
@@ -105,12 +78,6 @@ export default function Home() {
             </div>
           </article>
         </section>
-        {/* Audio player */}
-        {trackPlaying && (
-          <div className={style["audio-player"]}>
-            <audio controls type="audio/mpeg" ref={playerRef} />
-          </div>
-        )}
       </main>
     </div>
   );

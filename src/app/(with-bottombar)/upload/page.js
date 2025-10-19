@@ -1,20 +1,24 @@
 'use client';
 import { useState, useRef } from "react";
 import Image from "next/image";
-import layout from "../homepage.module.css"
+import layout from "~/app/homepage.module.css"
 import style from "./upload.module.css";
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
+import Header from "~/app/components/Header";
+import Sidebar from "~/app/components/Sidebar";
 import axios from "axios";
 import clsx from "clsx";
 
 export default function Upload() {
-    const fileInputRef = useRef(null);
     const [selectedFile, setSelectedFile] = useState(null);
     const [imgFile, setImgFile] = useState(null);
     const [imgPreview, setImgPreview] = useState(null);
     const [imgZoom, setImgZoom] = useState(100);
+
+    const fileInputRef = useRef(null);
     const imgInputRef = useRef(null);
+    const titleRef = useRef(null);
+    const artistRef = useRef(null);
+    const genreRef = useRef(null);
 
     const genres = [
         "Pop", "Rock", "Hip-Hop", "R&B", "Jazz", "Classical", 
@@ -28,17 +32,17 @@ export default function Upload() {
     };
 
     // Chọn file để upload
-    const handleFileChange = async (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setSelectedFile(file);  
-        }
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setSelectedFile(file);
 
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('name', file.name);
 
         try {
-            const res = axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/`, formData, {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             console.log('File uploaded successfully:', res.data);
@@ -47,8 +51,9 @@ export default function Upload() {
         }
     };
 
-    const handleImgChange = (event) => {
-        const file = event.target.files[0];
+    const handleImgChange = (e) => {
+        const file = e.target.files[0];
+        
         if (file) {
             setImgFile(file);
             const reader = new FileReader();
@@ -60,36 +65,25 @@ export default function Upload() {
         }
     };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        console.log("Music file:", selectedFile);
-        console.log("Image file:", imgFile);
-        console.log("Image zoom:", imgZoom);
-    }
-
-    // Đặt lại trạng thái và xóa file trên server
-    const handleReset = async () => {
-        // Xóa file trên server
-        try {
-            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/reset`, { name: selectedFile.name });
-            
-            setSelectedFile(null);
-            setImgFile(null);
-            setImgPreview(null);
-            setImgZoom(100);
-            
-            if (fileInputRef.current) fileInputRef.current.value = null;
-            if (imgInputRef.current) imgInputRef.current.value = null;
-            
-            console.log('File deleted successfully');
-        } catch (error) {
-            console.error('Error deleting file:', error);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (titleRef.current.value.trim() === "") {
+            alert("Please enter a song title.");
+            return;
         }
-    };
+        if (artistRef.current.value.trim() === "") {
+            alert("Please enter an artist name.");
+            return;
+        }
 
-    const handleUpload = async () => {
+        const metaData = new FormData();
+        metaData.append('title', titleRef.current.value);
+        metaData.append('artist', artistRef.current.value);
+        metaData.append('genre', genreRef.current.value);
+        metaData.append('thumbnail', imgFile);
+
         try {
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, { name: selectedFile.name });
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, metaData);
 
             setSelectedFile(null);
             setImgFile(null);
@@ -104,6 +98,28 @@ export default function Upload() {
             console.error('Error uploading files:', error);
         }
     }
+
+    // Đặt lại trạng thái và xóa file trên server
+    const handleReset = async () => {
+        // Xóa file trên server
+        try {
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/reset`, { name: selectedFile.name });
+            console.log('File name:', selectedFile.name);
+
+            // Đặt lại trạng thái
+            setSelectedFile(null);
+            setImgFile(null);
+            setImgPreview(null);
+            setImgZoom(100);
+            
+            if (fileInputRef.current) fileInputRef.current.value = null;
+            if (imgInputRef.current) imgInputRef.current.value = null;
+            
+            console.log('File deleted successfully');
+        } catch (error) {
+            console.error('Error deleting file:', error);
+        }
+    };
 
     const handleImgSelect = () => {
         imgInputRef.current?.click();
@@ -249,25 +265,26 @@ export default function Upload() {
                                 <div className={style.metadataLabel}>
                                     Title:
                                     <div className={style.metainputcontainer}>
-                                        <input className={style.metadataInput} type="text" placeholder="Enter song title" />
+                                        <input className={style.metadataInput} ref={titleRef} type="text" placeholder="Enter song title"
+                                        defaultValue={selectedFile.name.replace(".mp3", "")} />
                                     </div>
                                 </div>
                                 <div className={style.metadataLabel}>
                                     Artist:
                                     <div className={style.metainputcontainer}>
-                                        <input className={style.metadataInput} type="text" placeholder="Enter artist name" />
+                                        <input className={style.metadataInput} ref={artistRef} type="text" placeholder="Enter artist name" />
                                     </div>
                                 </div>
-                                <div className={style.metadataLabel}>
+                                {/* <div className={style.metadataLabel}>
                                     Album:
                                     <div className={style.metainputcontainer}>
-                                        <input className={style.metadataInput} type="text" placeholder="Enter album name" />
+                                        <input className={style.metadataInput} ref={albumRef} type="text" placeholder="Enter album name" />
                                     </div>
-                                </div>
+                                </div> */}
                                 <div className={style.metadataLabel}>
                                     Genre:
                                     <div className={style.metainputcontainer}>
-                                        <select className={style.metadataInput} name="genre">
+                                        <select className={style.metadataInput} name="genre" ref={genreRef}>
                                             <option value="" disabled>Select a genre</option>
                                             {genres.map((genre, index) => (
                                                 <option key={index} value={genre.toLowerCase()}>
@@ -277,14 +294,14 @@ export default function Upload() {
                                         </select>
                                     </div>
                                 </div>
-                                <div className={style.metadataLabel}>
+                                {/* <div className={style.metadataLabel}>
                                     Release Date:
                                     <div className={style.metainputcontainer}>
                                         <input className={style.metadataInput} type="date" name="releaseDate" />
                                     </div>
-                                </div>
+                                </div> */}
                                 <div className={style.uploadbuttonContainer}>
-                                    <button type="submit" className={style.uploadButton} onClick={handleUpload}>Upload Song</button>
+                                    <button type="submit" className={style.uploadButton}>Upload Song</button>
                                 </div>
                             </form>
                         </div>
