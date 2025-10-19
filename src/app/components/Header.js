@@ -2,6 +2,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import style from "../homepage.module.css";
+// import { useSearchParams } from 'next/navigation'
 
 export default function Header() {
   const [searchInput, setSearchInput] = useState("");
@@ -9,10 +10,19 @@ export default function Header() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const searchInputRef = useRef(null);
 
+  // const searchParams = useSearchParams();
+  // const search = searchParams.get('value');
+
   const clearInput = () => {
     setSearchInput("");
     searchInputRef.current.focus();
   };
+
+  const handleInputChange = (e) => {
+    setSearchInput(e.target.value);
+    // Đề xuất từ khóa có thể được thêm vào đây
+
+  }
 
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
@@ -38,9 +48,9 @@ export default function Header() {
         {/* Search bar */}
         <div className={style["search-container"]}>
           <div className={style["search-bar"]}>
-            <span className={style["search-btn"]} title="Search">
-              <img src="/search-button.png" alt="Search" />
-            </span>
+            <Link href="/search" className={style["search-btn"]} title="Search">
+              <img src="/search-button.png" alt="Search"/>
+            </Link>
             <input 
               type="text" 
               placeholder="What do you wanna listen today?" 
@@ -50,7 +60,7 @@ export default function Header() {
               autoCapitalize="off" 
               ref={searchInputRef}
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              onChange={(e) => handleInputChange(e)}
             />
             {searchInput && (
               <span className={style["clear-btn"]} onClick={clearInput} title="Clear">
