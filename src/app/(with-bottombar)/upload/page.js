@@ -45,9 +45,9 @@ export default function Upload() {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            console.log('File uploaded successfully:', res.data);
+            console.log('File converted successfully:', res.data);
         } catch (error) {
-            console.error('Error uploading file:', error);
+            console.error('Error converting file:', error);
         }
     };
 
