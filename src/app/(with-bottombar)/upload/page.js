@@ -83,7 +83,11 @@ export default function Upload() {
         metaData.append('thumbnail', imgFile);
 
         try {
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, metaData);
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, metaData, {
+                headers: {
+                    token: `Bearer ${document.accessToken}`
+                }
+            });
 
             setSelectedFile(null);
             setImgFile(null);
