@@ -80,6 +80,7 @@ export default function Upload() {
         metaData.append('title', titleRef.current.value);
         metaData.append('artist', artistRef.current.value);
         metaData.append('genre', genreRef.current.value);
+        metaData.append('originalName', selectedFile.name);
         metaData.append('thumbnail', imgFile);
 
         try {
@@ -108,7 +109,7 @@ export default function Upload() {
         // Xóa file trên server
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/reset`, { name: selectedFile.name });
-            console.log('File name:', selectedFile.name);
+            const name = selectedFile.name;
 
             // Đặt lại trạng thái
             setSelectedFile(null);
@@ -119,7 +120,7 @@ export default function Upload() {
             if (fileInputRef.current) fileInputRef.current.value = null;
             if (imgInputRef.current) imgInputRef.current.value = null;
             
-            console.log('File deleted successfully');
+            console.log('File deleted successfully:', name);
         } catch (error) {
             console.error('Error deleting file:', error);
         }
