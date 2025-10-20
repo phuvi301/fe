@@ -1,13 +1,13 @@
 'use client'
-import PlayerLayout from "../layout/playerLayout";
-import { PlayerProvider } from "~/context/PlayerContext";
+import BottomBarLayout from "../layout/bottomBarLayout";
+import { BottomBarProvider } from "~/context/BottombarContext";
 
-export default function WithPlayerLayout({ children }) {
+export default function WithBottomBarLayout({ children }) {
   return (
-    <PlayerProvider>
-        <PlayerLayout>
+    <BottomBarProvider>
+        <BottomBarLayout>
             {children}
-        </PlayerLayout>
-    </PlayerProvider>
+        </BottomBarLayout>
+    </BottomBarProvider>
   );
 }

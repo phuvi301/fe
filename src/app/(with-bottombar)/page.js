@@ -4,10 +4,9 @@ import Image from "next/image";
 import "dotenv/config";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import { usePlayer } from "~/context/PlayerContext";
-
+import { useBottomBar } from "~/context/BottombarContext";
 export default function Home() {
-  const { bottomBarRef } = usePlayer();
+  const { bottomBarRef } = useBottomBar();
 
   return (
     <div className={style.background}>
@@ -25,7 +24,7 @@ export default function Home() {
             <p>Recommended for you</p>
             <div className={style["featured-container"]}>
               {/* Song 1 */}
-              <a onClick={async () => bottomBarRef.current.playTrack("68eaac29ee09d1cc42f4269a")} id="song1">
+              <a onClick={async () => bottomBarRef.current.playTrack("68f4f53d1c604adcc9499fba")} id="song1">
                 <span><Image src="/song/1.png" width={500} height={500} alt="Album 1" priority={true} />Song Title 1</span>
               </a>
               {/* Song 2 */}

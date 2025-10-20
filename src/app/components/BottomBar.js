@@ -1,20 +1,21 @@
 'use client'
 import style from "../homepage.module.css";
-import { forwardRef, useState, useRef, useImperativeHandle } from "react";
+import { forwardRef, useState, useRef, useImperativeHandle, useEffect } from "react";
 import Hls from "hls.js";
 import axios from "axios";
 import Link from "next/link";
 import clsx from "clsx";
 
 const BottomBar = forwardRef((props, ref) => {
+
     const playerRef = useRef(null);
     const hlsRef = useRef(null);
     const trackPlaying = useRef(null);
-    // const [trackPlaying, setTrackPlaying] = useState(false);
+    const isSeeking = useRef(false);
+
     const [progress, setProgress] = useState(0);
     const [duration, setDuration] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
-    const isSeeking = useRef(false);
 
     const playTrack = async (songID) => {
 		try{
@@ -24,7 +25,6 @@ const BottomBar = forwardRef((props, ref) => {
             await handleTrack(url, [response.data.data.title, response.data.data.artist]);
             console.log("Playing track:", response.data.data.title);
             console.log("Audio URL:", url);
-            // return [response.data.data.title, response.data.data.artist];
         }
         catch(error) {
             console.error("Error playing track:", error);
@@ -37,55 +37,60 @@ const BottomBar = forwardRef((props, ref) => {
             hlsRef.current.destroy();
             hlsRef.current = null;
         }
-        const hls = new Hls(); 
+        const hls = new Hls({
+            maxBufferLength: 30,
+            maxBufferSize: 60 * 1000 * 1000,
+            maxMaxBufferLength: 600,
+            seekMode: 'Accurate',
+            maxFragLookUpTolerance: 0.1,
+            liveSyncDurationCount: 3,
+            liveMaxLatencyDurationCount: 10
+        });
         hlsRef.current = hls;
-        // setTrackPlaying(true);
         trackPlaying.current = info;
+
         hls.attachMedia(playerRef.current); 
         hls.loadSource(url); 
         hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-            loadProgress(data.levels[0].details.totalduration);
+            setDuration(data.levels[0].details.totalduration);
+            setIsPlaying(true);
         });
 
         hls.on(Hls.Events.ERROR, (event, data) => {
-            console.error('HLS error:', data);
+            console.log('HLS error:', data);
+            if (data.details === "bufferSeekOverHole") {
+                console.log("hello");
+            }
+            if (data.details === "bufferStalledError") {
+                console.log("hello");
+                hls.startLoad(playerRef.current.currentTime);
+            }
         });
     }
 
-    const loadProgress = (audioDuration) => { 
+    useEffect(() => { 
         const saved = localStorage.getItem("playbackTime");
         if (saved) playerRef.currentTime = parseFloat(saved);
-        setIsPlaying(true);
-
-        const loadMetadata = () => {
-            setDuration(audioDuration);
-        }
 
         const timeUpdate = () => {
-            if (!playerRef.current) {
-                hlsRef.current.destroy();
-                return;
-            }
             if (!isSeeking.current) {
                 setProgress(playerRef.current.currentTime);
                 localStorage.setItem("playbackTime", playerRef.current.currentTime);
             }
         }
 
-        const ended = () => setIsPlaying(false);
-
-        playerRef.current.addEventListener("loadedmetadata", loadMetadata);
+        const ended = () => {
+            setIsPlaying(false);
+        }
 
         playerRef.current.addEventListener("timeupdate", timeUpdate);
-
         playerRef.current.addEventListener("ended", ended);
 
         return () => {
-            playerRef.current.removeEventListener("loadmetadata", loadMetadata);
             playerRef.current.removeEventListener("timeupdate", timeUpdate);
             playerRef.current.removeEventListener("ended", ended);
-        };
-    };
+        }
+    }, []);
 
     const togglePlay = () => {
         const player = playerRef.current;
@@ -153,11 +158,15 @@ const BottomBar = forwardRef((props, ref) => {
                         max={duration}
                         step="0.1"
                         value={progress}
-                        onMouseDown={() => isSeeking.current = true}
+                        onMouseDown={() => {
+                            isSeeking.current = true;
+                        }}
                         onChange={(e) => setProgress(e.target.value)}
                         onMouseUp={() => {
                             playerRef.current.currentTime = progress;
                             isSeeking.current = false;
+                            hlsRef.current.stopLoad();
+                            hlsRef.current.startLoad(progress);
                         }}
                         className={style["progress-bar"]}
                         style={{
