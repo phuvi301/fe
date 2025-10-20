@@ -36,7 +36,7 @@ export default function Home() {
             )
             .then((response) => {
                 console.log("Login successful:", response.data);
-                document.accessToken = response.data.data.accessToken;
+                document.cookie = `accessToken=${response.data.data.accessToken}` ;
                 homeRouter();
             })
             .catch((error) => {

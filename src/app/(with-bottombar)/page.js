@@ -68,11 +68,11 @@ export default function Home() {
                 <span><Image src="/song/8.png" width={500} height={500} alt="Album 9" />Song Title 9</span>
               </a>
               {/* Song 5 */}
-              <a href="#">
+              <a onClick={async () => bottomBarRef.current.playTrack("68f4f53d1c604adcc9499fba")}>
                 <span><Image src="/song/vicuaanh.png" width={500} height={500} alt="Album 10" unoptimized />Vị của anh</span>
               </a>
               {/* Song 6 */}
-              <a href="#">
+              <a onClick={async () => bottomBarRef.current.playTrack("68f4fda44e15aeb1eb62f821")}>
                 <span><Image src="/song/11.jpg" width={500} height={500} alt="Album 11" />Danh doi</span>
               </a>
             </div>
