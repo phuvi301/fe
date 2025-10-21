@@ -2,6 +2,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import style from "../homepage.module.css";
+import axios from "axios";
 
 export default function Header() {
   const [searchInput, setSearchInput] = useState("");
@@ -22,6 +23,15 @@ export default function Header() {
     setShowProfileMenu(!showProfileMenu);
   };
 
+  const handleLogout = async () => {
+    // Logic for logging out the user
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signout`);
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+  
   // Mock data cho notifications
   const notifications = [
     { id: 1, message: "New song added to your playlist", time: "2 minutes ago" },
@@ -126,7 +136,7 @@ export default function Header() {
                     <img src="/setting.png" alt="Settings" />
                     <span>Settings</span>
                   </Link>
-                  <Link href="/login" className={style["profile-menu-item"]} >
+                  <Link onClick={handleLogout} href="/login" className={style["profile-menu-item"]} >
                     <img src="/logout.png" alt="Logout" />
                     <span>Log out</span>
                   </Link>
