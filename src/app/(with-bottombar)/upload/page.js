@@ -20,6 +20,8 @@ export default function Upload() {
     const artistRef = useRef(null);
     const genreRef = useRef(null);
 
+    const resetRef = useRef(null);
+
     const genres = [
         "Pop", "Rock", "Hip-Hop", "R&B", "Jazz", "Classical", 
         "Electronic", "Country", "Folk", "Reggae", "Blues", 
@@ -45,6 +47,8 @@ export default function Upload() {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
+
+            resetRef.current.style.display = 'block';
             console.log('File converted successfully:', res.data);
         } catch (error) {
             console.error('Error converting file:', error);
@@ -185,6 +189,8 @@ export default function Upload() {
                                                 onClick={handleReset}
                                                 type="button"
                                                 title="Change File"
+                                                ref={resetRef}
+                                                style={{ display: 'none' }}
                                             >
                                                 ✕
                                             </button>
