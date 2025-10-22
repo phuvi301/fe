@@ -22,7 +22,8 @@ const BottomBar = forwardRef((props, ref) => {
             const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${songID}`)
             const url = `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${response.data.data.audioUrl}`;
             if (!url) throw "Audio URL not found";
-            await handleTrack(url, [response.data.data.title, response.data.data.artist]);
+            console.log(response.data.data.thumbnailUrl)
+            await handleTrack(url, [response.data.data.title, response.data.data.artist, response.data.data.thumbnailUrl]);
             console.log("Playing track:", response.data.data.title);
             console.log("Audio URL:", url);
         }
@@ -115,21 +116,26 @@ const BottomBar = forwardRef((props, ref) => {
             <div className={style["audio-player"]}>
                 <audio controls type="audio/mpeg" ref={playerRef} autoPlay hidden />
             </div>
+            {trackPlaying.current ? (
             <div className={style["song-in-bottom-bar"]}>
                 <Link href="/play" className={clsx(style["mini-thumbnail2"], style["no-select"])}>
-                    <img src="/albumcover.jpg" className={style["cover2"]}/>
+                    <img src={trackPlaying.current[2]} className={style["cover2"]}/>
                 </Link> 
                 <div className={style["song-detail2"]}>
                     <Link href="/play" className={style["mini-song-name"]}>
                         <div className={clsx(style["bold-text"], style["no-select"])}>
-                            {trackPlaying.current ? trackPlaying.current[0] : ""}
+                            {trackPlaying.current[0]}
                         </div>  
                     </Link>
                     <a href="/play" className={clsx(style["mini-artist-name"], style["no-select"])}>
-                        {trackPlaying.current ? trackPlaying.current[1] : ""}
+                        {trackPlaying.current[1]}
                     </a>
                 </div> 
             </div>
+            ) : (
+            <div className={style["song-in-bottom-bar"]}> 
+            </div>
+            )}
             <div className={style["music-player"]}>
                 <div className={style["bottom-menu"]}>
                     <button className={style["shuffle"]}>

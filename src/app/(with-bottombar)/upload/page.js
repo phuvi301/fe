@@ -34,7 +34,7 @@ export default function Upload() {
     // Chọn file để upload
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
-        if (!file) return;
+        if (!file || !file.type.startsWith("audio/")) return;
         setSelectedFile(file);
 
         const formData = new FormData();
@@ -86,7 +86,8 @@ export default function Upload() {
         try {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, metaData, {
                 headers: {
-                    token: `Bearer ${document.accessToken}`
+                    // token: `Bearer ${document.accessToken}`
+                    token: `Bearer ${document.cookie.split('accessToken=')[1]}`
                 }
             });
 
