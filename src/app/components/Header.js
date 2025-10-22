@@ -25,7 +25,12 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signout`);
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signout`,{}, {
+        headers: {
+          token: `Bearer ${document.cookie.split('accessToken=')[1]}`,
+        },
+        withCredentials: true
+      });
       document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     } catch (error) {
       console.error("Error logging out:", error);
