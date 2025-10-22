@@ -3,10 +3,9 @@ import style from "../homepage.module.css"
 import Image from "next/image";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import { usePlayer } from "~/context/PlayerContext";
-
+import { useBottomBar } from "~/context/BottombarContext";
 export default function Home() {
-  const { bottomBarRef } = usePlayer();
+  const { bottomBarRef } = useBottomBar();
 
   const handleTrackPlay = async (trackId) => {
     await bottomBarRef.current.playTrack(trackId);

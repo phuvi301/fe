@@ -4,8 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import './play.css';
 import songs from './mockData.js'
 import { Sacramento } from "next/font/google";
-import {FixedSizeList as List} from "react-window";
-import axios from "axios";
+import { Virtuoso } from "react-virtuoso";
 import Header from "../../components/Header";
 
 export default function Home() {
@@ -27,14 +26,6 @@ export default function Home() {
 
     
   }, []);
-
-  // const [collapsed, setCollapsed] = useState(() => {
-  //   if (typeof window !== "undefined") {
-  //     const savedCollapsed = localStorage.getItem("queueState");
-  //     return savedCollapsed !== null ? savedCollapsed === "true" : false;
-  //   }
-  //   return false;
-  // })
 
   useEffect(() => {
       localStorage.setItem("Collapsing", JSON.stringify(collapsed));
@@ -125,14 +116,11 @@ export default function Home() {
                 </div>
               </div>
               <div className="list-song-container">
-                <List
-                  height={332}
-                  itemCount={queueSong.length}
-                  itemSize={70}
-                  width="100%"
-                >
-                  {listSong}
-                </List>  
+                <Virtuoso
+                  style={{ height: 332, width: '100%' }}
+                  totalCount={queueSong.length}
+                  itemContent={(index) => listSong({ index })}
+                />
               </div>  
             </div> 
           </div>
@@ -147,34 +135,11 @@ export default function Home() {
               </div>
           </div>
         )}
-        {/* <div className={`queue-container ${collapsed ? "collapsed" : ""}`} id="queue-container">
-          <div className="queue-header">
-            <div className="text-queue">
-              <div className="bold-text">
-                Queue
-              </div>
-            </div>
-            <div className="compress">
-              <button className="compress-btn" title="Compress" onClick={() => {
-                const container = document.getElementById("queue-container");
-                container.style.display = "none";
-                setCollapsed(!collapsed)}
-                }>
-                <img src="/compress.png" alt="Compress" />
-              </button>
-            </div>
-          </div>
-        </div> */}
-        {/* <div className="card">
+        <div className="card">
           <div className="banner-container">
             <img src="/albumcover.jpg" alt="cover"/>
           </div>
-        </div> */}
-        {trackPlaying && (
-          <div className="audio-player">
-            <audio controls type="audio/mpeg" />
-          </div>
-        )}
+        </div>
       </div>
     </div>
   )
