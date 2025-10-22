@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import style from "./login.module.css";
 import clsx from "clsx";
 import axios from "axios";
-import "dotenv/config";
 
 export default function Home() {
     const router = useRouter();
