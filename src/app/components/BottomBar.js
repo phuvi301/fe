@@ -19,11 +19,11 @@ const BottomBar = forwardRef((props, ref) => {
 
     const playTrack = async (songID) => {
 		try{
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${songID}`)
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${songID}`);
             const url = `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${response.data.data.audioUrl}`;
             if (!url) throw "Audio URL not found";
             console.log(response.data.data.thumbnailUrl)
-            await handleTrack(url, [response.data.data.title, response.data.data.artist, response.data.data.thumbnailUrl]);
+            await handleTrack(url, response.data.data);
             console.log("Playing track:", response.data.data.title);
             console.log("Audio URL:", url);
         }
@@ -33,11 +33,13 @@ const BottomBar = forwardRef((props, ref) => {
         }
 	};
 
-    const handleTrack = async (url, info) => {
+    const handleTrack = async (url, track) => {
+        // Mỗi bài 1 instance => xóa instance cũ khi qua bài mới
         if (hlsRef.current) {
             hlsRef.current.destroy();
             hlsRef.current = null;
         }
+        // Cấu hình hls
         const hls = new Hls({
             maxBufferLength: 30,
             maxBufferSize: 60 * 1000 * 1000,
@@ -48,13 +50,18 @@ const BottomBar = forwardRef((props, ref) => {
             liveMaxLatencyDurationCount: 10
         });
         hlsRef.current = hls;
-        trackPlaying.current = info;
-
         hls.attachMedia(playerRef.current); 
-        hls.loadSource(url); 
+        hls.loadSource(url);
         hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
             setDuration(data.levels[0].details.totalduration);
-            setIsPlaying(true);
+            // Giữ tiến trình bài hiện tại khi reload trang
+            if (!trackPlaying.current) {
+                playerRef.current.pause();
+                setIsPlaying(false);
+            }
+            else setIsPlaying(true);
+            trackPlaying.current = track;
+            localStorage.setItem("playedTrack", trackPlaying.current._id); 
         });
 
         hls.on(Hls.Events.ERROR, (event, data) => {
@@ -70,15 +77,20 @@ const BottomBar = forwardRef((props, ref) => {
     }
 
     useEffect(() => { 
-        if (!playerRef.current) return;
         const player = playerRef.current;
+        
+        // Giữ tiến trình bài hiện tại khi reload trang
+        const playedTrack = localStorage.getItem("playedTrack");        
         const saved = localStorage.getItem("playbackTime");
-        if (saved) player.currentTime = parseFloat(saved);
+        if (saved && playedTrack) {
+            playTrack(playedTrack);
+            playerRef.current.currentTime = parseFloat(saved);
+        }
 
         const timeUpdate = () => {
             if (!isSeeking.current) {
-                setProgress(player.currentTime);
-                localStorage.setItem("playbackTime", player.currentTime);
+                setProgress(playerRef.current.currentTime);
+                localStorage.setItem("playbackTime", playerRef.current.currentTime);
             }
         }
 
@@ -93,7 +105,7 @@ const BottomBar = forwardRef((props, ref) => {
             player.removeEventListener("timeupdate", timeUpdate);
             player.removeEventListener("ended", ended);
         }
-    }, [playerRef.current]);
+    }, []);
 
     const togglePlay = () => {
         const player = playerRef.current;
@@ -121,16 +133,16 @@ const BottomBar = forwardRef((props, ref) => {
             {trackPlaying.current ? (
             <div className={style["song-in-bottom-bar"]}>
                 <Link href="/play" className={clsx(style["mini-thumbnail2"], style["no-select"])}>
-                    <img src={trackPlaying.current[2]} className={style["cover2"]}/>
+                    <img src={trackPlaying.current.thumbnailUrl} className={style["cover2"]}/>
                 </Link> 
                 <div className={style["song-detail2"]}>
                     <Link href="/play" className={style["mini-song-name"]}>
                         <div className={clsx(style["bold-text"], style["no-select"])}>
-                            {trackPlaying.current[0]}
+                            {trackPlaying.current.title}
                         </div>  
                     </Link>
                     <a href="/play" className={clsx(style["mini-artist-name"], style["no-select"])}>
-                        {trackPlaying.current[1]}
+                        {trackPlaying.current.artist}
                     </a>
                 </div> 
             </div>
