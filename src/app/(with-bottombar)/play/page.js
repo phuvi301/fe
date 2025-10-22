@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import './play.css';
 import songs from './mockData.js'
 import { Sacramento } from "next/font/google";
-import {FixedSizeList as List} from "react-window";
+import { Virtuoso } from "react-virtuoso";
 import Header from "../../components/Header";
 
 export default function Home() {
@@ -116,14 +116,11 @@ export default function Home() {
                 </div>
               </div>
               <div className="list-song-container">
-                <List
-                  height={332}
-                  itemCount={queueSong.length}
-                  itemSize={70}
-                  width="100%"
-                >
-                  {listSong}
-                </List>  
+                <Virtuoso
+                  style={{ height: 332, width: '100%' }}
+                  totalCount={queueSong.length}
+                  itemContent={(index) => listSong({ index })}
+                />
               </div>  
             </div> 
           </div>

@@ -70,13 +70,15 @@ const BottomBar = forwardRef((props, ref) => {
     }
 
     useEffect(() => { 
+        if (!playerRef.current) return;
+        const player = playerRef.current;
         const saved = localStorage.getItem("playbackTime");
-        if (saved) playerRef.currentTime = parseFloat(saved);
+        if (saved) player.currentTime = parseFloat(saved);
 
         const timeUpdate = () => {
             if (!isSeeking.current) {
-                setProgress(playerRef.current.currentTime);
-                localStorage.setItem("playbackTime", playerRef.current.currentTime);
+                setProgress(player.currentTime);
+                localStorage.setItem("playbackTime", player.currentTime);
             }
         }
 
@@ -84,14 +86,14 @@ const BottomBar = forwardRef((props, ref) => {
             setIsPlaying(false);
         }
 
-        playerRef.current.addEventListener("timeupdate", timeUpdate);
-        playerRef.current.addEventListener("ended", ended);
+        player.addEventListener("timeupdate", timeUpdate);
+        player.addEventListener("ended", ended);
 
         return () => {
-            playerRef.current.removeEventListener("timeupdate", timeUpdate);
-            playerRef.current.removeEventListener("ended", ended);
+            player.removeEventListener("timeupdate", timeUpdate);
+            player.removeEventListener("ended", ended);
         }
-    }, []);
+    }, [playerRef.current]);
 
     const togglePlay = () => {
         const player = playerRef.current;
