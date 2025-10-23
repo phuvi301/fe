@@ -12,6 +12,7 @@ const BottomBar = forwardRef((props, ref) => {
     const hlsRef = useRef(null);
     const trackPlaying = useRef(null);
     const isSeeking = useRef(false);
+    const listenedSegments = useRef(new Set());
 
     const [progress, setProgress] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -26,6 +27,7 @@ const BottomBar = forwardRef((props, ref) => {
             await handleTrack(url, response.data.data);
             console.log("Playing track:", response.data.data.title);
             console.log("Audio URL:", url);
+            console.log("Id song:", response.data.data._id);
         }
         catch(error) {
             console.error("Error playing track:", error);
@@ -54,13 +56,25 @@ const BottomBar = forwardRef((props, ref) => {
         hls.loadSource(url);
         hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
             setDuration(data.levels[0].details.totalduration);
-            // Giữ tiến trình bài hiện tại khi reload trang
+            let hasCounted;
+            // Khi reload trang, nhạc tạm dừng
             if (!trackPlaying.current) {
-                playerRef.current.pause();
+                playerRef.current.pause(); 
                 setIsPlaying(false);
+                hasCounted = localStorage.getItem("hasCounted");
             }
-            else setIsPlaying(true);
+            // Khi đổi bài mới
+            else {
+                setIsPlaying(true);
+                listenedSegments.current.clear();
+                localStorage.setItem("listenedSegments", JSON.stringify([...listenedSegments.current]));
+                hasCounted = false;
+                localStorage.setItem("hasCounted", false);
+            }
+            // console.log(isPlaying);
             trackPlaying.current = track;
+            trackPlaying.current.hasCounted = hasCounted;
+            trackPlaying.current.duration = data.levels[0].details.totalduration;
             localStorage.setItem("playedTrack", trackPlaying.current._id); 
         });
 
@@ -74,6 +88,28 @@ const BottomBar = forwardRef((props, ref) => {
                 hls.startLoad(playerRef.current.currentTime);
             }
         });
+    }
+
+    // Tăng playCount khi nghe hơn 40% duration của bài
+    const handleListendSegments = () => {
+        const saved = localStorage.getItem("listenedSegments");
+        if (saved) listenedSegments.current = new Set(JSON.parse(saved));
+
+        listenedSegments.current.add(Math.round(playerRef.current.currentTime));
+        if ((listenedSegments.current.size / Math.round(trackPlaying.current.duration)) >= 0.4 && !trackPlaying.current.hasCounted) {
+            increasePlayCount();
+            trackPlaying.current.hasCounted = true;
+            localStorage.setItem("hasCounted", true);
+        }
+    }
+
+    const increasePlayCount = async () => {
+        try {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${trackPlaying.current._id}/playCount`);
+            console.log(res.data.message);
+        } catch(err) {
+            console.error("Track has not gotten any playCount!", err);
+        } 
     }
 
     useEffect(() => { 
@@ -91,6 +127,10 @@ const BottomBar = forwardRef((props, ref) => {
             if (!isSeeking.current) {
                 setProgress(playerRef.current.currentTime);
                 localStorage.setItem("playbackTime", playerRef.current.currentTime);
+
+                // Ghi nhận tổng thời lượng đã nghe
+                handleListendSegments();
+                localStorage.setItem("listenedSegments", JSON.stringify([...listenedSegments.current]));
             }
         }
 
