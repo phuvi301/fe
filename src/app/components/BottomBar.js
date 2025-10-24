@@ -112,13 +112,13 @@ const BottomBar = forwardRef((props, ref) => {
         } 
     }
 
-    useEffect(() => { 
+    useEffect(() => {
         const player = playerRef.current;
-        
+
         // Giữ tiến trình bài hiện tại khi reload trang
         const playedTrack = localStorage.getItem("playedTrack");        
         const saved = localStorage.getItem("playbackTime");
-        if (saved && playedTrack) {
+        if (saved && playedTrack && !trackPlaying.current) {
             playTrack(playedTrack);
             playerRef.current.currentTime = parseFloat(saved);
         }
@@ -129,8 +129,10 @@ const BottomBar = forwardRef((props, ref) => {
                 localStorage.setItem("playbackTime", playerRef.current.currentTime);
 
                 // Ghi nhận tổng thời lượng đã nghe
-                handleListendSegments();
-                localStorage.setItem("listenedSegments", JSON.stringify([...listenedSegments.current]));
+                if (!playerRef.current.paused) {
+                    handleListendSegments();
+                    localStorage.setItem("listenedSegments", JSON.stringify([...listenedSegments.current]));
+                }
             }
         }
 

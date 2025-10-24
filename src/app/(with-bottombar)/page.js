@@ -13,6 +13,11 @@ export default function Home() {
   const [mostPlayedTracks, setMostPlayedTracks] = useState([]);
 
   const listTracks = useRef(null);
+  const listTracks1 = useRef(null);
+  const listRef = {
+    0: listTracks,
+    1: listTracks1
+  }
   const scrollBtnLeft = useRef(null);
   const scrollBtnRight = useRef(null);
 
@@ -20,10 +25,11 @@ export default function Home() {
     await bottomBarRef.current.playTrack(trackId);
   };
 
-  const scrollTracks = (e) => {
+  const scrollTracks = (e, targetList) => {
     const scrollAmount = 700;
     const direction = e.currentTarget.classList.contains(style.left) ? "left" : "right";
-    listTracks.current.scrollBy({ left: direction === "left" ? -scrollAmount : scrollAmount, behavior: "smooth" });
+    const targetRef = listRef[targetList];
+    targetRef.current.scrollBy({ left: direction === "left" ? -scrollAmount : scrollAmount, behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -31,7 +37,7 @@ export default function Home() {
       try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/display`);
         setRecentTracks(res.data.recent);
-                setMostPlayedTracks(res.data.mostPlayed)
+        setMostPlayedTracks(res.data.mostPlayed)
       } catch(err)  {
         console.error('Error getting recent tracks', err);
       }
@@ -58,12 +64,20 @@ export default function Home() {
             <h1>Recently Added </h1>
             <p>Check out the newest tracks</p>
             {/* Scroll buttons */}
-            <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e)} ref={scrollBtnLeft}>
-              <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
-            </button>
-            <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e)} ref={scrollBtnRight}>
-              <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
-            </button>
+              {
+                listTracks.current ? (
+                  <div>
+                    <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 0)} ref={scrollBtnLeft}>
+                      <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
+                    </button>
+                    <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 0)} ref={scrollBtnRight}>
+                      <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
+                    </button>
+                  </div>         
+                ) : (
+                  <div></div>
+                )
+              }
             {/* Featured items */}
             <div className={style["featured-container"]} ref={listTracks}>
               {recentTracks.map(track => (
@@ -82,10 +96,26 @@ export default function Home() {
               <p>Discover what's popular</p> */}
               <h1>Most Played Tracks</h1>
               <p>See which songs top the play charts this week.</p>
-              <div className={style["featured-container"]}>
+              {/* Scroll buttons */}
+                {
+                  listTracks1.current ? (
+                    <div>
+                      <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 1)} ref={scrollBtnLeft}>
+                        <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
+                      </button>
+                      <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 1)} ref={scrollBtnRight}>
+                        <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
+                      </button>
+                    </div>         
+                  ) : (
+                    <div></div>
+                  )
+                }
+              {/* Featured items */}
+              <div className={style["featured-container"]} ref={listTracks1}>
                 {mostPlayedTracks.map(track => (
-                  <a key={track._id} onClick={() => handleTrackPlay(track._id)}>
-                    <span>
+                  <a className={style["featured-item"]} key={track._id} onClick={() => handleTrackPlay(track._id)}>
+                    <span className={style["track-container"]}>
                       <Image src={track.thumbnailUrl} width={500} height={500} alt={track.title} priority={true} />
                       {track.title}
                     </span>
