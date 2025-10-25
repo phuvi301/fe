@@ -6,6 +6,7 @@ import Sidebar from "../components/Sidebar";
 import { useBottomBar } from "~/context/BottombarContext";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const { bottomBarRef } = useBottomBar();
@@ -31,6 +32,24 @@ export default function Home() {
     const targetRef = listRef[targetList];
     targetRef.current.scrollBy({ left: direction === "left" ? -scrollAmount : scrollAmount, behavior: "smooth" });
   };
+
+  const router = useRouter()
+
+	useEffect(() => {
+		if (document.cookie.split('accessToken=')[1]) return;
+
+		const refreshAccessToken = async () => {
+			const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`, {}, {
+				withCredentials: true
+			})
+
+			if (res.status === 200) document.cookie = `accessToken=${res.data.data.accessToken}; expires=${new Date(res.data.data.accessExpireTime).toUTCString()}; path=/;` ;
+			else router.push("/login")
+		}
+
+		refreshAccessToken()
+
+	}, [])
 
   useEffect(() => {
     const homepageDisplay = async () => {
