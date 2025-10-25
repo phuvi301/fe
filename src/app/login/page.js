@@ -35,6 +35,7 @@ export default function Home() {
             )
             .then((response) => {
                 console.log("Login successful:", response.data);
+                localStorage.setItem("userInfo", JSON.stringify(response.data.data))
                 document.cookie = `accessToken=${response.data.data.accessToken}; expires=${new Date(response.data.data.accessExpireTime).toUTCString()}; path=/;` ;
                 homeRouter();
             })

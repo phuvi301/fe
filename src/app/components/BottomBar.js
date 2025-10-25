@@ -18,6 +18,10 @@ const BottomBar = forwardRef((props, ref) => {
     const [duration, setDuration] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
 
+    useEffect(() => {
+        playerRef.current.volume = 0
+    }, [])
+
     const playTrack = async (songID) => {
 		try{
             const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${songID}`);

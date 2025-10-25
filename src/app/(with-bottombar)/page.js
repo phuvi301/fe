@@ -39,12 +39,15 @@ export default function Home() {
 		if (document.cookie.split('accessToken=')[1]) return;
 
 		const refreshAccessToken = async () => {
-			const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`, {}, {
-				withCredentials: true
-			})
+      try{
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`, {}, {
+          withCredentials: true
+        })
 
-			if (res.status === 200) document.cookie = `accessToken=${res.data.data.accessToken}; expires=${new Date(res.data.data.accessExpireTime).toUTCString()}; path=/;` ;
-			else router.push("/login")
+        document.cookie = `accessToken=${res.data.data.accessToken}; expires=${new Date(res.data.data.accessExpireTime).toUTCString()}; path=/;` ;
+      } catch(err) {
+        console.error('Error refreshing access token', err);
+      }
 		}
 
 		refreshAccessToken()
