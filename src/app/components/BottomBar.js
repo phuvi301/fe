@@ -23,7 +23,7 @@ const BottomBar = forwardRef((props, ref) => {
     const [currentLyricIndex, setCurrentLyricIndex] = useState(-1);
 
     useEffect(() => {
-        playerRef.current.volume = 0
+        playerRef.current.volume = 0.2;
     }, [])
 
     const playTrack = async (songID) => {
@@ -120,7 +120,7 @@ const BottomBar = forwardRef((props, ref) => {
         });
         hlsRef.current = hls;
         // setTrackPlaying(true);
-        trackPlaying.current = info;
+        // trackPlaying.current = info;
         hls.attachMedia(playerRef.current); 
         hls.loadSource(url);
         hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
@@ -373,7 +373,7 @@ const BottomBar = forwardRef((props, ref) => {
                             <img src="/lyrics.png" className={style["menu-btn"]}/>
                         </button>
                         {/* Nút test tạm thời */}
-                        <button 
+                        {/* <button 
                             onClick={loadSampleLyrics}
                             style={{ padding: '5px 10px', fontSize: '12px', background: '#666', color: 'white', border: 'none', borderRadius: '3px', marginRight: '5px' }}
                         >
@@ -384,7 +384,7 @@ const BottomBar = forwardRef((props, ref) => {
                             style={{ padding: '5px 10px', fontSize: '12px', background: '#0066cc', color: 'white', border: 'none', borderRadius: '3px' }}
                         >
                             Test Sync
-                        </button>
+                        </button> */}
                 </div>
                 <div className={style["progress"]}>
                     <div className={clsx(style["current-time"], style["no-select"])}>
@@ -423,14 +423,10 @@ const BottomBar = forwardRef((props, ref) => {
                     <div className={style["lyrics-header"]}>
                         <h3>Lời bài hát</h3>
                         {/* Debug info */}
-                        <div style={{ fontSize: '12px', color: '#666' }}>
-                            Time: {minutes}:{String(seconds).padStart(2, "0")} | 
-                            Current: {currentLyricIndex >= 0 ? currentLyricIndex : 'None'}
+                        {/* <div style={{ fontSize: '12px', color: '#666' }}>
+                            Time: {minutes}:{String(seconds).padStart(2, "0")}
                             <br />
-                            <span style={{ fontSize: '10px', color: '#999' }}>
-                                💡 Click vào dòng lyrics để jump đến thời điểm đó
-                            </span>
-                        </div>
+                        </div> */}
                         <button 
                             className={style["close-lyrics"]} 
                             onClick={toggleLyrics}

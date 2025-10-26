@@ -1,0 +1,85 @@
+.resultItem {
+    margin-left: 2rem;
+    margin-top: 1.5rem ;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    align-items: flex-start;
+    text-align: left;
+
+}
+.playAndTitle {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 1rem;
+}
+.resultItem img {
+    object-fit: cover;
+    border-radius: 0.25rem;
+}
+
+.resultItemDetails {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+}
+.playButtonContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+.ButtonContainer {
+    margin-right: 0.5rem;
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;    
+    justify-content: center;
+    width: fit-content;
+    height: 2rem;
+    border-radius: 0.5rem;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    padding: 0 0.75rem;
+}
+
+.playButton img {
+    width: 100%;
+    height: 100%;
+}
+
+.playButtonContainer:hover {
+    background-color: #056ff9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.buttonText {
+    margin-left: 0.5rem;
+    font-size: 12px;
+    color: #000000;
+    font-weight: bold;
+}
+
+.ButtonContainer:hover {
+    background-color: #056ff9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.title:hover, .artist:hover {
+    text-decoration: underline;
+    cursor: pointer;
+
+}
+
+
+
