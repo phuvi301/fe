@@ -159,14 +159,21 @@ const BottomBar = forwardRef((props, ref) => {
         });
     }
 
-    // Tăng playCount khi nghe hơn 40% duration của bài
+    // Tăng playCount và lưu vào danh sách đã nghe khi nghe hơn 40% duration của bài
     const handleListendSegments = () => {
+        const {_id} = JSON.parse(localStorage.getItem("userInfo")); 
+        if (!_id) return; // Chỉ khi đăng nhập mới chạy
+
         const saved = localStorage.getItem("listenedSegments");
         if (saved) listenedSegments.current = new Set(JSON.parse(saved));
 
         listenedSegments.current.add(Math.round(playerRef.current.currentTime));
+        // console.log(listenedSegments.current.size);
+        // console.log(trackPlaying.current.duration);
+        // console.log((listenedSegments.current.size / Math.round(trackPlaying.current.duration)) >= 0.4)
         if ((listenedSegments.current.size / Math.round(trackPlaying.current.duration)) >= 0.4 && !trackPlaying.current.hasCounted) {
             increasePlayCount();
+            addToHistory(_id);
             trackPlaying.current.hasCounted = true;
             localStorage.setItem("hasCounted", true);
         }
@@ -179,6 +186,15 @@ const BottomBar = forwardRef((props, ref) => {
         } catch(err) {
             console.error("Track has not gotten any playCount!", err);
         } 
+    }
+
+    const addToHistory = async (_id) => {
+        try {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users/history/${_id}`, {trackID: trackPlaying.current._id});
+            console.log(res.data.message);
+        } catch(err) {
+            console.error("Track has not been added to history", err);
+        }
     }
 
     useEffect(() => {
@@ -194,6 +210,7 @@ const BottomBar = forwardRef((props, ref) => {
 
         const timeUpdate = () => {
             if (!isSeeking.current) {
+                // console.log(trackPlaying.current.hasCounted);
                 setProgress(playerRef.current.currentTime);
                 localStorage.setItem("playbackTime", playerRef.current.currentTime);
 
