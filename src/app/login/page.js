@@ -82,6 +82,11 @@ export default function Home() {
         };
     }, []);
 
+    // Khi đăng xuất thì xóa userInfo trong localStorage
+    useEffect(() => {
+        localStorage.removeItem("userInfo");
+    }, []);
+
     return (
         <div className={style.background}>
             {/* Container */}
