@@ -1,5 +1,5 @@
 "use client";
-import styles from "./Account.module.scss";
+import styles from "./Account.module.css";
 import clsx from "clsx";
 import Image from "next/image";
 import { useState } from "react";
@@ -83,7 +83,7 @@ function User() {
                         alt=""
                         className={clsx(styles["user-image"])}
                     />
-                    <button className={clsx(styles["user-image-btn"])}>Upload image</button>
+                    <button className={clsx(styles["user-image-btn"])}>Upload Image</button>
                 </div>
             </div>
         </>

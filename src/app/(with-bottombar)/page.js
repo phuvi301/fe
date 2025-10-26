@@ -12,7 +12,7 @@ export default function Home() {
   const { bottomBarRef } = useBottomBar();
   const [recentTracks, setRecentTracks] = useState([]);
   const [mostPlayedTracks, setMostPlayedTracks] = useState([]);
-  const [listernedTracks, setListenedTracks] = useState([]);
+  const [listenedTracks, setListenedTracks] = useState([]);
 
   const listTracks = useRef(null);
   const listTracks1 = useRef(null);
@@ -154,27 +154,27 @@ export default function Home() {
               </div>
             </article>
         {/* Featured container 3 */}
-          {listernedTracks.length !== 0 && (<article className={style["featured-section"]}>
+          {listenedTracks.length !== 0 && (<article className={style["featured-section"]}>
             {/* Scroll buttons */}
               {
                 listTracks2.current ? (
                   <div>
                     <h1>Recently Listened Tracks</h1>
-                    <p>These are the tracks you’ve listened to recently.</p>
+                    <p>These are the tracks you've listened to recently.</p>
                     <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 2)} ref={scrollBtnLeft}>
                       <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
                     </button>
                     <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 2)} ref={scrollBtnRight}>
                       <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
                     </button>
-                  </div>         
+                  </div>
                 ) : (
                   <div></div>
                 )
               }
             {/* Featured items */}
             <div className={style["featured-container"]} ref={listTracks2}>
-              {listernedTracks.map(track => (
+              {listenedTracks.map(track => (
                 <a className={style["featured-item"]} key={track._id} onClick={() => handleTrackPlay(track._id)}>
                   <span className={style["track-container"]} width={220}>
                     <Image src={track.thumbnailUrl} width={180} height={180} alt={track.title} priority={true} />

@@ -1,13 +1,13 @@
 "use client";
 import { useState } from "react";
-import styles from "./Account.module.scss";
+import styles from "./Account.module.css";
 import clsx from "clsx";
 import User from "./User";
 import Security from "./Security";
 import Artist from "./Artist";
-import Header from "../components/Header";
-import style from "../homepage.module.css";
-import Sidebar from "../components/Sidebar";
+import Header from "../../components/Header";
+import style from "~/app/homepage.module.css";
+import Sidebar from "../../components/Sidebar";
 
 const sidebarList = [
     {
@@ -31,8 +31,8 @@ const AccountManager = () => {
 
     return (
         <div className={style.background}>
-            <Header />
-            <Sidebar />
+            <Header/>
+            <Sidebar/>
             <div className={clsx(styles["overview"])}>
                 <div className={clsx(styles["main"])}>
                     {/* Main wrapper nằm bên trái */}
@@ -52,9 +52,9 @@ const AccountManager = () => {
                                 <img 
                                     src={item.icon} 
                                     alt={item.tab} 
-                                    className={clsx(styles["sidebar-icon"])} 
+                                    className={styles["sidebar-icon"]} 
                                 />
-                                <span>{item.tab}</span>
+                                <span className={styles["sidebar-text"]}>{item.tab}</span>
                             </button>
                         ))}
                     </div>
