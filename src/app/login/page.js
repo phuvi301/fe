@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import style from "./login.module.css";
 import clsx from "clsx";
 import axios from "axios";
-import "dotenv/config";
 
 export default function Home() {
     const router = useRouter();
@@ -36,7 +35,8 @@ export default function Home() {
             )
             .then((response) => {
                 console.log("Login successful:", response.data);
-                document.accessToken = response.data.data.accessToken;
+                localStorage.setItem("userInfo", JSON.stringify(response.data.data))
+                document.cookie = `accessToken=${response.data.data.accessToken}; expires=${new Date(response.data.data.accessExpireTime).toUTCString()}; path=/;` ;
                 homeRouter();
             })
             .catch((error) => {

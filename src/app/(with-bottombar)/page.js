@@ -1,13 +1,73 @@
 'use client'
 import style from "../homepage.module.css"
 import Image from "next/image";
-import "dotenv/config";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import { usePlayer } from "~/context/PlayerContext";
+import { useBottomBar } from "~/context/BottombarContext";
+import { useEffect, useRef, useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const { bottomBarRef } = usePlayer();
+  const { bottomBarRef } = useBottomBar();
+  const [recentTracks, setRecentTracks] = useState([]);
+  const [mostPlayedTracks, setMostPlayedTracks] = useState([]);
+
+  const listTracks = useRef(null);
+  const listTracks1 = useRef(null);
+  const listRef = {
+    0: listTracks,
+    1: listTracks1
+  }
+  const scrollBtnLeft = useRef(null);
+  const scrollBtnRight = useRef(null);
+
+  const handleTrackPlay = async (trackId) => {
+    await bottomBarRef.current.playTrack(trackId);
+  };
+
+  const scrollTracks = (e, targetList) => {
+    const scrollAmount = 700;
+    const direction = e.currentTarget.classList.contains(style.left) ? "left" : "right";
+    const targetRef = listRef[targetList];
+    targetRef.current.scrollBy({ left: direction === "left" ? -scrollAmount : scrollAmount, behavior: "smooth" });
+  };
+
+  const router = useRouter()
+
+	useEffect(() => {
+		if (document.cookie.split('accessToken=')[1]) return;
+
+		const refreshAccessToken = async () => {
+      try{
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`, {}, {
+          withCredentials: true
+        })
+
+        document.cookie = `accessToken=${res.data.data.accessToken}; expires=${new Date(res.data.data.accessExpireTime).toUTCString()}; path=/;` ;
+      } catch(err) {
+        console.error('Error refreshing access token', err);
+      }
+		}
+
+		refreshAccessToken()
+
+	}, [])
+
+  useEffect(() => {
+    const homepageDisplay = async () => {
+      try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/display`);
+        setRecentTracks(res.data.recent);
+        setMostPlayedTracks(res.data.mostPlayed)
+      } catch(err)  {
+        console.error('Error getting recent tracks', err);
+      }
+    };
+    homepageDisplay();
+    const interval = setInterval(homepageDisplay, 30000);
+    return () => clearInterval(interval);
+  }, [])
 
   return (
     <div className={style.background}>
@@ -21,62 +81,70 @@ export default function Home() {
         <section className={style.featured}>
           {/* Featured container 1 */}
           <article className={style["featured-section"]}>
-            <h1>More of what you like</h1>
-            <p>Recommended for you</p>
-            <div className={style["featured-container"]}>
-              {/* Song 1 */}
-              <a onClick={async () => bottomBarRef.current.playTrack("68eaac29ee09d1cc42f4269a")} id="song1">
-                <span><Image src="/song/1.png" width={500} height={500} alt="Album 1" priority={true} />Song Title 1</span>
-              </a>
-              {/* Song 2 */}
-              <a onClick={async () => bottomBarRef.current.playTrack("68ecae3fdde571b891d23137")} id="song2">
-                <span><Image src="/albumcover.jpg" width={500} height={500} alt="Album 2" priority={true} />beside you</span>
-              </a>
-              {/* Song 3 */}
-              <a onClick={async () => bottomBarRef.current.playTrack("68f5ea6fcae338e573465178")} id="song3">
-                <span><Image src="/song/3.png" width={500} height={500} alt="Album 3" priority={true} />Song Title 3</span>
-              </a>
-              {/* Song 4 */}
-              <a onClick={async () => bottomBarRef.current.playTrack("68f5fa68cae338e5734651c5")} id="song4">
-                <span><Image src="/song/4.png" width={500} height={500} alt="Album 4" priority={true}/>Song Title 4</span>
-              </a>
-              {/* Song 5 */}
-              <a onClick={async () => bottomBarRef.current.playTrack("68f5fc91cae338e5734651d3")} id="song5">
-                <span><Image src="/song/nghiemtong.jpg" width={500} height={500} alt="Album 5" priority={true} />Song Title 5</span>
-              </a>
+            {/* <h1>More of what you like</h1>
+                    <p>Recommended for you</p> */}
+            <h1>Recently Added </h1>
+            <p>Check out the newest tracks</p>
+            {/* Scroll buttons */}
+              {
+                listTracks.current ? (
+                  <div>
+                    <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 0)} ref={scrollBtnLeft}>
+                      <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
+                    </button>
+                    <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 0)} ref={scrollBtnRight}>
+                      <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
+                    </button>
+                  </div>         
+                ) : (
+                  <div></div>
+                )
+              }
+            {/* Featured items */}
+            <div className={style["featured-container"]} ref={listTracks}>
+              {recentTracks.map(track => (
+                <a className={style["featured-item"]} key={track._id} onClick={() => handleTrackPlay(track._id)}>
+                  <span className={style["track-container"]}>
+                    <Image src={track.thumbnailUrl} width={500} height={500} alt={track.title} priority={true} />
+                    {track.title}
+                  </span>
+                </a>
+              ))}
             </div>
           </article>
           {/* Featured container 2 */}
-          <article className={style["featured-section"]}>
-            <h1>Trending by genre</h1>
-            <p>Discover what's popular</p>
-            <div className={style["featured-container"]}>
-              {/* Song 1 */}
-              <a onClick={async () => bottomBarRef.current.playTrack("68f5e47fcae338e573465175")} id="song1">
-                <span><Image src="/song/5.png" width={500} height={500} alt="Album 6" />Song Title 6</span>
-              </a>
-              {/* Song 2 */}
-              <a href="#">
-                <span><Image src="/song/6.png" width={500} height={500} alt="Album 7" />Song Title 7</span>
-              </a>
-              {/* Song 3 */}
-              <a href="#">
-                <span><Image src="/song/7.jpg" width={500} height={500} alt="Album 8" />Song Title 8</span>
-              </a>
-              {/* Song 4 */}
-              <a href="#">
-                <span><Image src="/song/8.png" width={500} height={500} alt="Album 9" />Song Title 9</span>
-              </a>
-              {/* Song 5 */}
-              <a href="#">
-                <span><Image src="/song/vicuaanh.png" width={500} height={500} alt="Album 10" unoptimized />Vị của anh</span>
-              </a>
-              {/* Song 6 */}
-              <a onClick={async () => bottomBarRef.current.playTrack("68f508114fbd605305644a59")} >
-                <span><Image src="/song/11.jpg" width={500} height={500} alt="Album 11" />Danh doi</span>
-              </a>
-            </div>
-          </article>
+            <article className={style["featured-section"]}>
+              {/* <h1>Trending by genre</h1>
+              <p>Discover what's popular</p> */}
+              <h1>Most Played Tracks</h1>
+              <p>See which songs top the play charts this week.</p>
+              {/* Scroll buttons */}
+                {
+                  listTracks1.current ? (
+                    <div>
+                      <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 1)} ref={scrollBtnLeft}>
+                        <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
+                      </button>
+                      <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 1)} ref={scrollBtnRight}>
+                        <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
+                      </button>
+                    </div>         
+                  ) : (
+                    <div></div>
+                  )
+                }
+              {/* Featured items */}
+              <div className={style["featured-container"]} ref={listTracks1}>
+                {mostPlayedTracks.map(track => (
+                  <a className={style["featured-item"]} key={track._id} onClick={() => handleTrackPlay(track._id)}>
+                    <span className={style["track-container"]}>
+                      <Image src={track.thumbnailUrl} width={500} height={500} alt={track.title} priority={true} />
+                      {track.title}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </article>
         </section>
       </main>
     </div>
