@@ -13,6 +13,8 @@ export default function Upload() {
     const [imgFile, setImgFile] = useState(null);
     const [imgPreview, setImgPreview] = useState(null);
     const [imgZoom, setImgZoom] = useState(100);
+
+    const fileInputRef = useRef(null);
     const imgInputRef = useRef(null);
     const titleRef = useRef(null);
     const artistRef = useRef(null);
@@ -130,10 +132,6 @@ export default function Upload() {
 
     const handleZoomChange = (event) => {
         setImgZoom(event.target.value);
-    };
-
-    const handleGenreChange = (event) => {
-        setSelectedGenre(event.target.value);
     };
 
     return (

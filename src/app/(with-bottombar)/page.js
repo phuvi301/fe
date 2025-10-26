@@ -33,16 +33,16 @@ export default function Home() {
                 <span><Image src="/albumcover.jpg" width={500} height={500} alt="Album 2" priority={true} />beside you</span>
               </a>
               {/* Song 3 */}
-              <a href="#">
+              <a onClick={async () => bottomBarRef.current.playTrack("68f5ea6fcae338e573465178")} id="song3">
                 <span><Image src="/song/3.png" width={500} height={500} alt="Album 3" priority={true} />Song Title 3</span>
               </a>
               {/* Song 4 */}
-              <a href="#">
+              <a onClick={async () => bottomBarRef.current.playTrack("68f5fa68cae338e5734651c5")} id="song4">
                 <span><Image src="/song/4.png" width={500} height={500} alt="Album 4" priority={true}/>Song Title 4</span>
               </a>
               {/* Song 5 */}
-              <a href="#">
-                <span><Image src="/song/9.png" width={500} height={500} alt="Album 5" priority={true} />Song Title 5</span>
+              <a onClick={async () => bottomBarRef.current.playTrack("68f5fc91cae338e5734651d3")} id="song5">
+                <span><Image src="/song/nghiemtong.jpg" width={500} height={500} alt="Album 5" priority={true} />Song Title 5</span>
               </a>
             </div>
           </article>
@@ -52,7 +52,7 @@ export default function Home() {
             <p>Discover what's popular</p>
             <div className={style["featured-container"]}>
               {/* Song 1 */}
-              <a href="#">
+              <a onClick={async () => bottomBarRef.current.playTrack("68f5e47fcae338e573465175")} id="song1">
                 <span><Image src="/song/5.png" width={500} height={500} alt="Album 6" />Song Title 6</span>
               </a>
               {/* Song 2 */}
@@ -72,7 +72,7 @@ export default function Home() {
                 <span><Image src="/song/vicuaanh.png" width={500} height={500} alt="Album 10" unoptimized />Vị của anh</span>
               </a>
               {/* Song 6 */}
-              <a href="#">
+              <a onClick={async () => bottomBarRef.current.playTrack("68f508114fbd605305644a59")} >
                 <span><Image src="/song/11.jpg" width={500} height={500} alt="Album 11" />Danh doi</span>
               </a>
             </div>
