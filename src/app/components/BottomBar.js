@@ -128,7 +128,7 @@ const BottomBar = forwardRef((props, ref) => {
             setDuration(data.levels[0].details.totalduration);
             let hasCounted;
             // Khi reload trang, nhạc tạm dừng
-            if (!trackPlaying.current) {
+            if (!trackPlaying.current && localStorage.getItem("playbackTime")) {
                 playerRef.current.pause(); 
                 setIsPlaying(false);
                 hasCounted = localStorage.getItem("hasCounted");
