@@ -88,6 +88,11 @@ export default function Header() {
 							ref={searchInputRef}
 							value={searchInput}
 							onChange={(e) => setSearchInput(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									handleSearchInput();
+								}
+							}}
 						/>
 						{searchInput && (
 							<span className={style["clear-btn"]} onClick={clearInput} title="Clear">

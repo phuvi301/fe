@@ -4,6 +4,7 @@ import { forwardRef, useState, useRef, useImperativeHandle, useEffect } from "re
 import Hls from "hls.js";
 import axios from "axios";
 import Link from "next/link";
+import Image from "next/image";
 import clsx from "clsx";
 
 const BottomBar = forwardRef((props, ref) => {
@@ -348,7 +349,7 @@ const BottomBar = forwardRef((props, ref) => {
             {trackPlaying.current ? (
             <div className={style["song-in-bottom-bar"]}>
                 <Link href="/play" className={clsx(style["mini-thumbnail2"], style["no-select"])}>
-                    <img src={trackPlaying.current.thumbnailUrl} className={style["cover2"]}/>
+                    <Image src={trackPlaying.current.thumbnailUrl} className={style["cover2"]} width={500} height={500} alt="Thumbnail" />
                 </Link> 
                 <div className={style["song-detail2"]}>
                     <Link href="/play" className={style["mini-song-name"]}>
