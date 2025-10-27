@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { use, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import layout from "~/app/homepage.module.css";
@@ -8,6 +8,7 @@ import styles from "./playlists.module.css";
 import Header from "~/app/components/Header";
 import Sidebar from "~/app/components/Sidebar";
 import axios from "axios";
+import { useBottomBar } from "~/context/BottombarContext";
 
 // --- Constants ---
 
@@ -46,6 +47,7 @@ export default function PlaylistsPage() {
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [pickerResults, setPickerResults] = useState([]);
+    const { bottomBarRef } = useBottomBar();
 
     const current = useMemo(() => playlists.find((p) => p._id === selectedId) || null, [playlists, selectedId]);
 
@@ -92,6 +94,10 @@ export default function PlaylistsPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchTerm]);
 
+    useEffect(() => {
+        localStorage.setItem("userInfo", JSON.stringify({...JSON.parse(localStorage.getItem("userInfo")), playlists: playlists.map(pl => pl._id)}))
+    }, [playlists])
+
     // --- Event Handlers ---
     const handleCreate = async (nameRaw) => {
         const name = nameRaw?.trim();
@@ -123,15 +129,11 @@ export default function PlaylistsPage() {
     const handleDeletePlaylist = async (id) => {
         if (!confirm("Bạn có chắc muốn xóa playlist này?")) return;
         try {
-            await axios.delete(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${id}`,
-                {},
-                {
-                    headers: {
-                        token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
-                    },
-                }
-            );
+            await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${id}`, {
+                headers: {
+                    token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
+                },
+            });
             setPlaylists((prev) => prev.filter((p) => p._id !== id));
             setSelectedId((cur) => (cur === id ? null : cur));
             setToast({ type: "success", message: "Đã xóa playlist" });
@@ -159,7 +161,10 @@ export default function PlaylistsPage() {
                 }
             );
             console.log(res.data);
-            setPlaylists((prev) => [res.data.data, ...prev.filter((pl) => pl._id !== current._id)]);
+            setPlaylists((prev) => {
+                console.log(prev);
+                return [res.data.data, ...prev.filter((pl) => pl._id !== current._id)];
+            });
             setToast({ type: "success", message: "Đã thêm bài hát" });
         } catch {
             setToast({ type: "error", message: "Thêm bài hát thất bại" });
@@ -170,25 +175,22 @@ export default function PlaylistsPage() {
         if (!current) return;
         if (!confirm("Bạn có chắc muốn xoá bài hát này khỏi playlist?")) return;
         try {
-            const res = await axios.delete(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${current._id}/remove`,
-                {
+            const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${current._id}/remove`, {
+                data: {
                     trackId,
                 },
-                {
-                    headers: {
-                        token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
-                    },
-                }
-            );
-            setPlaylists((prev) => prev.map((prev) => [res.data.data, ...prev.filter((pl) => pl._id !== current._id)]);
+                headers: {
+                    token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
+                },
+            });
+            setPlaylists((prev) => [res.data.data, ...prev.filter((pl) => pl._id !== current._id)]);
             setToast({ type: "success", message: "Đã xoá bài hát khỏi playlist" });
         } catch {
             setToast({ type: "error", message: "Xoá bài hát khỏi playlist thất bại" });
         }
     };
 
-    console.log(current);
+    const handlePlaySong = async (songId) => await bottomBarRef.current.playTrack(songId);
 
     // --- Render ---
     return (
@@ -266,7 +268,7 @@ export default function PlaylistsPage() {
                                 <div className={styles.sectionHeader}>
                                     <div className={styles.detailHeader}>
                                         <img
-                                            src={current.thumbnailUrl || "/song/9.png"}
+                                            src={current.thumbnailUrl || DEFAULT_PLAYLIST_COVER}
                                             alt=""
                                             className={styles.detailCover}
                                         />
@@ -332,7 +334,7 @@ export default function PlaylistsPage() {
                                                         <button
                                                             className={styles.iconBtn}
                                                             title="Play"
-                                                            onClick={() => alert("Play - TODO")}
+                                                            onClick={() => handlePlaySong(t._id)}
                                                         >
                                                             ▶
                                                         </button>
