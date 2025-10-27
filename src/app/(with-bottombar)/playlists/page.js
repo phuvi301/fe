@@ -159,7 +159,7 @@ export default function PlaylistsPage() {
                 }
             );
             console.log(res.data);
-            setPlaylists((prev) => [res.data.data].concat(prev.filter((pl) => pl._id !== current._id)));
+            setPlaylists((prev) => [res.data.data, ...prev.filter((pl) => pl._id !== current._id)]);
             setToast({ type: "success", message: "Đã thêm bài hát" });
         } catch {
             setToast({ type: "error", message: "Thêm bài hát thất bại" });
@@ -181,7 +181,7 @@ export default function PlaylistsPage() {
                     },
                 }
             );
-            setPlaylists((prev) => prev.map((prev) => [res.data.data] + prev.filter((pl) => pl._id !== current._id)));
+            setPlaylists((prev) => prev.map((prev) => [res.data.data, ...prev.filter((pl) => pl._id !== current._id)]);
             setToast({ type: "success", message: "Đã xoá bài hát khỏi playlist" });
         } catch {
             setToast({ type: "error", message: "Xoá bài hát khỏi playlist thất bại" });
@@ -293,7 +293,7 @@ export default function PlaylistsPage() {
                                         </button>
                                         <button
                                             className={styles.danger}
-                                            onClick={() => handleDeletePlaylist(current.id)}
+                                            onClick={() => handleDeletePlaylist(current._id)}
                                         >
                                             Xóa playlist
                                         </button>
@@ -339,7 +339,7 @@ export default function PlaylistsPage() {
                                                         <button
                                                             className={styles.iconBtn}
                                                             title="Remove"
-                                                            onClick={() => handleRemoveSong(t.id)}
+                                                            onClick={() => handleRemoveSong(t._id)}
                                                         >
                                                             ✕
                                                         </button>
