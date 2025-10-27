@@ -1,17 +1,17 @@
-// .overlay {
-//     position: fixed;
-//     top: 0;
-//     left: 0;
-//     width: 100%;
-//     height: 100%;
-//     background-color: rgba(0, 0, 0, 0.958);
-//     z-index: 9999;
-// }
+ .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.958);
+    z-index: 9999;
+}
 .overview {
     height: calc(100vh - 70px);
     width: calc(100vw - 250px);
     margin-top: 70px;
-    margin-left: 250px; // Giảm margin-left vì sidebar bây giờ nằm bên phải
+    margin-left: 250px; /* Giảm margin-left vì sidebar bây giờ nằm bên phải */
     color: #ccc;
     overflow: hidden;
 }
@@ -21,18 +21,17 @@
     height: 100%;
     width: 100%;
     display: flex;
-    // grid-template-columns: 3fr 1fr;
+    /* grid-template-columns: 3fr 1fr; */
     column-gap: 1px;
     background-image: linear-gradient(#000000 50%, #0d046f );
 
 }
 
 .main-wrapper {
-    flex: 1; // Chiếm phần còn lại
+    flex: 1; /* Chiếm phần còn lại */
     padding: 30px;
     height: 100%;
     overflow-y: auto;
-    padding-right: 0px;
 }
 
 .sidebar-list {
@@ -43,9 +42,9 @@
     padding-top: 10px;
     width: 250px;
     height: 100%;
-    border-left: 2px solid #333; // Thêm border-left để tạo viền hai bên
+    border-left: 2px solid #333; /* Thêm border-left để tạo viền hai bên */
     background-color: #000000;
-    flex-shrink: 0; // Không cho phép co lại
+    flex-shrink: 0; /* Không cho phép co lại */
 }
 
 .sidebar-item {
@@ -70,7 +69,7 @@
         opacity: 0;
         position: absolute;
         top: 0;
-        right: 0; // Thay đổi từ left thành right
+        right: 0; /* Thay đổi từ left thành right */
         bottom: 0;
         width: 5px;
     }
@@ -94,6 +93,12 @@
     width: 25px;
     height: 25px;
 
+}
+
+.sidebar-text {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
 }
 
 .personal-info-wrapper {
@@ -200,7 +205,8 @@
 
 .personal-upload-item-name {
     margin-top: 8px;
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 600;
     color: #ccc;
 }
 
@@ -215,7 +221,12 @@
     font-size: 16px;
     visibility: hidden;
     opacity: 0;
+    cursor: pointer;
     transition: all 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.personal-upload-item-play-btn:hover {
+    color: rgb(210, 210, 210);
 }
 
 .personal-playlist-wrapper {
@@ -354,12 +365,12 @@
     text-wrap: nowrap;
 }
 
-.user-title,
-.user-wrapper {
-    margin-left: 35px;
+.user-title {
+    margin: 35px 40px 0 40px;
 }
 
 .user-wrapper {
+    margin: 20px 35px;
     display: grid;
     grid-template-columns: 2fr 1fr;
     column-gap: 15px;
@@ -381,14 +392,14 @@
 
 .user-form-label {
     margin: 10px 0;
-    font-size: 14px;
+    font-size: 17px;
     span {
         color: red;
     }
 }
 
 .user-form-input {
-    width: 100%;
+    width: 60%;
     height: 40px;
     font-size: 16px;
     padding: 5px 15px;
@@ -482,11 +493,15 @@
     border-radius: 8px;
     background-color: #333;
     cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
 }
 
-.security-title,
+.security-title {
+    margin: 35px 40px 0 40px;
+}
+
 .security-wrapper {
-    margin-left: 35px;
+    margin: 0 35px;
 }
 
 .security-item {
@@ -536,8 +551,8 @@
         background-color: rgb(29, 69, 143);
 
         &::before {
-            // right: calc(10px / 2);
-            // left: unset;
+            /* right: calc(10px / 2);
+            left: unset;*/
             transform: translate(150%, 0);
         }
     }

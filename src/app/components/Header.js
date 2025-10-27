@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import style from "../homepage.module.css";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
 	const [searchInput, setSearchInput] = useState("");
@@ -11,6 +12,7 @@ export default function Header() {
 	const [loginStatus, setLoginStatus] = useState(false);
 	const [userInfo, setUserInfo] = useState(null);
 	const searchInputRef = useRef(null);
+	const router = useRouter();
 
 	const clearInput = () => {
 		setSearchInput("");
@@ -46,8 +48,15 @@ export default function Header() {
 		{ id: 1, message: "New song added to your playlist", time: "2 minutes ago" },
 		{ id: 2, message: "Your friend liked your song", time: "1 hour ago" },
 		{ id: 3, message: "New album from your favorite artist", time: "3 hours ago" },
-		{ id: 4, message: "Vinh cu qua luoi", time: "1 day ago" },
+		// { id: 4, message: "Vinh cu qua luoi", time: "1 day ago" },
 	];
+	
+	// Xử lý sự kiện khi người dùng nhập vào ô tìm kiếm
+	const handleSearchInput = () => {
+		if (searchInput.trim() !== "") {
+			router.push(`/search?q=${encodeURIComponent(searchInput.trim())}`);
+		}
+	};
 
 	useEffect(() => {
 		const accessToken = document.cookie.split('accessToken=')[1];
@@ -66,7 +75,7 @@ export default function Header() {
 				{/* Search bar */}
 				<div className={style["search-container"]}>
 					<div className={style["search-bar"]}>
-						<span className={style["search-btn"]} title="Search">
+						<span className={style["search-btn"]} onClick={handleSearchInput} title="Search">
 							<img src="/search-button.png" alt="Search" />
 						</span>
 						<input
