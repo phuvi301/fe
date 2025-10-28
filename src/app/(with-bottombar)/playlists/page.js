@@ -261,7 +261,7 @@ export default function PlaylistsPage() {
                             >
                                 <div className={styles.detailTopBar}>
                                     <button className={styles.backBtn} onClick={() => setSelectedId(null)}>
-                                        ← Quay lại
+                                        &#8592; Return
                                     </button>
                                 </div>
 
@@ -276,13 +276,13 @@ export default function PlaylistsPage() {
                                             <h1 id="playlist-detail-heading" className={styles.detailTitle}>
                                                 {current.title}
                                             </h1>
-                                            <p className={styles.detailMeta}>{current.tracks.length} bài hát</p>
+                                            <p className={styles.detailMeta}>{current.tracks.length} tracks</p>
                                         </div>
                                     </div>
 
                                     <div className={styles.rowGap}>
                                         <button className={styles.secondary} onClick={() => setIsAddOpen(true)}>
-                                            Thêm bài hát
+                                            Add track
                                         </button>
                                         <button className={styles.ghost} onClick={() => alert("Play - TODO")}>
                                             Play
@@ -297,16 +297,16 @@ export default function PlaylistsPage() {
                                             className={styles.danger}
                                             onClick={() => handleDeletePlaylist(current._id)}
                                         >
-                                            Xóa playlist
+                                            Delete playlist
                                         </button>
                                     </div>
                                 </div>
 
                                 {current.tracks.length === 0 ? (
                                     <div className={styles.emptyState}>
-                                        <p>Chưa có bài hát nào trong playlist này.</p>
+                                        <p>No tracks found in this playlist.</p>
                                         <button className={styles.primary} onClick={() => setIsAddOpen(true)}>
-                                            + Thêm bài hát
+                                            + Add track
                                         </button>
                                     </div>
                                 ) : (
@@ -314,9 +314,9 @@ export default function PlaylistsPage() {
                                         <thead>
                                             <tr>
                                                 <th>#</th>
-                                                <th>Bài hát</th>
-                                                <th>Nghệ sĩ</th>
-                                                <th>Thời lượng</th>
+                                                <th>Track</th>
+                                                <th>Artist</th>
+                                                <th>Duration</th>
                                                 <th></th>
                                             </tr>
                                         </thead>

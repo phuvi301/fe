@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import style from "../homepage.module.css";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -12,6 +13,7 @@ export default function Header() {
 	const [loginStatus, setLoginStatus] = useState(false);
 	const [userInfo, setUserInfo] = useState(null);
 	const searchInputRef = useRef(null);
+
 	const router = useRouter();
 
 	const clearInput = () => {
@@ -21,12 +23,10 @@ export default function Header() {
 
 	const toggleNotifications = () => {
 		setShowNotifications(!showNotifications);
-		if (showProfileMenu) toggleProfileMenu();
 	};
 
 	const toggleProfileMenu = () => {
 		setShowProfileMenu(!showProfileMenu);
-		if (showNotifications) toggleNotifications();
 	};
 
 	const handleLogout = async () => {
@@ -66,6 +66,22 @@ export default function Header() {
 			setUserInfo(JSON.parse(localStorage.getItem("userInfo"))); // Lấy thông tin user từ localStorage
 		}
 	}, []);
+
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (!event.target.closest(`.${style["notification-container"]}`)) {
+				setShowNotifications(false);
+			}
+			if (!event.target.closest(`.${style["profile-container"]}`)) {
+				setShowProfileMenu(false);
+			}
+		};
+
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, [showNotifications, showProfileMenu]);
 
 	return (
 		<>
@@ -150,13 +166,13 @@ export default function Header() {
 						{/* Profile */}
 						<div className={style["profile-container"]}>
 							<button id={style["profile-button"]} title="Profile" onClick={toggleProfileMenu}>
-								<img src="/hcmut.png" alt="Profile" />
+								<Image src="/hcmut.png" alt="Profile" width={600} height={600} />
 							</button>
 							{showProfileMenu && (
 								<div className={style["profile-dropdown"]}>
 									<div className={style["profile-header"]}>
 										<div className={style["profile-info"]}>
-											<img src="/hcmut.png" alt="Profile" className={style["profile-avatar"]} />
+											<Image src="/hcmut.png" alt="Profile" width={600} height={600} className={style["profile-avatar"]} />
 											<div className={style["profile-details"]}>
 												<h4>{userInfo?.nickname || userInfo?.username || ""}</h4>
 												<p>{userInfo?.email || ""}</p>

@@ -7,6 +7,7 @@
     background-color: rgba(0, 0, 0, 0.958);
     z-index: 9999;
 }
+
 .overview {
     height: calc(100vh - 70px);
     width: calc(100vw - 250px);
@@ -89,13 +90,12 @@
     margin-right: 15px;
     width: 25px;
     height: 25px;
-
 }
 
 .sidebar-text {
     font-family: 'Montserrat', sans-serif;
     font-weight: 500;
-    font-size: 15px;
+    font-size: 17px;
 }
 
 .personal-info-wrapper {

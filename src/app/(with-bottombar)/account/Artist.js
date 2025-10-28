@@ -19,10 +19,26 @@ function Artist() {
 
     const fetchTracks = async (user) => {
         try {
-            const tracksRes = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users/tracks`, { ids: user.tracks })
-            setUploadedSongs(tracksRes.data.data);
+            const tracksRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${user._id}?tracks=true`);
+            setUploadedSongs(tracksRes.data.data._doc.tracks);
         } catch (err) {
             console.error("Lỗi khi tải bài hát:", err);
+        }
+    };
+
+    const handleDeleteTrack = async (trackId) => {
+        if(!confirm("Are you sure you want to delete this track?")) return;
+        try {
+            await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${trackId}`, {
+                headers: {
+                    token: `Bearer ${document.cookie.split('accessToken=')[1]}`,
+                },
+                withCredentials: true,
+            });
+            // Cập nhật lại danh sách bài hát sau khi xóa
+            fetchTracks(userInfo);
+        } catch (err) {
+            console.error("Lỗi khi xóa bài hát:", err);
         }
     };
 
@@ -42,8 +58,9 @@ function Artist() {
                 <Image
                     src={userInfo?.avatar || "/hcmut.png"}
                     alt=""
-                    width={100}
-                    height={100}
+                    width={600}
+                    height={600}
+                    loading="eager"
                     className={styles["personal-info-image"]}
                 />
                 <div className={styles["personal-name-group"]}>
@@ -72,7 +89,7 @@ function Artist() {
                                 <button className={styles["personal-upload-item-play-btn"]}>
                                     <FontAwesomeIcon icon={faPlay} />
                                 </button>
-                                <button className={styles["personal-upload-item-delete-btn"]}>
+                                <button className={styles["personal-upload-item-delete-btn"] } onClick={(e) => { e.stopPropagation(); handleDeleteTrack(track._id); }}>
                                     <FontAwesomeIcon icon={faTrash} />
                                 </button>
                             </div>

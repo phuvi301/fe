@@ -161,10 +161,7 @@
 .background aside {
     width: 250px;
     padding: 20px;
-    /* background-color: var(--theme-color-black); */
     background-color: #000000;
-    /* --border-radius: 20px;
-    border-radius: 0 var(--border-radius) var(--border-radius) 0; */
     z-index: 999;
 
     height: calc(100vh - var(--header-height));
@@ -187,21 +184,14 @@
     align-items: center;
     border-radius: 5px;
     color: white;
-    /* border: 1px solid rgb(148, 148, 148); */
-    /* background: linear-gradient(to top, var(--theme-color-black) 0%, var(--theme-color-blue) 50%); */
 }
 
 .background aside ul li a:hover {
     text-decoration: wavy;
-    /* background-color: var(--theme-color-blue); */
     color: white;
     cursor: pointer;
-    /* box-shadow: 0px 0 10px rgba(13, 4, 111, 0.8);
-    border: 1px solid white; */
     transition: 0.3s;
     font-weight: bold;
-    /* font-size: 22px; */
-
 }
 
 
@@ -214,15 +204,14 @@
 /* Main features */
 .background main {
     position: absolute;
-    /* left: var(--aside-width); */
     left: 0;
     top: var(--header-height);
     flex: 1;
-    padding: 20px 20px calc(20px + 10vh) calc(var(--aside-width) + 40px);
+    padding: 20px 20px calc(20px + var(--header-height) + var(--bottom-bar-height)) calc(var(--aside-width) + 40px);
     box-sizing: border-box;
     background-image: linear-gradient(#000000 50%, #0d046f);
     max-height: fit-content;
-    min-height: calc(100vh - var(--header-height));
+    min-height: calc(100vh - var(--header-height) - var(--bottom-bar-height));
     width: 100%;
 }
 
@@ -271,8 +260,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
     width: 300px;
-    padding-left: 6%;
+    word-break: break-word;
 }
 
 .featured-container img {
@@ -529,16 +519,12 @@
 }
 
 /* Profile menu */
-.profile-menu {
-    padding: 8px 0;
-}
-
 .profile-menu-item {
     width: 100%;
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 20px;
+    padding: 15px 20px;
     background: none;
     border: none;
     color: white;
