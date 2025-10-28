@@ -218,11 +218,11 @@
     left: 0;
     top: var(--header-height);
     flex: 1;
-    padding: 20px 20px 20px calc(var(--aside-width) + 40px);
+    padding: 20px 20px calc(20px + 10vh) calc(var(--aside-width) + 40px);
     box-sizing: border-box;
     background-image: linear-gradient(#000000 50%, #0d046f);
-    min-height: calc(100vh + 13vh);
-    height: fit-content;
+    max-height: fit-content;
+    min-height: calc(100vh - var(--header-height));
     width: 100%;
 }
 
@@ -617,6 +617,7 @@
     width: 50px;
     height: 50px;
     border-radius: 3px;
+    object-fit: cover;
 }
 
 .song-detail2 {
