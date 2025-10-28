@@ -16,7 +16,6 @@
     overflow: hidden;
 }
 
-
 .main {
     height: 100%;
     width: 100%;
@@ -24,18 +23,16 @@
     /* grid-template-columns: 3fr 1fr; */
     column-gap: 1px;
     background-image: linear-gradient(#000000 50%, #0d046f );
-
 }
 
 .main-wrapper {
     flex: 1; /* Chiếm phần còn lại */
     padding: 30px;
-    height: 100%;
+    /* height: fit-content; */
     overflow-y: auto;
 }
 
 .sidebar-list {
-    
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -144,7 +141,7 @@
 
     &:hover {
         scale: 1.05;
-        color: #16ce44;
+        color: rgb(0, 108, 232);
     }
 }
 
@@ -171,7 +168,7 @@
 .personal-upload-list {
     display: flex;
     justify-content: flex-start;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .personal-upload-item {
@@ -181,6 +178,7 @@
     padding: 12px;
     border-radius: 8px;
     transition: all 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+    cursor: pointer;
 
     &:hover {
         background-color: #333333;
@@ -191,16 +189,31 @@
             visibility: visible;
         }
 
+        .personal-upload-item-delete-btn {
+            opacity: 1;
+            visibility: visible;
+        }
+
         .personal-upload-item-name {
             color: #eee;
         }
     }
 }
 
+.personal-upload-item-overlay {
+    width: 145px;
+    height: 145px;
+    position: relative;
+    flex-shrink: 0;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
 .personal-upload-item-image {
     width: 145px;
     height: 145px;
     border-radius: 15px;
+    object-fit: cover;
 }
 
 .personal-upload-item-name {
@@ -208,19 +221,39 @@
     font-size: 15px;
     font-weight: 600;
     color: #ccc;
+    max-width: 145px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    text-align: center;
 }
 
 .personal-upload-item-play-btn {
     position: absolute;
     border: none;
-    border-radius: 99999px;
+    border-radius: 50%;
     padding: 6px;
-    background-color: green;
-    bottom: 50px;
-    right: 25px;
+    background-color: rgb(0, 102, 219);
+    bottom: 10px;
+    right: 10px;
     font-size: 16px;
     visibility: hidden;
     opacity: 0;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.personal-upload-item-delete-btn {
+    position: absolute;
+    border: none;
+    border-radius: 50%;
+    padding: 6px;
+    background-color: rgb(191, 0, 0);
+    top: 10px;
+    right: 10px;
+    font-size: 16px;
+    opacity: 0;
+    visibility: hidden;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
@@ -229,140 +262,8 @@
     color: rgb(210, 210, 210);
 }
 
-.personal-playlist-wrapper {
-    margin: 15px;
-    border-top: 2px solid #333333;
-    padding: 15px;
-}
-
-.personal-playlist-title {
-    font-size: 24px;
-    font-weight: 600;
-    margin: 8px 0;
-}
-
-.personal-playlist-list {
-    display: flex;
-    flex-direction: column;
-}
-
-.personal-playlist-item {
-    display: flex;
-}
-
-.personal-playlist-item-image {
-    border-radius: 16px;
-    margin: 0 16px;
-    width: 120px;
-    height: 120px;
-}
-
-.personal-playlist-item-content {
-    display: grid;
-    grid-template-columns: 40px auto;
-    width: 100%;
-    height: auto;
-}
-
-.personal-playlist-item-play-btn {
-    border: none;
-    background-color: #eee;
-    color: #333;
-    width: 35px;
-    height: 35px;
-    border-radius: 99999px;
-    font-size: 16px;
-    justify-self: center;
-    align-self: center;
-
-    &:hover {
-        color: #ccc;
-    }
-}
-
-.personal-playlist-item-info {
-    display: flex;
-    flex-direction: column;
-    margin-left: 8px;
-}
-
-.personal-playlist-item-name {
-    font-size: 16px;
-    font-weight: 600;
-    color: #ccc;
-}
-
-.personal-playlist-item-owner {
-    font-size: 14px;
-    font-weight: 400;
-    color: #aaa;
-}
-
-.personal-playlist-item-soundtrack {
-    grid-area: 2 / 1 / 3 / 3;
-    height: 15px;
-    background-color: #ccc;
-    margin-top: 15px;
-}
-
-.playlist-item-wrapper {
-    display: flex;
-    flex-direction: column;
-    grid-area: 3 / 1 / 4 / 3;
-    margin-top: 10px;
-}
-
-.playlist-item {
-    width: 100%;
-    display: flex;
-    position: relative;
-    align-items: center;
-    padding: 8px 4px;
-    border-radius: 8px;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-    &:hover {
-        background-color: #333333;
-
-        .playlist-item-play-btn {
-            visibility: visible;
-            opacity: 1;
-        }
-    }
-}
-
-.playlist-item-image {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    margin-right: 16px;
-}
-
-.playlist-item-play-btn {
-    position: absolute;
-    top: calc(36px / 2 + 8px);
-    left: calc(36px / 2 + 4px);
-    transform: translate(-50%, -50%);
-    border: none;
-    background-color: #eee;
-    color: #333;
-    padding: 4px;
-    font-size: 12px;
-    border-radius: 99999px;
-    visibility: hidden;
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-    &:hover {
-        color: #ccc;
-    }
-}
-
-.playlist-item-name {
-    width: 100%;
-    display: inline-block;
-    line-height: 100%;
-    text-wrap: nowrap;
+.personal-upload-item-delete-btn:hover {
+    color: rgb(210, 210, 210);
 }
 
 .user-title {
