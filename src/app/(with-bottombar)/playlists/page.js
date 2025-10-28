@@ -95,8 +95,14 @@ export default function PlaylistsPage() {
     }, [searchTerm]);
 
     useEffect(() => {
-        localStorage.setItem("userInfo", JSON.stringify({...JSON.parse(localStorage.getItem("userInfo")), playlists: playlists.map(pl => pl._id)}))
-    }, [playlists])
+        localStorage.setItem(
+            "userInfo",
+            JSON.stringify({
+                ...JSON.parse(localStorage.getItem("userInfo")),
+                playlists: playlists.map((pl) => pl._id),
+            })
+        );
+    }, [playlists]);
 
     // --- Event Handlers ---
     const handleCreate = async (nameRaw) => {
@@ -190,7 +196,12 @@ export default function PlaylistsPage() {
         }
     };
 
-    const handlePlaySong = async (songId) => await bottomBarRef.current.playTrack(songId);
+    const handlePlaySong = async (songId) => {
+        console.log(current.tracks.map((song) => song._id));
+        bottomBarRef.current.playlistPlayingRef.current = current.tracks
+        console.log({ a: bottomBarRef.current });
+        await bottomBarRef.current.playTrack(songId);
+    };
 
     // --- Render ---
     return (

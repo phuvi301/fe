@@ -11,6 +11,7 @@ const BottomBar = forwardRef((props, ref) => {
     const playerRef = useRef(null);
     const hlsRef = useRef(null);
     const trackPlaying = useRef(null);
+    const playlistPlayingRef = useRef([])
     const isSeeking = useRef(false);
     const listenedSegments = useRef(new Set());
 
@@ -337,6 +338,8 @@ const BottomBar = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         playTrack,
+        playlistPlayingRef,
+        trackPlaying
     }));
 
     return (
