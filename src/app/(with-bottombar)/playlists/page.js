@@ -9,6 +9,9 @@ import Header from "~/app/components/Header";
 import Sidebar from "~/app/components/Sidebar";
 import axios from "axios";
 import { useBottomBar } from "~/context/BottombarContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEllipsis, faL, faPencil, faXmark } from "@fortawesome/free-solid-svg-icons";
+import Image from "next/image";
 
 // --- Constants ---
 
@@ -45,6 +48,7 @@ export default function PlaylistsPage() {
     const [toast, setToast] = useState(null);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [isAddOpen, setIsAddOpen] = useState(false);
+    const [isEditPlaylistOpen, setIsEditPlaylistOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [pickerResults, setPickerResults] = useState([]);
     const { bottomBarRef } = useBottomBar();
@@ -105,6 +109,8 @@ export default function PlaylistsPage() {
     }, [playlists]);
 
     // --- Event Handlers ---
+    const handleEditPlaylist = () => setIsEditPlaylistOpen(prev => !prev)
+
     const handleCreate = async (nameRaw) => {
         const name = nameRaw?.trim();
         const finalName = name || nextUnnamedName(playlists);
@@ -198,7 +204,7 @@ export default function PlaylistsPage() {
 
     const handlePlaySong = async (songId) => {
         console.log(current.tracks.map((song) => song._id));
-        bottomBarRef.current.playlistPlayingRef.current = current.tracks
+        bottomBarRef.current.playlistPlayingRef.current = current.tracks;
         console.log({ a: bottomBarRef.current });
         await bottomBarRef.current.playTrack(songId);
     };
@@ -282,9 +288,10 @@ export default function PlaylistsPage() {
                                             src={current.thumbnailUrl || DEFAULT_PLAYLIST_COVER}
                                             alt=""
                                             className={styles.detailCover}
+                                            onClick={handleEditPlaylist}
                                         />
                                         <div className={styles.detailText}>
-                                            <h1 id="playlist-detail-heading" className={styles.detailTitle}>
+                                            <h1 id="playlist-detail-heading" className={styles.detailTitle} onClick={handleEditPlaylist}>
                                                 {current.title}
                                             </h1>
                                             <p className={styles.detailMeta}>{current.tracks.length} bài hát</p>
@@ -391,6 +398,8 @@ export default function PlaylistsPage() {
                     results={pickerResults}
                 />
             )}
+
+            {isEditPlaylistOpen && <EditPlaylistInfoPopup closeAction={handleEditPlaylist}/>}
 
             <Toast toast={toast} onDismiss={() => setToast(null)} />
         </div>
@@ -501,6 +510,60 @@ function Toast({ toast, onDismiss }) {
     return (
         <div className={clsx(styles.toast, styles[toast.type])} role="status" aria-live="polite">
             {toast.message}
+        </div>
+    );
+}
+
+function EditPlaylistInfoPopup({ closeAction = () => {}}) {
+    return (
+        <div className={clsx(styles["edit-popup"])} onClick={closeAction}>
+            <div className={clsx(styles["edit-wrapper"])} onClick={(e) => e.stopPropagation()}>
+                <div className={clsx(styles["edit-header-wrapper"])}>
+                    <h2 className={clsx(styles["edit-header-title"])}>Edit playlist details</h2>
+                    <button className={clsx(styles["edit-header-close"])} onClick={closeAction}>
+                        <FontAwesomeIcon icon={faXmark} />
+                    </button>
+                </div>
+                <div className={clsx(styles["edit-main-wrapper"])}>
+                    <div className={clsx(styles["edit-image-wrapper"])}>
+                        <Image
+                            className={clsx(styles["edit-image"])}
+                            src={"/albumcover.jpg"}
+                            width={100}
+                            height={100}
+                            alt=""
+                        />
+                        <div className={clsx(styles["edit-image-placeholder"])}>
+                            <input type="file" className={clsx(styles["edit-image-placeholder-input"])}/>
+                            <FontAwesomeIcon icon={faPencil} className={clsx(styles["edit-image-placeholder-icon"])} />
+                            <span className={clsx(styles["edit-image-placeholder-text"])}>Choosing image</span>
+                            <button className={clsx(styles["edit-image-options"])}>
+                                <FontAwesomeIcon icon={faEllipsis} />
+                            </button>
+                        </div>
+                    </div>
+                    <div className={clsx(styles["edit-info-wrapper"])}>
+                        <div className={clsx(styles["edit-title-group"])}>
+                            <input className={clsx(styles["edit-title-input"])} placeholder="Name" />
+                            <label className={clsx(styles["edit-title"])}>Title</label>
+                        </div>
+                        <div className={clsx(styles["edit-desc-group"])}>
+                            <textarea
+                                className={clsx(styles["edit-desc-input"])}
+                                placeholder="Description (optional)"
+                            />
+                            <label className={clsx(styles["edit-desc"])}>Description</label>
+                        </div>
+                    </div>
+                </div>
+                <button className={clsx(styles["edit-action-button"])}>
+                    <span>Save</span>
+                </button>
+                <strong className={clsx(styles["edit-details"])}>
+                    By continuing, you agree to allow MusicHub to access the images you have selected to upload. have
+                    fun Please ensure you have permission to upload the images.
+                </strong>
+            </div>
         </div>
     );
 }
