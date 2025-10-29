@@ -17,7 +17,8 @@ export default function Search() {
     const [searchResults, setSearchResults] = useState([]);
 
     const handleTrackPlay = async (trackId) => {
-        await bottomBarRef.current.playTrack(trackId);
+        await bottomBarRef.current.chooseTrack(trackId);
+        bottomBarRef.current.saveProgressToRedis();
     };
 
     useEffect(() => {
@@ -82,8 +83,8 @@ export default function Search() {
                                 </div>
                             </div>
                         ))}
+                    </div>
                 </div>
-            </div>
             </main>
         </div>
     );

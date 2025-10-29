@@ -61,7 +61,6 @@ export default function PlaylistsPage() {
                     const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${playlistId}`);
                     dataFetch.push(res.data.data);
                 }
-                console.log(dataFetch);
                 setPlaylists(dataFetch);
             } catch {
                 setError("Không thể tải danh sách playlist");
@@ -95,8 +94,14 @@ export default function PlaylistsPage() {
     }, [searchTerm]);
 
     useEffect(() => {
-        localStorage.setItem("userInfo", JSON.stringify({...JSON.parse(localStorage.getItem("userInfo")), playlists: playlists.map(pl => pl._id)}))
-    }, [playlists])
+        localStorage.setItem(
+            "userInfo",
+            JSON.stringify({
+                ...JSON.parse(localStorage.getItem("userInfo")),
+                playlists: playlists.map((pl) => pl._id),
+            })
+        );
+    }, [playlists]);
 
     // --- Event Handlers ---
     const handleCreate = async (nameRaw) => {
@@ -190,7 +195,13 @@ export default function PlaylistsPage() {
         }
     };
 
-    const handlePlaySong = async (songId) => await bottomBarRef.current.playTrack(songId);
+    const handlePlaySong = async (songId) => {
+        bottomBarRef.current.playlistPlayingRef.current = current.tracks
+        const index = current.tracks.findIndex(song => song._id === songId);
+        const playlistID = current._id;
+        await bottomBarRef.current.chooseTrack(songId);
+        bottomBarRef.current.saveProgressToRedis(playlistID, index);
+    };
 
     // --- Render ---
     return (
@@ -334,7 +345,7 @@ export default function PlaylistsPage() {
                                                         <button
                                                             className={styles.iconBtn}
                                                             title="Play"
-                                                            onClick={() => handlePlaySong(t._id)}
+                                                            onClick={async () => await handlePlaySong(t._id)}
                                                         >
                                                             ▶
                                                         </button>
