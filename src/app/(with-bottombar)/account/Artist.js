@@ -14,12 +14,15 @@ function Artist() {
     const { bottomBarRef } = useBottomBar();
 
     const handleTrackPlay = async (trackId) => {
-        await bottomBarRef.current.playTrack(trackId);
+        await bottomBarRef.current.chooseTrack(trackId);
+        await bottomBarRef.current.fetchLyrics(trackId);
+        bottomBarRef.current.saveProgressToRedis();
     };
 
     const fetchTracks = async (user) => {
         try {
             const tracksRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${user._id}?tracks=true`);
+            console.log("Uploaded songs:", tracksRes.data.data.tracks);
             setUploadedSongs(tracksRes.data.data.tracks);
         } catch (err) {
             console.error("Lỗi khi tải bài hát:", err);

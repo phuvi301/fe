@@ -17,7 +17,26 @@ export default function Search() {
     const [searchResults, setSearchResults] = useState([]);
 
     const handleTrackPlay = async (trackId) => {
-        await bottomBarRef.current.playTrack(trackId);
+        await bottomBarRef.current.chooseTrack(trackId);
+        await bottomBarRef.current.fetchLyrics(trackId);
+        bottomBarRef.current.saveProgressToRedis();
+    };
+    const handleDownload = async (trackId) => {
+        try {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/download/${trackId}`, {
+                responseType: 'blob', // Quan trọng để nhận dữ liệu dưới dạng blob
+            });
+            // Tạo URL tạm thời cho blob
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `track_${trackId}.mp3`); // Tên file khi tải về
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+        } catch (error) {
+            console.error("Error downloading the track:", error);
+        }
     };
 
     useEffect(() => {
@@ -70,7 +89,7 @@ export default function Search() {
                                             <Image src="/copy.png" alt="Copy Link" width={18} height={18}/>
                                             <span className={style.buttonText}> Copy Link</span>
                                         </div>
-                                        <div className={style.ButtonContainer}>
+                                        <div className={style.ButtonContainer} onClick={() => handleDownload(song._id)}>
                                             <Image src="/download.png" alt="Download" width={18} height={18}/>
                                             <span className={style.buttonText}> Download</span>
                                         </div>
@@ -82,8 +101,8 @@ export default function Search() {
                                 </div>
                             </div>
                         ))}
+                    </div>
                 </div>
-            </div>
             </main>
         </div>
     );

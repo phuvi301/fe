@@ -26,7 +26,9 @@ export default function Home() {
   const scrollBtnRight = useRef(null);
 
   const handleTrackPlay = async (trackId) => {
-    await bottomBarRef.current.playTrack(trackId);
+    await bottomBarRef.current.chooseTrack(trackId);
+    await bottomBarRef.current.fetchLyrics(trackId);
+    bottomBarRef.current.saveProgressToRedis();
   };
 
   const scrollTracks = (e, targetList) => {
@@ -86,7 +88,7 @@ export default function Home() {
       {/* Main content */}
       <main>
         {/* Featured section */}
-        <section className={style.featured} height={1200}>
+        <section className={style.featured}>
           {/* Featured container 1 */}
           <article className={style["featured-section"]}>
             {/* <h1>More of what you like</h1>
@@ -156,22 +158,16 @@ export default function Home() {
         {/* Featured container 3 */}
           {listenedTracks.length !== 0 && (<article className={style["featured-section"]}>
             {/* Scroll buttons */}
-              {
-                listTracks2.current ? (
-                  <div>
-                    <h1>Recently Listened Tracks</h1>
-                    <p>These are the tracks you've listened to recently.</p>
-                    <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 2)} ref={scrollBtnLeft}>
-                      <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
-                    </button>
-                    <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 2)} ref={scrollBtnRight}>
-                      <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
-                    </button>
-                  </div>
-                ) : (
-                  <div></div>
-                )
-              }
+            <div>
+              <h1>Recently Listened Tracks</h1>
+              <p>These are the tracks you've listened to recently.</p>
+              <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 2)} ref={scrollBtnLeft}>
+                <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
+              </button>
+              <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 2)} ref={scrollBtnRight}>
+                <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
+              </button>
+            </div>
             {/* Featured items */}
             <div className={style["featured-container"]} ref={listTracks2}>
               {listenedTracks.map(track => (
@@ -185,6 +181,7 @@ export default function Home() {
             </div>
           </article>)}
         </section>
+        <div className={style.fakebottombar}></div>
       </main>
     </div>
   );

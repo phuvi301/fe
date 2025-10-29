@@ -394,8 +394,8 @@
 .notification-dropdown {
     position: absolute;
     top: 100%;
-    right: 20px;
-    margin-top: 5px;
+    right: 5px;
+    margin-top: 15px;
     width: 350px;
     max-height: 400px;
     background-color: #1a1a1a;
@@ -473,8 +473,8 @@
 .profile-dropdown {
     position: absolute;
     top: 100%;
-    right: 20px;
-    margin-top: 5px;
+    right: 5px;
+    margin-top: 15px;
     width: 280px;
     background-color: #1a1a1a;
     border: 1px solid #333;
@@ -680,6 +680,7 @@
     border-radius: 2px;
     outline: none;
     cursor: pointer;
+    
 }
 
 /* Thanh kéo */
@@ -766,9 +767,9 @@
 /* Lyrics Panel */
 .lyrics-panel {
     position: fixed;
-    bottom: 75px;
+    bottom: 80px;
     right: 20px;
-    width: 500px;
+    width: 600px;
     height: 550px;
     background-color: #1a1a1a;
     border-radius: 12px;
@@ -785,61 +786,50 @@
     align-items: center;
     padding: 15px 20px;
     border-bottom: 1px solid #333;
+    background-color: #222;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    
 }
 
-.lyrics-header h3 {
-    margin: 0;
+.lyrics-header h2 {
+    margin-left: 5px;
     color: #ffffff;
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-weight: bold;
 }
 
-.close-lyrics {
-    background: none;
-    border: none;
-    color: #aaa;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 10px;
-    transition: background-color 0.2s;
-}
-
-.close-lyrics:hover {
-    background-color: #333;
-    color: #ff0000;
-}
 
 .lyrics-content {
-    flex: 1;
+    height: auto;
     padding: 20px;
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #666 transparent;
-
+    
 }
+
 
 .lyrics-content::-webkit-scrollbar {
     width: 6px;
 }
 
 .lyrics-content::-webkit-scrollbar-track {
-    background: transparent;
+    background: rgba(0, 0, 0, 0.1);
 }
 
 .lyrics-content::-webkit-scrollbar-thumb {
-    background-color: #666;
+    background: rgba(255, 255, 255, 0.3);
     border-radius: 3px;
 }
 
 .lyrics-content::-webkit-scrollbar-thumb:hover {
-    background-color: #888;
+    background: rgba(255, 255, 255, 0.5);
 }
 
 .lyric-line {
     padding: 8px 12px;
     color: #aaa;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     line-height: 1.4;
     transition: all 0.3s ease;
@@ -849,21 +839,30 @@
 }
 
 .lyric-line:hover {
-    color: #ddd;
-    background-color: #333;
-    transform: translateX(5px); /* Hiệu ứng dịch chuyển nhẹ */
+    color: #ffffff;
+    /* transform: translateX(5px); //Hiệu ứng dịch chuyển nhẹ */
+    transform: scale(1.20x);
 }
 
 .current-lyric {
     color: #3c74cfff !important;
-    background-color: rgba(60, 116, 207, 0.1) !important;
-    border-left: 3px solid #3c74cfff;
+    background-color: rgba(60, 116, 207, 0.15) !important;
+    border-left: 4px solid #3c74cfff !important;
     padding-left: 15px;
-    font-size: 26px; /* Tăng kích thước chữ cho dòng hiện tại */
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(60, 116, 207, 0.3);
 }
 
 .current-lyric:hover {
     background-color: rgba(60, 116, 207, 0.2) !important;
+}
+
+.timestamp{
+    font-size: 10px;
+    color: #666;
+    margin-right: 10px;
+    min-width: 40px;
+    display: inline-block;
 }
 
 .no-lyrics {
@@ -871,6 +870,32 @@
     color: #666;
     font-style: italic;
     padding: 40px 20px;
+}
+
+.lyrics-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-lyrics {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.close-lyrics:hover {
+    background-color: #fc0000;
+}
+.close-lyrics img {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
 }
 
 /* Responsive */
