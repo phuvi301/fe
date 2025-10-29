@@ -45,7 +45,8 @@ export default function Upload() {
 
         try {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: { 'Content-Type': 'multipart/form-data' },
+                withCredentials: true,
             });
 
             resetRef.current.style.display = 'block';
@@ -91,7 +92,8 @@ export default function Upload() {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, metaData, {
                 headers: {
                     token: `Bearer ${document.cookie.split('accessToken=')[1]}`
-                }
+                },
+                withCredentials: true,
             });
 
             setSelectedFile(null);

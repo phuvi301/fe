@@ -391,6 +391,12 @@ const BottomBar = forwardRef((props, ref) => {
 
     const chooseTrack = async (trackID) => {
         const res = await getTrack(trackID);
+
+        // Reset lyrics khi đổi bài
+        setLyrics([]);
+        setCurrentLyricIndex(-1);
+        setIsLyricsSynced(true);
+
         nowPlaying.current = res.track;
         handleTrack(res.url);
     }
