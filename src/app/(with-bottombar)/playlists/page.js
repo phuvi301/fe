@@ -65,7 +65,6 @@ export default function PlaylistsPage() {
                     const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${playlistId}`);
                     dataFetch.push(res.data.data);
                 }
-                console.log(dataFetch);
                 setPlaylists(dataFetch);
             } catch {
                 setError("Không thể tải danh sách playlist");
@@ -203,10 +202,12 @@ export default function PlaylistsPage() {
     };
 
     const handlePlaySong = async (songId) => {
-        console.log(current.tracks.map((song) => song._id));
-        bottomBarRef.current.playlistPlayingRef.current = current.tracks;
-        console.log({ a: bottomBarRef.current });
-        await bottomBarRef.current.playTrack(songId);
+        bottomBarRef.current.playlistPlayingRef.current = current.tracks
+        const index = current.tracks.findIndex(song => song._id === songId);
+        const playlistID = current._id;
+        await bottomBarRef.current.chooseTrack(songId);
+        await bottomBarRef.current.fetchLyrics(songId);
+        bottomBarRef.current.saveProgressToRedis(playlistID, index);
     };
 
     // --- Render ---
@@ -352,7 +353,7 @@ export default function PlaylistsPage() {
                                                         <button
                                                             className={styles.iconBtn}
                                                             title="Play"
-                                                            onClick={() => handlePlaySong(t._id)}
+                                                            onClick={async () => await handlePlaySong(t._id)}
                                                         >
                                                             ▶
                                                         </button>

@@ -1,24 +1,17 @@
 "use client";
 
-import { useRef, useEffect, useState, useLayoutEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import "./play.css";
-// import songs from "./mockData.js";
-import { Sacramento } from "next/font/google";
 import { Virtuoso } from "react-virtuoso";
 import Header from "../../components/Header";
 import { useBottomBar } from "~/context/BottombarContext";
 
 export default function Home() {
-    const { bottomBarRef } = useBottomBar();
-    const [searchInput, setSearchInput] = useState("");
-    const searchInputRef = useRef(null);
-    const clearInput = () => {
-        setSearchInput("");
-        searchInputRef.current.focus();
-    };
-    const [queueSong, setQueueSong] = useState([]);
+    const { bottomBarRef, nowPlaying } = useBottomBar();
 
+    const [queueSong, setQueueSong] = useState([]);
     const [collapsed, setCollapsed] = useState(false);
+
     useEffect(() => {
         const savedCollapsed = localStorage.getItem("Collapsing");
         if (savedCollapsed !== null) {
@@ -37,30 +30,29 @@ export default function Home() {
 
     const handleClickSong = async (songId) => {
         await bottomBarRef.current.playTrack(songId);
-        setQueueSong((prev) => prev.slice(1));
+        // setQueueSong((prev) => prev.slice(1));
+        console.log(bottomBarRef.current.playlistPlayingRef.current);
     };
 
-    useEffect(() => {
-        setQueueSong(
-            bottomBarRef.current.playlistPlayingRef.current.slice(
-                bottomBarRef.current.playlistPlayingRef.current.findIndex(
-                    (song) => song._id === bottomBarRef.current.trackPlaying.current._id
-                ) + 1
-            )
-        );
-    }, []);
+    // useEffect(() => {
+    //     setQueueSong(
+    //         bottomBarRef.current.playlistPlayingRef.current.slice(
+    //             bottomBarRef.current.playlistPlayingRef.current.findIndex(
+    //                 (song) => song._id === bottomBarRef.current.trackPlaying.current._id
+    //             ) + 1
+    //         )
+    //     );
+    // }, []);
 
-    useEffect(() => {
-		if (!queueSong.length) return;
-        bottomBarRef.current.playlistPlayingRef.current = queueSong;
-    }, [queueSong]);
-
-	// console.log(bottomBarRef.current.trackPlaying.current._id);
+    // useEffect(() => {
+	// 	if (!queueSong.length) return;
+    //     bottomBarRef.current.playlistPlayingRef.current = queueSong;
+    // }, [queueSong]);
 
     const listSong = ({ index, style }) => {
         const song = queueSong[index];
         return (
-            <div style={style} className="listSong" onClick={() => handleClickSong(song._id)}>
+            <div style={style} className="listSong" onClick={async () => await handleClickSong(song._id)}>
                 <img src="/play.png" className="play-button no-select" />
                 <button className="next-song-queue">
                     <div className="song-in-queue">
@@ -111,18 +103,18 @@ export default function Home() {
                                     <div className="song-in-queue">
                                         <div className="mini-thumbnail">
                                             <img
-                                                src={bottomBarRef.current?.trackPlaying.current?.thumbnailUrl}
+                                                src={nowPlaying.current?.thumbnailUrl}
                                                 className="cover no-select"
                                             />
                                         </div>
                                         <div className="song-detail">
                                             <div className="song-name-queue">
                                                 <div className="bold-text no-select">
-                                                    {bottomBarRef.current?.trackPlaying.current?.title}
+                                                    {nowPlaying.current?.title}
                                                 </div>
                                             </div>
                                             <div className="artist-name-queue no-select">
-                                                {bottomBarRef.current?.trackPlaying.current?.artist}
+                                                {nowPlaying.current?.artist}
                                             </div>
                                         </div>
                                     </div>

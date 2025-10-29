@@ -17,7 +17,9 @@ export default function Search() {
     const [searchResults, setSearchResults] = useState([]);
 
     const handleTrackPlay = async (trackId) => {
-        await bottomBarRef.current.playTrack(trackId);
+        await bottomBarRef.current.chooseTrack(trackId);
+        await bottomBarRef.current.fetchLyrics(trackId);
+        bottomBarRef.current.saveProgressToRedis();
     };
     const handleDownload = async (trackId) => {
         try {
@@ -99,8 +101,8 @@ export default function Search() {
                                 </div>
                             </div>
                         ))}
+                    </div>
                 </div>
-            </div>
             </main>
         </div>
     );

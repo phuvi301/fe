@@ -121,9 +121,9 @@ export default function Header() {
 					</div>
 				</div>
 				{!loginStatus ? (
-					<Link href="/login" className={style["login-container"]}>
+					<a href="/login" className={style["login-container"]}>
 						<div>Login</div>
-					</Link>
+					</a>
 				) : (
 					<div className={style["header-actions"]}>
 						{/* Notification button */}
@@ -188,10 +188,10 @@ export default function Header() {
 											<img src="/setting.png" alt="Settings" />
 											<span>Settings</span>
 										</Link>
-										<Link onClick={handleLogout} href="/login" className={style["profile-menu-item"]} >
+										<a onClick={handleLogout} href="/login" className={style["profile-menu-item"]} >
 											<img src="/logout.png" alt="Logout" />
 											<span>Log out</span>
-										</Link>
+										</a>
 									</div>
 								</div>
 							)}

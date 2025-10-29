@@ -14,7 +14,9 @@ function Artist() {
     const { bottomBarRef } = useBottomBar();
 
     const handleTrackPlay = async (trackId) => {
-        await bottomBarRef.current.playTrack(trackId);
+        await bottomBarRef.current.chooseTrack(trackId);
+        await bottomBarRef.current.fetchLyrics(trackId);
+        bottomBarRef.current.saveProgressToRedis();
     };
 
     const fetchTracks = async (user) => {
