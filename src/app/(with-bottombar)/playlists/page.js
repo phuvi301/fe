@@ -67,7 +67,7 @@ export default function PlaylistsPage() {
                 }
                 setPlaylists(dataFetch);
             } catch {
-                setError("Không thể tải danh sách playlist");
+                setError("Unable to load playlist");
             } finally {
                 setLoading(false);
             }
@@ -128,17 +128,17 @@ export default function PlaylistsPage() {
             );
             setPlaylists((prev) => [res.data.data, ...prev]);
             setSelectedId(res.data.data._id);
-            setToast({ type: "success", message: "Tạo playlist mới thành công" });
+            setToast({ type: "success", message: "New playlist created successfully" });
         } catch (e) {
             setToast({
                 type: "error",
-                message: e?.code === "DUPLICATE" ? "Tên playlist đã tồn tại" : "Không thể tạo playlist mới",
+                message: e?.code === "DUPLICATE" ? "Playlist name already exists" : "Unable to create new playlist",
             });
         }
     };
 
     const handleDeletePlaylist = async (id) => {
-        if (!confirm("Bạn có chắc muốn xóa playlist này?")) return;
+        if (!confirm("Delete this playlist?")) return;
         try {
             await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${id}`, {
                 headers: {
@@ -147,16 +147,16 @@ export default function PlaylistsPage() {
             });
             setPlaylists((prev) => prev.filter((p) => p._id !== id));
             setSelectedId((cur) => (cur === id ? null : cur));
-            setToast({ type: "success", message: "Đã xóa playlist" });
+            setToast({ type: "success", message: "Playlist deleted" });
         } catch {
-            setToast({ type: "error", message: "Xóa playlist thất bại" });
+            setToast({ type: "error", message: "Failed to delete playlist" });
         }
     };
 
     const handleAddSong = async (track) => {
         if (!current) return;
         if (current.tracks.some((t) => t._id === track._id)) {
-            setToast({ type: "info", message: "Bài hát đã tồn tại trong playlist" });
+            setToast({ type: "info", message: "Song already exists in playlist" });
             return;
         }
         try {
@@ -176,15 +176,15 @@ export default function PlaylistsPage() {
                 console.log(prev);
                 return [res.data.data, ...prev.filter((pl) => pl._id !== current._id)];
             });
-            setToast({ type: "success", message: "Đã thêm bài hát" });
+            setToast({ type: "success", message: "Song added" });
         } catch {
-            setToast({ type: "error", message: "Thêm bài hát thất bại" });
+            setToast({ type: "error", message: "Failed to add song" });
         }
     };
 
     const handleRemoveSong = async (trackId) => {
         if (!current) return;
-        if (!confirm("Bạn có chắc muốn xoá bài hát này khỏi playlist?")) return;
+        if (!confirm("Remove this song from the playlist?")) return;
         try {
             const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${current._id}/remove`, {
                 data: {
@@ -195,9 +195,9 @@ export default function PlaylistsPage() {
                 },
             });
             setPlaylists((prev) => [res.data.data, ...prev.filter((pl) => pl._id !== current._id)]);
-            setToast({ type: "success", message: "Đã xoá bài hát khỏi playlist" });
+            setToast({ type: "success", message: "Song removed from playlist" });
         } catch {
-            setToast({ type: "error", message: "Xoá bài hát khỏi playlist thất bại" });
+            setToast({ type: "error", message: "Failed to remove song from playlist" });
         }
     };
 
@@ -220,7 +220,7 @@ export default function PlaylistsPage() {
 
             <main className={clsx(styles.main)}>
                 {loading ? (
-                    <div className={styles.centerMsg}>Đang tải...</div>
+                    <div className={styles.centerMsg}>Loading...</div>
                 ) : error ? (
                     <div className={styles.errorBox}>{error}</div>
                 ) : (
@@ -230,10 +230,10 @@ export default function PlaylistsPage() {
                                 <section className={styles.leftCol} aria-labelledby="my-playlists-heading">
                                     <div className={styles.sectionHeader}>
                                         <div>
-                                            <h1 id="my-playlists-heading">Danh sách nhạc của tôi</h1>
+                                            <h1 id="my-playlists-heading">My Playlists</h1>
                                         </div>
                                         <button className={styles.primary} onClick={() => setIsCreateOpen(true)}>
-                                            + Tạo playlist mới
+                                            + Create new playlist
                                         </button>
                                     </div>
 
@@ -254,18 +254,18 @@ export default function PlaylistsPage() {
                                                         className={styles.cover}
                                                     />
                                                     <span className={styles.plName}>{pl.title}</span>
-                                                    <span className={styles.plMeta}>{pl.tracks.length} bài hát</span>
+                                                    <span className={styles.plMeta}>{pl.tracks.length} songs</span>
                                                 </button>
 
                                                 <button
                                                     className={styles.hoverDelete}
-                                                    title="Xóa playlist"
+                                                    title="Delete playlist"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         handleDeletePlaylist(pl._id);
                                                     }}
                                                 >
-                                                    Xóa
+                                                    Delete
                                                 </button>
                                             </li>
                                         ))}
@@ -421,7 +421,7 @@ function CreatePlaylistModal({ onClose, onSubmit, existingNames }) {
     const handleConfirm = () => {
         const trimmed = name.trim();
         if (trimmed && existingNames.includes(trimmed.toLowerCase())) {
-            setError("Tên playlist đã tồn tại");
+            setError("Playlist name already exists");
             return;
         }
         onSubmit(trimmed);
@@ -435,7 +435,7 @@ function CreatePlaylistModal({ onClose, onSubmit, existingNames }) {
                 <input
                     ref={inputRef}
                     className={styles.input}
-                    placeholder="Nhập tên playlist"
+                    placeholder="Enter playlist name"
                     value={name}
                     onChange={(e) => {
                         setName(e.target.value);
@@ -446,10 +446,10 @@ function CreatePlaylistModal({ onClose, onSubmit, existingNames }) {
                 {error && <div className={styles.inlineError}>{error}</div>}
                 <div className={styles.modalActions}>
                     <button className={styles.secondary} onClick={onClose}>
-                        Hủy
+                        Cancel
                     </button>
                     <button className={styles.primary} onClick={handleConfirm}>
-                        Tạo
+                        Create
                     </button>
                 </div>
             </div>
@@ -465,13 +465,13 @@ function AddSongModal({ onClose, onPick, searchTerm, setSearchTerm, results }) {
     }, []);
 
     return (
-        <div className={styles.modalBackdrop} role="dialog" aria-modal="true" aria-label="Thêm bài hát">
+        <div className={styles.modalBackdrop} role="dialog" aria-modal="true" aria-label="Add song">
             <div className={styles.modal}>
-                <h2>Thêm bài hát</h2>
+                <h2>Add song</h2>
                 <input
                     ref={inputRef}
                     className={styles.input}
-                    placeholder="Tìm bài hát theo tên, nghệ sĩ..."
+                    placeholder="Search songs by title, artist..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -491,7 +491,7 @@ function AddSongModal({ onClose, onPick, searchTerm, setSearchTerm, results }) {
                 </ul>
                 <div className={styles.modalActions}>
                     <button className={styles.secondary} onClick={onClose}>
-                        Đóng
+                        Close
                     </button>
                 </div>
             </div>
