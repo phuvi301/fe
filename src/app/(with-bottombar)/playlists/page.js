@@ -560,8 +560,7 @@ function EditPlaylistInfoPopup({ closeAction = () => {}}) {
                     <span>Save</span>
                 </button>
                 <strong className={clsx(styles["edit-details"])}>
-                    By continuing, you agree to allow MusicHub to access the images you have selected to upload. have
-                    fun Please ensure you have permission to upload the images.
+                    By continuing, you agree to allow MusicHub to access the images you have selected to upload. Please ensure you have permission to upload the images.
                 </strong>
             </div>
         </div>

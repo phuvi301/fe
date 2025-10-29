@@ -20,7 +20,7 @@ function Artist() {
     const fetchTracks = async (user) => {
         try {
             const tracksRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${user._id}?tracks=true`);
-            setUploadedSongs(tracksRes.data.data._doc.tracks);
+            setUploadedSongs(tracksRes.data.data.tracks);
         } catch (err) {
             console.error("Lỗi khi tải bài hát:", err);
         }

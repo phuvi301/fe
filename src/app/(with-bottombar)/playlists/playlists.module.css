@@ -61,16 +61,16 @@
 }
 
 .backBtn {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 10px;
-  border: 1px solid #5e5c5c;
-  background: #111;
-  color: #fff;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 10px;
+    border: 1px solid #5e5c5c;
+    background: #111;
+    color: #fff;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
 }
 
 .backBtn:hover {
@@ -104,12 +104,18 @@
 }
 
 .detailCover {
-  width: 120px;
-  height: 120px;
-  border-radius: 16px;
-  border: 1px solid #5e5c5c;
-  object-fit: cover;
-  flex: 0 0 auto;
+    width: 120px;
+    height: 120px;
+    border-radius: 16px;
+    border: 1px solid #5e5c5c;
+    object-fit: cover;
+    flex: 0 0 auto;
+    cursor: pointer;
+    transition: all .2s ease-in;
+}
+
+.detailCover:hover {
+    opacity: 0.8;
 }
 
 .detailText {
@@ -137,27 +143,26 @@
 
 /* === PLAYLIST GRID & LIST === */
 .playlistGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
-  list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    list-style: none;
 }
 
 .playlistCard {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  text-align: left;
-  background: #1a1a1a;
-  border: 1px solid #5e5c5c;
-  border-radius: 12px;
-  padding: 10px;
-  padding-bottom: 22px;
-  color: #fff;
-  cursor: pointer;
-  font-family: inherit;
-  transition: transform 0.15s ease, border-color 0.2s ease,
-    background 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    text-align: left;
+    background: #1a1a1a;
+    border: 1px solid #5e5c5c;
+    border-radius: 12px;
+    padding: 10px;
+    padding-bottom: 22px;
+    color: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
 .playlistCard:hover,
@@ -189,11 +194,11 @@
 }
 
 .cover {
-  width: 100%;
-  aspect-ratio: 1/1;
-  object-fit: cover;
-  display: block;
-  border-radius: 8px;
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px;
 }
 
 .plItem {
@@ -306,18 +311,17 @@
 .secondary,
 .ghost,
 .danger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-  padding: 0 14px;
-  white-space: nowrap;
-  line-height: 1;
-  border-radius: 10px;
-  cursor: pointer;
-  font-family: 'Montserrat', sans-serif;
-  transition: border-color 0.2s ease, background-color 0.2s ease,
-    box-shadow 0.2s ease, color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 14px;
+    white-space: nowrap;
+    line-height: 1;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: "Montserrat", sans-serif;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
 }
 
 .primary {
@@ -535,184 +539,189 @@
 }
 
 .edit-popup {
-	position: absolute;
-	z-index: 2000;
-	inset: 0;
-	background-color: #44444444;
+    position: absolute;
+    z-index: 2000;
+    inset: 0;
+    background-color: #44444444;
 }
 
 /* EditPlaylistInfoPopup */
 .edit-wrapper {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	background-color: #333333;
-	padding: 20px;
-	border-radius: 15px;
-	display: flex;
-	flex-direction: column;
-	max-width: 500px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #333333;
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    max-width: 500px;
 }
 
 .edit-header-wrapper {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
 .edit-header-title {
 }
 
 .edit-header-close {
-	outline: none;
-	border: none;
-	background: transparent;
-	font-size: 24px;
-	cursor: pointer;
+    outline: none;
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    cursor: pointer;
 }
 
 .edit-main-wrapper {
-	display: flex;
+    display: flex;
 }
 
 .edit-image-wrapper {
-	position: relative;
-	width: 180px;
-	height: 180px;
-	border-radius: 5px;
-	overflow: hidden;
+    position: relative;
+    width: 180px;
+    height: 180px;
+    border-radius: 5px;
+    overflow: hidden;
 }
 
 .edit-image {
-	width: inherit;
-	height: inherit;
+    width: inherit;
+    height: inherit;
 }
 
 .edit-image-placeholder {
-	position: absolute;
-	inset: 0;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	opacity: 0;
-	visibility: hidden;
-	transition: all .1s cubic-bezier(0.165, 0.84, 0.44, 1);
-	cursor: pointer;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.1s cubic-bezier(0.165, 0.84, 0.44, 1);
+    cursor: pointer;
 }
 
 .edit-image-placeholder-input {
     position: absolute;
     inset: 0;
     opacity: 0;
-	cursor: pointer;
+    cursor: pointer;
 }
 
 .edit-image-placeholder-icon {
-	font-size: 36px;
+    font-size: 36px;
 }
 
 .edit-image-placeholder-text {
-	margin-top: 10px;
-	font-size: 18px;
+    margin-top: 10px;
+    font-size: 18px;
 }
 
-.edit-image:hover ~ .edit-image-placeholder, .edit-image-placeholder:hover {
-	opacity: 1;
-	visibility: visible;
-	background-color: #333333cc;
+.edit-image:hover ~ .edit-image-placeholder,
+.edit-image-placeholder:hover {
+    opacity: 1;
+    visibility: visible;
+    background-color: #333333cc;
 }
 
 .edit-image-options {
-	position: absolute;
-	top: 10px;
-	right: 10px;
-	border: none;
-	outline: none;
-	background-color: #33333333;
-	border-radius: 999999px;
-	font-size: 16px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    outline: none;
+    background-color: #33333333;
+    border-radius: 999999px;
+    font-size: 16px;
 }
 
 .edit-info-wrapper {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	margin-left: 18px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 18px;
 }
 
 .edit-title-group {
-	position: relative;
+    position: relative;
 }
 
 .edit-desc-group {
-	margin-top: 18px;
-	position: relative;
-	flex: 1;
+    margin-top: 18px;
+    position: relative;
+    flex: 1;
 }
 
-.edit-title, .edit-desc {
-	position: absolute;
-	top: 0;
-	left: 10px;
-	transform: translateY(-50%);
-	opacity: 0;
-	visibility: hidden;
-	font-size: 12px;
-	transition: all .1s linear;
-	padding: 2px;
-	background-color: #333;
+.edit-title,
+.edit-desc {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    transform: translateY(-50%);
+    opacity: 0;
+    visibility: hidden;
+    font-size: 12px;
+    transition: all 0.1s linear;
+    padding: 2px;
+    background-color: #333;
 }
 
 .edit-title-input {
-	height: 40px !important;
+    height: 40px !important;
 }
 
 .edit-desc-input {
-	resize: none;
+    resize: none;
 }
 
-.edit-title-input, .edit-desc-input {
-	height: 100%;
-	width: 100%;
-	outline: none;
-	border: 1px solid transparent;
-	background-color: hsla(0, 0%, 100%, .1);
-	border-radius: 5px;
-	transition: all .1s linear;
-	padding: 8px;
-	font-size: 14px;
+.edit-title-input,
+.edit-desc-input {
+    height: 100%;
+    width: 100%;
+    outline: none;
+    border: 1px solid transparent;
+    background-color: hsla(0, 0%, 100%, 0.1);
+    border-radius: 5px;
+    transition: all 0.1s linear;
+    padding: 8px;
+    font-size: 14px;
 }
 
-.edit-title-input:focus, .edit-desc-input:focus {
-	background-color: #333;
+.edit-title-input:focus,
+.edit-desc-input:focus {
+    background-color: #333;
     border: 1px solid #535353;
     outline: none;
 }
 
-.edit-title-input:focus ~ .edit-title, .edit-desc-input:focus ~ .edit-desc {
-	opacity: 1;
-	visibility: visible;
+.edit-title-input:focus ~ .edit-title,
+.edit-desc-input:focus ~ .edit-desc {
+    opacity: 1;
+    visibility: visible;
 }
 
 .edit-action-button {
-	align-self: flex-end;
-	margin: 15px 8px;
-	padding: 8px 15px;
-	border-radius: 9999px;
-	outline: none;
-	border: none;
-	background-color: #eee;
-	font-size: 16px;
-	color: #333;
-	font-weight: 600;
-	cursor: pointer;
+    align-self: flex-end;
+    margin: 15px 8px;
+    padding: 8px 15px;
+    border-radius: 9999px;
+    outline: none;
+    border: none;
+    background-color: #eee;
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+    cursor: pointer;
 }
 
 .edit-details {
-	font-size: 12px;
-	max-width: inherit;
-	overflow: hidden;
+    font-size: 12px;
+    max-width: inherit;
+    overflow: hidden;
 }
