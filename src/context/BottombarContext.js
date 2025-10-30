@@ -64,6 +64,7 @@ export function BottomBarProvider({ children }) {
             const pb = await getPlayback();
             setPlayback(pb);
             if (pb && !nowPlaying.current) {
+                bottomBarRef.current.repeatMode.current = pb.repeat;
                 const trackInfo = await getTrack(pb.trackID);
                 await bottomBarRef.current.fetchLyrics(pb.trackID);
                 nowPlaying.current = trackInfo.track;
