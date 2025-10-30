@@ -62,7 +62,7 @@ export function BottomBarProvider({ children }) {
           setPlayback(pb);
           if (pb && !nowPlaying.current) {
               const trackInfo = await getTrack(pb.trackID);
-              await bottomBarRef.current.fetchLyrics(trackInfo.track._id);
+              await bottomBarRef.current.fetchLyrics(pb.trackID);
               nowPlaying.current = trackInfo.track;
               setUrl(trackInfo.url);
               // playerRef.current.currentTime = parseFloat(progress.playbackTime);
