@@ -13,35 +13,47 @@ export default function Home() {
         router.push("/");
     };
 
-    const handleSubmitSignUp = (e) => {
+    const handleSubmitSignUp = async (e) => {
         e.preventDefault();
-        // Handle form submission logic here
-        // homeRouter();
+        const { signUpEmail, signUpPassword, signUpConfirmPassword } = e.target;
+        if (signUpPassword.value !== signUpConfirmPassword.value) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+        try {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
+                {
+                    email: signUpEmail.value,
+                    password: signUpPassword.value,
+                }
+            );
+            console.log("Registration successful:", response.data);
+            alert("Registration successful! Please log in.");
+        } catch (error) {
+            console.error("There was an error registering!", error);
+        }
     };
 
-    const handleSubmitSignIn = (e) => {
+    const handleSubmitSignIn = async (e) => {
         e.preventDefault();
-        const { email, password } = e.target;
-        console.log("Email:", email.value);
-        console.log("Password:", password.value);
+        const { signInEmail, signInPassword } = e.target;
 
-        axios
-            .post(
+        try {
+            const response = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signin`,
-                { email: email.value, password: password.value },
+                { email: signInEmail.value, password: signInPassword.value },
                 {
                     withCredentials: true,
                 }
-            )
-            .then((response) => {
-                console.log("Login successful:", response.data);
-                localStorage.setItem("userInfo", JSON.stringify(response.data.data))
-                document.cookie = `accessToken=${response.data.data.accessToken}; expires=${new Date(response.data.data.accessExpireTime).toUTCString()}; path=/;` ;
-                homeRouter();
-            })
-            .catch((error) => {
-                console.error("There was an error logging in!", error);
-            });
+            );
+            console.log("Login successful:", response.data);
+            localStorage.setItem("userInfo", JSON.stringify(response.data.data))
+            document.cookie = `accessToken=${response.data.data.accessToken}; expires=${new Date(response.data.data.accessExpireTime).toUTCString()}; path=/;` ;
+            homeRouter();
+        } catch (error) {
+            console.error("There was an error logging in!", error);
+        }
     };
 
     // Slider login template
@@ -115,7 +127,7 @@ export default function Home() {
                                 <div className={style["email-border"]}>
                                     <img src="/mail.png" alt="Email Icon" className={style["email-icon"]} />
                                 </div>
-                                <input type="email" placeholder="Email" />
+                                <input type="email" placeholder="Email" id="signUpEmail" />
                                 <span className={style.nothing}></span>
                             </div>
                             {/* Password input */}
@@ -127,6 +139,7 @@ export default function Home() {
                                     type={showSignUpPassword ? "password" : "text"}
                                     placeholder="Password"
                                     className={style.password}
+                                    id="signUpPassword"
                                 />
                                 <button
                                     type="button"
@@ -153,6 +166,7 @@ export default function Home() {
                                     type={showConfirmPassword ? "password" : "text"}
                                     placeholder="Confirm Password"
                                     className={style["confirm-password"]}
+                                    id="signUpConfirmPassword"
                                 />
                                 <button
                                     type="button"
@@ -195,7 +209,7 @@ export default function Home() {
                                 <div className={style["email-border"]}>
                                     <img src="/mail.png" alt="Email Icon" className={style["email-icon"]} />
                                 </div>
-                                <input type="text" id="email" placeholder="Email" />
+                                <input type="email" placeholder="Email" id="signInEmail" />
                                 <span className={style.nothing}></span>
                             </div>
                             {/* Password input */}
@@ -204,10 +218,10 @@ export default function Home() {
                                     <img src="/pw.png" alt="Password Icon" className={style["password-icon"]} />
                                 </div>
                                 <input
-                                    id="password"
                                     type={showSignInPassword ? "password" : "text"}
                                     placeholder="Password"
                                     className={style.password}
+                                    id="signInPassword"
                                 />
                                 <button
                                     type="button"
