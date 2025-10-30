@@ -9,6 +9,7 @@ import clsx from "clsx";
 import { useBottomBar } from "~/context/BottombarContext";
 import { resolve } from "styled-jsx/css";
 import { useImageColors } from "../hooks/useImageColors";
+import { usePathname } from 'next/navigation';
 
 const BottomBar = forwardRef((props, ref) => {
     const { nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, handlePlaylist } = useBottomBar();
@@ -39,9 +40,106 @@ const BottomBar = forwardRef((props, ref) => {
     const [currentThumbnail, setCurrentThumbnail] = useState(null);
     const { colors, isLoading } = useImageColors(currentThumbnail);
 
+    //Close lyrics khi chuyển trang
+    const pathname = usePathname();
+
+    //Volume state
+    const [volume, setVolume] = useState(0.5);
+    const previousVolumeRef = useRef(volume);
+
+    //Like button state
+    const [isLiked, setIsLiked] = useState(false);
+    const [likeToast, setLikeToast] = useState({show: false, message: ""});
+    const toastTimeoutRef = useRef(null);
+
     useEffect(() => {
-        playerRef.current.volume = 0.5;
-    }, [])
+        if (playerRef.current) {
+            playerRef.current.volume = volume;
+        }
+        if (volume > 0) {
+            previousVolumeRef.current = volume;
+        }
+    }, [volume]);
+
+    useEffect(() => {
+        // Automatically close lyrics overlay on navigation
+        setShowLyrics(false);
+    }, [pathname]);
+
+    // Đóng lyrics overlay khi reload trang / chuyển tab / chuyển site
+    useEffect(() => {
+        const closeLyrics = () => setShowLyrics(false);
+        const handleVisibility = () => {
+            if (document.visibilityState === 'hidden') closeLyrics();
+        };
+
+        window.addEventListener('beforeunload', closeLyrics);
+        window.addEventListener('pagehide', closeLyrics);
+        window.addEventListener('blur', closeLyrics);
+        document.addEventListener('visibilitychange', handleVisibility);
+    
+        return () => {
+            window.removeEventListener('beforeunload', closeLyrics);
+            window.removeEventListener('pagehide', closeLyrics);
+            window.removeEventListener('blur', closeLyrics);
+            document.removeEventListener('visibilitychange', handleVisibility);
+        };
+    }, []);
+
+
+    //Toggle likes + show toast
+    const toggleLike = () => {
+        const newLiked = !isLiked;
+        setIsLiked(newLiked);
+
+        // Clear any existing hide timeout so we can restart the toast lifecycle
+        if (toastTimeoutRef.current) {
+            clearTimeout(toastTimeoutRef.current);
+            toastTimeoutRef.current = null;
+        }
+
+        // Force-remount the toast to restart CSS animation:
+        // hide immediately, then show again after a tiny delay.
+        setLikeToast({ show: false, message: "" });
+        const message = newLiked ? "Added to Liked Tracks" : "Removed from Liked Tracks";
+
+        setTimeout(() => {
+            setLikeToast({ show: true, message });
+            // auto-hide after 2.5s
+            toastTimeoutRef.current = setTimeout(() => {
+                setLikeToast({ show: false, message: "" });
+                toastTimeoutRef.current = null;
+            }, 2500);
+        }, 40); // 30-60ms is enough to force reflow/remount
+    };
+    //cleanup toast timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+            if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+        };
+    }, []);
+
+    //Helper giúp chọn icon dựa trên volume
+    const getVolumeIcon = (v) => {
+        if (v === 0) return "/mute_speaker.png";
+        if (v > 0 && v < 0.3) return "/low_speaker.png";
+        if (v >= 0.3 && v < 0.7) return "/med_speaker.png";
+        return "/high_speaker.png";
+    };
+    
+    // toggle mute / unmute khi click icon
+    const toggleMute = () => {
+        if (volume === 0) {
+            const restore = previousVolumeRef.current ?? 0.5;
+            setVolume(restore);
+            if (playerRef.current) playerRef.current.volume = restore;
+        } else {
+            setVolume(0);
+            if (playerRef.current) playerRef.current.volume = 0;
+        }
+    };
+
 
     // Hàm fetch lyrics từ API hoặc file
     const fetchLyrics = async (songID) => {
@@ -589,7 +687,28 @@ const BottomBar = forwardRef((props, ref) => {
                     <a href="/play" className={clsx(style["mini-artist-name"], style["no-select"])}>
                         {nowPlaying.current.artist}
                     </a>
-                </div> 
+                </div>
+                <div className={style["like-btn-container"]}>
+                    <button className={style["like-btn"]} onClick={toggleLike}>
+                        {isLiked ? (
+                                <Image
+                                    src="/blue_heart.png"
+                                    className={style["like-icon"]}
+                                    width={15}
+                                    height={15}
+                                    alt="Liked"
+                                />
+                        ) : (
+                            <Image
+                                src="/unlike.png"
+                                className={style["like-icon"]}
+                                width={15}
+                                height={15}
+                                alt="Unlike"
+                            />
+                        )}
+                    </button>
+                </div>
             </div>
             ) : (
             <div className={style["song-in-bottom-bar"]}> 
@@ -611,12 +730,6 @@ const BottomBar = forwardRef((props, ref) => {
                     </button>
                     <button className={style["repeat"]} onClick={toggleRepeat}>
                         <img src={repeatMode.current === "off" ? "/repeat.png" : (repeatMode.current === "track" ? "/repeat-one.png" : "/repeat-blue.png")} className={style["menu-btn"]}/>
-                    </button>
-                    <button 
-                        className={clsx(style["lyrics-btn"], { [style["active"]]: showLyrics })} 
-                        onClick={toggleLyrics}
-                    >
-                        <img src="/lyrics.png" className={style["menu-btn"]}/>
                     </button>
                 </div>
                 <div className={style["progress"]}>
@@ -641,15 +754,69 @@ const BottomBar = forwardRef((props, ref) => {
                         }}
                         className={style["progress-bar"]}
                         style={{
-                        background: `linear-gradient(to right, #3c74cfff ${progress / duration * 100}%, #333 ${progress / duration * 100}%)`,
-                        borderRadius: '50px',
+                            background: `linear-gradient(to right, #3c74cfff ${progress / duration * 100}%, #333 ${progress / duration * 100}%)`,
+                            borderRadius: '50px',
                         }}
                     />
                     <span className={clsx(style["duration"], style["no-select"])}>{Math.floor(duration / 60)}:{String(Math.floor(duration % 60)).padStart(2, "0")}</span>
                 </div>
 
             </div>
+            <div className={style["right-container"]}>
+                <div className={style["queue-container"]}>
+                    <button className={style["queue-btn"]}>
+                        <img src="/queue.png" className={style["menu-btn"]}/>
+                    </button>
+                </div>
+                <div className={style["lyrics-container"]}>
+                    <button 
+                        className={clsx(style["lyrics-btn"], { [style["active"]]: showLyrics })} 
+                        onClick={toggleLyrics}
+                    >
+                        <img src="/lyrics.png" className={style["menu-btn"]}/>
+                    </button>
+                </div>
+                <div className={style["volume-container"]}>
+                    <button
+                        onClick={toggleMute}
+                        className={style["volume-icon-btn"]}
+                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                        aria-label={volume === 0 ? "Unmute" : "Mute"}
+                    >
+                        <img
+                            className={style["volume-icon"]}
+                            src={getVolumeIcon(volume)}
+                            alt="Volume"
+                            width={18}
+                            height={18}
+                            style={{ opacity: 0.9 }}
+                        />
+                    </button>
+                    <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={volume}
+                        onChange={(e) => {
+                            const v = parseFloat(e.target.value);
+                            setVolume(v);
+                            if (playerRef.current) playerRef.current.volume = v;
+                        }}
+                        className={style["volume-slider"]}
+                        style={{
+                            background: `linear-gradient(to right, #3c74cfff ${volume * 100}%, #333 ${volume * 100}%)`
+                        }}
+                    />
+                </div>
+            </div>
         </div>
+        {/* Like toast */}
+        {likeToast.show && (
+            <div className={style["like-toast"]} role="status" aria-live="polite">
+                {likeToast.message}
+            </div>
+        )}
          {/* Lyrics Panel với gradient background động từ thumbnail */}
         {showLyrics && (
     <div 
