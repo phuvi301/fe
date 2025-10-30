@@ -58,6 +58,7 @@ export function BottomBarProvider({ children }) {
   useEffect(() => {
       const loadPlayback = async () => {
           const pb = await getPlayback();
+          
           setPlayback(pb);
           if (pb && !nowPlaying.current) {
               const trackInfo = await getTrack(pb.trackID);
