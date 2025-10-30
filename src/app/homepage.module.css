@@ -921,8 +921,10 @@
     text-align: center;
     color: #aba8a8;
     font-style: italic;
+    font-weight: bold;
     padding: 40px 20px;
     user-select: none;
+    font-size: 30px;
 }
 
 .lyrics-controls {
