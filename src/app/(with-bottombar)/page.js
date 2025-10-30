@@ -25,10 +25,8 @@ export default function Home() {
   const scrollBtnLeft = useRef(null);
   const scrollBtnRight = useRef(null);
 
-  const handleTrackPlay = async (trackId) => {
-    await bottomBarRef.current.chooseTrack(trackId);
-    await bottomBarRef.current.fetchLyrics(trackId);
-    bottomBarRef.current.saveProgressToRedis();
+  const toggleTrack = async (trackId) => {
+    await bottomBarRef.current.play(trackId);
   };
 
   const scrollTracks = (e, targetList) => {
@@ -113,7 +111,7 @@ export default function Home() {
             {/* Featured items */}
             <div className={style["featured-container"]} ref={listTracks}>
               {recentTracks.map(track => (
-                <a className={style["featured-item"]} key={track._id} onClick={() => handleTrackPlay(track._id)}>
+                <a className={style["featured-item"]} key={track._id} onClick={() => toggleTrack(track._id)}>
                   <span className={style["track-container"]}>
                     <Image src={track.thumbnailUrl} width={600} height={600} alt={track.title} priority={true} />
                     {track.title}
@@ -146,7 +144,7 @@ export default function Home() {
               {/* Featured items */}
               <div className={style["featured-container"]} ref={listTracks1}>
                 {mostPlayedTracks.map(track => (
-                  <a className={style["featured-item"]} key={track._id} onClick={() => handleTrackPlay(track._id)}>
+                  <a className={style["featured-item"]} key={track._id} onClick={() => toggleTrack(track._id)}>
                     <span className={style["track-container"]}>
                       <Image src={track.thumbnailUrl} width={500} height={500} alt={track.title} priority={true} />
                       {track.title}
@@ -171,7 +169,7 @@ export default function Home() {
             {/* Featured items */}
             <div className={style["featured-container"]} ref={listTracks2}>
               {listenedTracks.map(track => (
-                <a className={style["featured-item"]} key={track._id} onClick={() => handleTrackPlay(track._id)}>
+                <a className={style["featured-item"]} key={track._id} onClick={() => toggleTrack(track._id)}>
                   <span className={style["track-container"]} width={220}>
                     <Image src={track.thumbnailUrl} width={180} height={180} alt={track.title} priority={true} />
                     {track.title}

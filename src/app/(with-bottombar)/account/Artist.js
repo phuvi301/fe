@@ -13,10 +13,8 @@ function Artist() {
     const [userInfo, setUserInfo] = useState(null);
     const { bottomBarRef } = useBottomBar();
 
-    const handleTrackPlay = async (trackId) => {
-        await bottomBarRef.current.chooseTrack(trackId);
-        await bottomBarRef.current.fetchLyrics(trackId);
-        bottomBarRef.current.saveProgressToRedis();
+    const toggleTrack = async (trackId) => {
+        await bottomBarRef.current.play(trackId);
     };
 
     const fetchTracks = async (user) => {
@@ -80,7 +78,7 @@ function Artist() {
                 <p className={styles["personal-upload-title"]}>Your Uploaded Songs</p>
                 <div className={styles["personal-upload-list"]}>
                     {uploadedSongs?.map((track) => (
-                        <div className={styles["personal-upload-item"]} key={track._id} onClick={() => handleTrackPlay(track._id)}>
+                        <div className={styles["personal-upload-item"]} key={track._id} onClick={() => toggleTrack(track._id)}>
                             <div className={styles["personal-upload-item-overlay"]}>
                                 <Image
                                     src={track.thumbnailUrl || "/background.jpg"}

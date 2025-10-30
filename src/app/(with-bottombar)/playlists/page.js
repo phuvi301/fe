@@ -201,13 +201,9 @@ export default function PlaylistsPage() {
         }
     };
 
-    const handlePlaySong = async (songId) => {
-        bottomBarRef.current.playlistPlayingRef.current = current.tracks
-        const index = current.tracks.findIndex(song => song._id === songId);
-        const playlistID = current._id;
-        await bottomBarRef.current.chooseTrack(songId);
-        await bottomBarRef.current.fetchLyrics(songId);
-        bottomBarRef.current.saveProgressToRedis(playlistID, index);
+    const toggleTrack = async (trackID) => {
+        const index = current.tracks.findIndex(track => track._id === trackID);
+        await bottomBarRef.current.play(trackID, current._id, index);
     };
 
     // --- Render ---
@@ -353,7 +349,7 @@ export default function PlaylistsPage() {
                                                         <button
                                                             className={styles.iconBtn}
                                                             title="Play"
-                                                            onClick={async () => await handlePlaySong(t._id)}
+                                                            onClick={async () => await toggleTrack(t._id)}
                                                         >
                                                             ▶
                                                         </button>
