@@ -8,6 +8,7 @@ import Image from "next/image";
 import clsx from "clsx";
 import { useBottomBar } from "~/context/BottombarContext";
 import { resolve } from "styled-jsx/css";
+import { useImageColors } from "../hooks/useImageColors";
 
 const BottomBar = forwardRef((props, ref) => {
     const { nowPlaying, playback, url, setUrl, getTrack } = useBottomBar();
@@ -33,6 +34,10 @@ const BottomBar = forwardRef((props, ref) => {
     const scrollTimeoutRef = useRef(null);
     const isAutoScrollingRef = useRef(false);
     const lastScrollTopRef = useRef(0);
+
+    // Them state va hook cho mau sac
+    const [currentThumbnail, setCurrentThumbnail] = useState(null);
+    const { colors, isLoading } = useImageColors(currentThumbnail);
 
     useEffect(() => {
         playerRef.current.volume = 0.5;
@@ -176,7 +181,7 @@ const BottomBar = forwardRef((props, ref) => {
             const elementHeight = currentLyricElement.offsetHeight;
             
             // Tính toán vị trí scroll để đưa lyric hiện tại vào giữa màn hình
-            const scrollTop = elementTop - (containerHeight / 2) + (elementHeight / 2);
+            const scrollTop = elementTop - (containerHeight / 1.5) + (elementHeight / 2);
             
             lyricsContainer.scrollTo({
                 top: Math.max(0, scrollTop),
@@ -391,9 +396,19 @@ const BottomBar = forwardRef((props, ref) => {
 
     const chooseTrack = async (trackID) => {
         const res = await getTrack(trackID);
+        setLyrics([]);
+        setCurrentLyricIndex(-1);
+        await fetchLyrics(trackID);
         nowPlaying.current = res.track;
         handleTrack(res.url);
     }
+
+    // Effect để cập nhật thumbnail khi bài hát thay đổi
+    useEffect(() => {
+        if (nowPlaying.current?.thumbnailUrl && nowPlaying.current.thumbnailUrl !== currentThumbnail) {
+            setCurrentThumbnail(nowPlaying.current.thumbnailUrl);
+        }
+    }, [nowPlaying.current, currentThumbnail]);
 
     useEffect(() => {
         if (url) {
@@ -594,64 +609,129 @@ const BottomBar = forwardRef((props, ref) => {
 
             </div>
         </div>
-         {/* Lyrics Panel với cải tiến scroll detection */}
+         {/* Lyrics Panel với gradient background động từ thumbnail */}
         {showLyrics && (
-            <div className={style["lyrics-panel"]}>
-                <div className={style["lyrics-header"]}>
-                    <h2>Lyrics</h2>
-                    <div className={style["lyrics-controls"]}>
-                        <button 
-                            className={style["close-lyrics"]} 
-                            onClick={toggleLyrics}
-                        >
-                            <Image src="/close.png" alt="Close" width={24} height={24}/>
-                        </button>
+    <div 
+        className={style["lyrics-overlay"]}
+        style={{
+            background: `linear-gradient(135deg, 
+                ${colors.darkVibrant}22 0%, 
+                ${colors.darkMuted}44 10%, 
+                #000000 70%, 
+                ${colors.vibrant}11 100%)`,
+        }}
+    >
+        <div 
+            className={style["lyrics-panel"]}
+            style={{
+                background: `linear-gradient(180deg, 
+                    ${colors.darkVibrant}66 0%, 
+                    ${colors.darkMuted}33 30%, 
+                    rgba(0,0,0,0.8) 100%)`,
+            }}
+        >
+            <div 
+                className={style["lyrics-header"]}
+                style={{
+                    background: `linear-gradient(90deg, 
+                        ${colors.darkVibrant}88 0%, 
+                        ${colors.muted}44 100%)`,
+                    borderBottom: `1px solid ${colors.vibrant}66`,
+                }}
+            >
+                <div className={style["lyrics-details"]}>
+                    <Image 
+                        className={style["lyrics-thumbnail"]} 
+                        src={nowPlaying.current.thumbnailUrl} 
+                        width={80} 
+                        height={80}
+                        alt="Thumbnail"
+                        style={{
+                            boxShadow: `0 4px 20px ${colors.vibrant}44`,
+                        }}
+                    />
+                    <div className={style["lyrics-song-info"]}>
+                        <h3 className={style["lyrics-song-title"]} style={{ color: colors.lightVibrant || '#ffffff' }}>
+                            {nowPlaying.current.title}
+                        </h3>
+                        <h4 className={style["lyrics-song-artist"]}>
+                            {nowPlaying.current.artist}
+                        </h4>
                     </div>
                 </div>
-                <div 
-                    className={style["lyrics-content"]}
-                    ref={lyricsContentRef}
-                >
-                    
-                    {lyrics.length > 0 ? (
-                        lyrics.map((lyric, index) => (
-                            <div    
-                                key={index}
-                                data-lyric-index={index}
-                                className={clsx(
-                                    style["lyric-line"],
-                                    { 
-                                        [style["current-lyric"]]: index === currentLyricIndex,
-                                        [style["upcoming-lyric"]]: index === currentLyricIndex + 1,
-                                        [style["past-lyric"]]: index < currentLyricIndex
-                                    }
-                                )}
-                                style={{ 
-                                    position: 'relative',
-                                    cursor: 'pointer',
-                                    padding: '12px 16px',
-                                    borderRadius: '6px',
-                                    transition: 'all 0.3s ease',
-                                    margin: '4px 0',
-                                    backgroundColor: index === currentLyricIndex ? 'rgba(60, 116, 207, 0.2)' : 'transparent',
-                                    borderLeft: index === currentLyricIndex ? '3px solid #3c74cfff' : '3px solid transparent',
-                                    opacity: index < currentLyricIndex ? 0.6 : 1,
-                                    transform: index === currentLyricIndex ? 'scale(1.02)' : 'scale(1)'
-                                }}
-                                onClick={() => jumpToLyricTime(lyric.time)}
-                            >
-                                <span className={style["lyric-text"]}>
-                                    {lyric.text || "♪"}
-                                </span>
-                            </div>
-                        ))
-                    ) : (
-                        <div className={style["no-lyrics"]}>
-                            <p>No lyrics available</p>
-                        </div>
-                    )}
+                <div className={style["lyrics-controls"]}>
+                    <button 
+                        className={style["close-lyrics"]} 
+                        onClick={toggleLyrics}
+                        style={{
+                            backgroundColor: `${colors.vibrant}22`,
+                            border: `1px solid ${colors.vibrant}66`,
+                            transition: 'all 0.3s ease'
+                        }}
+
+                    >
+                        <Image src="/close.png" alt="Close" width={24} height={24}/>
+                    </button>
                 </div>
             </div>
+            <div 
+                className={style["lyrics-content"]}
+                ref={lyricsContentRef}
+            >
+                {lyrics.length > 0 ? (
+                    lyrics.map((lyric, index) => (
+                        <div    
+                            key={index}
+                            data-lyric-index={index}
+                            className={clsx(
+                                style["lyric-line"]
+                            )}
+                            style={{ 
+                                borderLeft: index === currentLyricIndex 
+                                    ? `3px solid ${colors.vibrant}` 
+                                    : '3px solid transparent',
+                                opacity: index < currentLyricIndex ? 0.6 : 1,
+                                transform: index === currentLyricIndex ? 'scale(1.02)' : 'scale(1)',
+                                color: index === currentLyricIndex 
+                                    ? colors.lightVibrant || '#ffffff'
+                                    : index < currentLyricIndex 
+                                        ? '#888888'
+                                        : '#cccccc',
+                                boxShadow: index === currentLyricIndex
+                                    ? `0 4px 12px ${colors.vibrant}33`
+                                    : 'none',
+                                backdropFilter: index === currentLyricIndex ? 'blur(2px)' : 'none'
+                            }}
+                            onClick={() => jumpToLyricTime(lyric.time)}
+                        >
+                            <span className={style["lyric-text"]}>
+                                {lyric.text || "♪"}
+                            </span>
+                            {/* Thêm hiệu ứng glow cho lyric hiện tại */}
+                            {index === currentLyricIndex && (
+                                <div
+                                    style={{
+                                        background: `linear-gradient(90deg, 
+                                            transparent 0%, 
+                                            ${colors.vibrant}11 50%, 
+                                            transparent 100%)`,
+                                        pointerEvents: 'none',
+                                        zIndex: -1
+                                    }}
+                                />
+                            )}
+                        </div>
+                    ))
+                ) : (
+                    <div 
+                        className={style["no-lyrics"]}
+                    >
+                        <p>No lyrics available for this track</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    </div>
         )}
         </>
     );
