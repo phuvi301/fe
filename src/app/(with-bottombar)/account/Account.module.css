@@ -11,7 +11,7 @@
 .overview {
     height: calc(100vh - 70px);
     width: calc(100vw - 250px);
-    margin-top: 70px;
+    margin-top: 9vh;
     margin-left: 250px; /* Giảm margin-left vì sidebar bây giờ nằm bên phải */
     color: #ccc;
     overflow: hidden;
