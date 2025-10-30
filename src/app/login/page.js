@@ -5,18 +5,68 @@ import { useRouter } from "next/navigation";
 import style from "./login.module.css";
 import clsx from "clsx";
 import axios from "axios";
+import Script from "next/script";
 
 export default function Home() {
     const router = useRouter();
+    const [oauthConfig, setOauthConfig] = useState(null);
 
     const homeRouter = () => {
         router.push("/");
     };
 
+    useEffect(() => {
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/oauth-config`)
+            .then(response => {
+                setOauthConfig(response.data);
+            })
+            .catch(error => {
+                console.error("Failed to get OAuth config:", error);
+            });
+    }, []);
+
+    useEffect(() => {
+        if (oauthConfig?.facebookAppId && typeof window !== 'undefined') {
+            const fbScript = document.createElement('script');
+            fbScript.id = 'facebook-jssdk';
+            fbScript.src = 'https://connect.facebook.net/en_US/sdk.js';
+            
+            window.fbAsyncInit = function() {
+                window.FB.init({
+                    appId: oauthConfig.facebookAppId,
+                    cookie: true,
+                    xfbml: true,
+                    version: 'v18.0'
+                });
+            };
+            
+            if (!document.getElementById('facebook-jssdk')) {
+                document.head.appendChild(fbScript);
+            }
+        }
+    }, [oauthConfig]);
+
     const handleSubmitSignUp = (e) => {
         e.preventDefault();
-        // Handle form submission logic here
-        // homeRouter();
+        const { email, password } = e.target;
+        
+        axios
+            .post(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
+                { email: email.value, password: password.value },
+                {
+                    withCredentials: true,
+                }
+            )
+            .then((response) => {
+                console.log("Registration successful:", response.data);
+                alert("Registration successful! Please sign in.");
+                containerRef.current.classList.remove(style["right-panel-active"]);
+            })
+            .catch((error) => {
+                console.error("There was an error registering!", error);
+                alert(error.response?.data?.message || "Registration failed!");
+            });
     };
 
     const handleSubmitSignIn = (e) => {
@@ -87,8 +137,99 @@ export default function Home() {
         localStorage.removeItem("userInfo");
     }, []);
 
+    // Google OAuth handler
+    const handleGoogleAuth = (isRegistration = false) => {
+        if (!oauthConfig) {
+            alert("OAuth config not loaded yet. Please try again!");
+            return;
+        }
+        
+        if (typeof window !== 'undefined' && window.google) {
+            window.google.accounts.oauth2.initTokenClient({
+                client_id: oauthConfig.googleClientId,
+                scope: 'email profile',
+                callback: (response) => {
+                    if (response.access_token) {
+                        const endpoint = isRegistration ? 'google-register' : 'google';
+                        
+                        axios
+                            .post(
+                                `${process.env.NEXT_PUBLIC_API_URL}/api/auth/${endpoint}`,
+                                { accessToken: response.access_token },
+                                { withCredentials: true }
+                            )
+                            .then((res) => {
+                                console.log(`Google ${isRegistration ? 'registration' : 'login'} successful:`, res.data);
+                                localStorage.setItem("userInfo", JSON.stringify(res.data.data));
+                                document.cookie = `accessToken=${res.data.data.accessToken}; expires=${new Date(res.data.data.accessExpireTime).toUTCString()}; path=/;`;
+                                homeRouter();
+                            })
+                            .catch((error) => {
+                                console.error(`Google ${isRegistration ? 'registration' : 'login'} error:`, error);
+                                
+                                if (error.response?.data?.requireRegistration) {
+                                    // Nếu cần đăng ký, hiển thị thông báo và chuyển sang form đăng ký
+                                    alert("Account not found. Please register first or try registering with Google.");
+                                    containerRef.current.classList.add(style["right-panel-active"]);
+                                } else {
+                                    alert(error.response?.data?.message || `Google ${isRegistration ? 'registration' : 'login'} failed!`);
+                                }
+                            });
+                    }
+                },
+            }).requestAccessToken();
+        } else {
+            alert("Google SDK not loaded yet. Please try again!");
+        }
+    };
+
+    // Wrapper functions
+    const handleGoogleLogin = () => handleGoogleAuth(false);
+    const handleGoogleRegister = () => handleGoogleAuth(true);
+
+    // Facebook OAuth handler
+    const handleFacebookLogin = () => {
+        if (!oauthConfig) {
+            alert("OAuth config not loaded yet. Please try again!");
+            return;
+        }
+        
+        if (typeof window !== 'undefined' && window.FB) {
+            window.FB.login((response) => {
+                if (response.authResponse) {
+                    axios
+                        .post(
+                            `${process.env.NEXT_PUBLIC_API_URL}/api/auth/facebook`,
+                            { accessToken: response.authResponse.accessToken },
+                            { withCredentials: true }
+                        )
+                        .then((res) => {
+                            console.log("Facebook login successful:", res.data);
+                            localStorage.setItem("userInfo", JSON.stringify(res.data.data));
+                            document.cookie = `accessToken=${res.data.data.accessToken}; expires=${new Date(res.data.data.accessExpireTime).toUTCString()}; path=/;`;
+                            homeRouter();
+                        })
+                        .catch((error) => {
+                            console.error("Facebook login error:", error);
+                            alert(error.response?.data?.message || "Facebook login failed!");
+                        });
+                } else {
+                    console.log("User cancelled Facebook login.");
+                }
+            }, { scope: 'email' });
+        } else {
+            alert("Facebook SDK not loaded yet. Please try again!");
+        }
+    };
+
     return (
-        <div className={style.background}>
+        <>
+            {/* Google OAuth SDK */}
+            <Script
+                src="https://accounts.google.com/gsi/client"
+                strategy="lazyOnload"
+            />
+            <div className={style.background}>
             {/* Container */}
             <div className={style.container} ref={containerRef}>
                 {/* Sign up container */}
@@ -100,12 +241,20 @@ export default function Home() {
                         </div>
                         {/* Social login */}
                         <div className={style["social-container"]}>
-                            <a href="#" className={style.social}>
+                            <button 
+                                type="button" 
+                                onClick={handleFacebookLogin} 
+                                className={style.social}
+                            >
                                 <img className={style["facebook-icon"]} src="/facebook.png" alt="Facebook" />
-                            </a>
-                            <a href="#" className={style.social}>
+                            </button>
+                            <button 
+                                type="button" 
+                                onClick={handleGoogleRegister} 
+                                className={style.social}
+                            >
                                 <img className={style["google-icon"]} src="/google.png" alt="Google" />
-                            </a>
+                            </button>
                         </div>
                         <span>or use your email for registration</span>
                         {/* Input container */}
@@ -115,7 +264,7 @@ export default function Home() {
                                 <div className={style["email-border"]}>
                                     <img src="/mail.png" alt="Email Icon" className={style["email-icon"]} />
                                 </div>
-                                <input type="email" placeholder="Email" />
+                                <input type="email" name="email" placeholder="Email" />
                                 <span className={style.nothing}></span>
                             </div>
                             {/* Password input */}
@@ -124,6 +273,7 @@ export default function Home() {
                                     <img src="/pw.png" alt="Password Icon" className={style["password-icon"]} />
                                 </div>
                                 <input
+                                    name="password"
                                     type={showSignUpPassword ? "password" : "text"}
                                     placeholder="Password"
                                     className={style.password}
@@ -180,12 +330,20 @@ export default function Home() {
                         </div>
                         {/* Social login */}
                         <div className={style["social-container"]}>
-                            <a href="#" className={style.social}>
+                            <button 
+                                type="button" 
+                                onClick={handleFacebookLogin} 
+                                className={style.social}
+                            >
                                 <img className={style["facebook-icon"]} src="/facebook.png" alt="Facebook" />
-                            </a>
-                            <a href="#" className={style.social}>
+                            </button>
+                            <button 
+                                type="button" 
+                                onClick={handleGoogleLogin} 
+                                className={style.social}
+                            >
                                 <img className={style["google-icon"]} src="/google.png" alt="Google" />
-                            </a>
+                            </button>
                         </div>
                         <span>or use your account</span>
                         {/* Input container */}
@@ -254,5 +412,6 @@ export default function Home() {
                 </p>
             </footer>
         </div>
+        </>
     );
 }
