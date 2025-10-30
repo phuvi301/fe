@@ -108,7 +108,7 @@ export default function PlaylistsPage() {
     }, [playlists]);
 
     // --- Event Handlers ---
-    const handleEditPlaylist = () => setIsEditPlaylistOpen(prev => !prev)
+    const handleEditPlaylist = () => setIsEditPlaylistOpen((prev) => !prev);
 
     const handleCreate = async (nameRaw) => {
         const name = nameRaw?.trim();
@@ -202,8 +202,59 @@ export default function PlaylistsPage() {
     };
 
     const toggleTrack = async (trackID) => {
-        const index = current.tracks.findIndex(track => track._id === trackID);
+        const index = current.tracks.findIndex((track) => track._id === trackID);
         await bottomBarRef.current.play(trackID, current._id, index);
+    };
+
+    const handleSubmitUpdatePlaylist = async ({ title, description, thumbnailFile }) => {
+        if (!current) return;
+
+        const updateInfo = async () => {
+            try {
+                const res = await axios.put(
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${current._id}`,
+                    {
+                        title,
+                        description,
+                    },
+                    {
+                        headers: {
+                            token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
+                        },
+                    }
+                );
+                setPlaylists((prev) => [res.data.data, ...prev.filter((pl) => pl._id !== current._id)]);
+                setToast({ type: "success", message: "Modify success" });
+            } catch (error) {
+                setToast({ type: "error", message: "Failed to modify playlist info" });
+            }
+        };
+
+        const updateThumbnail = async () => {
+            try {
+                const formData = new FormData();
+                if (thumbnailFile) formData.append("thumbnail", thumbnailFile);
+
+                const res = await axios.put(
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${current._id}/thumbnail`,
+                    formData,
+                    {
+                        headers: {
+                            token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
+                        },
+                    }
+                );
+                setPlaylists((prev) => [res.data.data, ...prev.filter((pl) => pl._id !== current._id)]);
+                setToast({ type: "success", message: "Modify success" });
+            } catch (error) {
+                setToast({ type: "error", message: "Failed to modify playlist thumbnail" });
+            }
+        };
+
+        if (title || description || description === "") await updateInfo();
+        await updateThumbnail();
+
+        handleEditPlaylist();
     };
 
     // --- Render ---
@@ -282,15 +333,22 @@ export default function PlaylistsPage() {
                                 <div className={styles.sectionHeader}>
                                     <div className={styles.detailHeader}>
                                         <img
-                                            src={current.thumbnailUrl || DEFAULT_PLAYLIST_COVER}
+                                            src={!!current.thumbnailUrl ? current.thumbnailUrl : DEFAULT_PLAYLIST_COVER}
                                             alt=""
                                             className={styles.detailCover}
                                             onClick={handleEditPlaylist}
                                         />
                                         <div className={styles.detailText}>
-                                            <h1 id="playlist-detail-heading" className={styles.detailTitle} onClick={handleEditPlaylist}>
+                                            <h1
+                                                id="playlist-detail-heading"
+                                                className={styles.detailTitle}
+                                                onClick={handleEditPlaylist}
+                                            >
                                                 {current.title}
                                             </h1>
+                                            {current.description && (
+                                                <p className={styles.detailDesc}>{current.description}</p>
+                                            )}
                                             <p className={styles.detailMeta}>{current.tracks.length} tracks</p>
                                         </div>
                                     </div>
@@ -344,7 +402,11 @@ export default function PlaylistsPage() {
                                                         <span>{t.title}</span>
                                                     </td>
                                                     <td>{t.artist}</td>
-                                                    <td>{formatDuration(t.duration) === "0:0" ? "" : formatDuration(t.duration)}</td>
+                                                    <td>
+                                                        {formatDuration(t.duration) === "0:0"
+                                                            ? ""
+                                                            : formatDuration(t.duration)}
+                                                    </td>
                                                     <td className={styles.rowActions}>
                                                         <button
                                                             className={styles.iconBtn}
@@ -396,7 +458,15 @@ export default function PlaylistsPage() {
                 />
             )}
 
-            {isEditPlaylistOpen && <EditPlaylistInfoPopup closeAction={handleEditPlaylist}/>}
+            {isEditPlaylistOpen && (
+                <EditPlaylistInfoPopup
+                    playlistTitle={current?.title}
+                    playlistDesc={current?.description}
+                    playlistThumbnail={!!current?.thumbnailUrl ? current?.thumbnailUrl : undefined}
+                    closeAction={handleEditPlaylist}
+                    submitAction={handleSubmitUpdatePlaylist}
+                />
+            )}
 
             <Toast toast={toast} onDismiss={() => setToast(null)} />
         </div>
@@ -511,7 +581,45 @@ function Toast({ toast, onDismiss }) {
     );
 }
 
-function EditPlaylistInfoPopup({ closeAction = () => {}}) {
+function EditPlaylistInfoPopup({
+    playlistTitle = "",
+    playlistDesc = "",
+    playlistThumbnail = DEFAULT_PLAYLIST_COVER,
+    closeAction = () => {},
+    submitAction = () => {},
+}) {
+    const [title, setTitle] = useState(playlistTitle);
+    const [description, setDescription] = useState(playlistDesc);
+    const [thumbnailPreview, setThumbnailPreview] = useState();
+    const [thumbnailFile, setThumbnailFile] = useState();
+
+    const handleInput = (setState) => (e) => setState(e.target.value);
+    const handleUploadThumbnail = (e) => {
+        setThumbnailPreview(e.target.files.length ? URL.createObjectURL(e.target.files[0]) : undefined);
+        setThumbnailFile(e.target.files.length ? e.target.files[0] : undefined);
+    };
+    const handleRemoveThumbnail = (e) => {
+        setThumbnailPreview(DEFAULT_PLAYLIST_COVER);
+        if (thumbnailFile) setThumbnailFile(undefined);
+    };
+
+    const handleSubmit = () => {
+        if (title === "") return;
+        const data = {};
+        if (title !== playlistTitle) data.title = title;
+        if (description !== playlistDesc) data.description = description;
+        data.thumbnailFile = thumbnailFile;
+        submitAction(data);
+    };
+
+    useEffect(() => {
+        return () => {
+            if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
+        };
+    }, [thumbnailPreview]);
+
+    console.log(thumbnailPreview);
+
     return (
         <div className={clsx(styles["edit-popup"])} onClick={closeAction}>
             <div className={clsx(styles["edit-wrapper"])} onClick={(e) => e.stopPropagation()}>
@@ -525,39 +633,70 @@ function EditPlaylistInfoPopup({ closeAction = () => {}}) {
                     <div className={clsx(styles["edit-image-wrapper"])}>
                         <Image
                             className={clsx(styles["edit-image"])}
-                            src={"/albumcover.jpg"}
+                            src={thumbnailPreview || playlistThumbnail}
                             width={100}
                             height={100}
                             alt=""
                         />
                         <div className={clsx(styles["edit-image-placeholder"])}>
-                            <input type="file" className={clsx(styles["edit-image-placeholder-input"])}/>
+                            <input
+                                type="file"
+                                className={clsx(styles["edit-image-placeholder-input"])}
+                                name="thumbnail"
+                                onChange={handleUploadThumbnail}
+                                accept="image/*"
+                            />
                             <FontAwesomeIcon icon={faPencil} className={clsx(styles["edit-image-placeholder-icon"])} />
                             <span className={clsx(styles["edit-image-placeholder-text"])}>Choosing image</span>
-                            <button className={clsx(styles["edit-image-options"])}>
-                                <FontAwesomeIcon icon={faEllipsis} />
+                            <button className={clsx(styles["edit-image-options"])} onClick={handleRemoveThumbnail}>
+                                <FontAwesomeIcon icon={faXmark} />
                             </button>
                         </div>
                     </div>
                     <div className={clsx(styles["edit-info-wrapper"])}>
                         <div className={clsx(styles["edit-title-group"])}>
-                            <input className={clsx(styles["edit-title-input"])} placeholder="Name" />
-                            <label className={clsx(styles["edit-title"])}>Title</label>
+                            <input
+                                className={clsx(styles["edit-title-input"], {
+                                    [styles["error"]]: title === "",
+                                    [styles["active"]]: title,
+                                })}
+                                placeholder="Name"
+                                name="title"
+                                value={title}
+                                onChange={handleInput(setTitle)}
+                            />
+                            <label className={clsx(styles["edit-title"])} htmlFor="title">
+                                Title
+                            </label>
                         </div>
                         <div className={clsx(styles["edit-desc-group"])}>
                             <textarea
-                                className={clsx(styles["edit-desc-input"])}
+                                className={clsx(styles["edit-desc-input"], {
+                                    [styles["active"]]: description,
+                                })}
                                 placeholder="Description (optional)"
+                                name="desc"
+                                value={description}
+                                onChange={handleInput(setDescription)}
                             />
-                            <label className={clsx(styles["edit-desc"])}>Description</label>
+                            <label className={clsx(styles["edit-desc"])} htmlFor="desc">
+                                Description
+                            </label>
                         </div>
                     </div>
                 </div>
-                <button className={clsx(styles["edit-action-button"])}>
+                <button
+                    className={clsx(styles["edit-action-button"], {
+                        [styles["active"]]:
+                            title && (title !== playlistTitle || description !== playlistDesc || thumbnailPreview),
+                    })}
+                    onClick={handleSubmit}
+                >
                     <span>Save</span>
                 </button>
                 <strong className={clsx(styles["edit-details"])}>
-                    By continuing, you agree to allow MusicHub to access the images you have selected to upload. Please ensure you have permission to upload the images.
+                    By continuing, you agree to allow MusicHub to access the images you have selected to upload. Please
+                    ensure you have permission to upload the images.
                 </strong>
             </div>
         </div>

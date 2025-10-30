@@ -136,6 +136,11 @@
     cursor: pointer;
 }
 
+.detailDesc {
+    color: #adadad;
+    font-size: 15px;
+}
+
 .detailMeta {
     color: #adadad;
     font-size: 15px;
@@ -639,6 +644,7 @@
     background-color: #33333333;
     border-radius: 999999px;
     font-size: 16px;
+    cursor: pointer;
 }
 
 .edit-info-wrapper {
@@ -669,7 +675,7 @@
     font-size: 12px;
     transition: all 0.1s linear;
     padding: 2px;
-    background-color: #333;
+    background-color: #333333;
 }
 
 .edit-title-input {
@@ -693,15 +699,26 @@
     font-size: 14px;
 }
 
+.edit-title-input.error, .edit-title-input.error ~ .edit-title {
+    border-color: #e74c3c !important;
+    opacity: 1;
+    visibility: visible;
+    color: #e74c3c;
+}
+
 .edit-title-input:focus,
-.edit-desc-input:focus {
+.edit-desc-input:focus,
+.edit-title-input.active,
+.edit-desc-input.active {
     background-color: #333;
     border: 1px solid #535353;
     outline: none;
 }
 
 .edit-title-input:focus ~ .edit-title,
-.edit-desc-input:focus ~ .edit-desc {
+.edit-desc-input:focus ~ .edit-desc,
+.edit-title-input.active ~ .edit-title,
+.edit-desc-input.active ~ .edit-desc {
     opacity: 1;
     visibility: visible;
 }
@@ -718,6 +735,11 @@
     color: #333;
     font-weight: 600;
     cursor: pointer;
+    transition: all .4s ease-in;
+}
+
+.edit-action-button.active {
+    background-color: #5cb85c;
 }
 
 .edit-details {
