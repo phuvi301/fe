@@ -7,9 +7,8 @@ import Header from "../../components/Header";
 import { useBottomBar } from "~/context/BottombarContext";
 
 export default function Home() {
-    const { bottomBarRef, nowPlaying } = useBottomBar();
+    const { bottomBarRef, nowPlaying, playlistPlaying } = useBottomBar();
 
-    const [queueSong, setQueueSong] = useState([]);
     const [collapsed, setCollapsed] = useState(false);
 
     useEffect(() => {
@@ -23,47 +22,32 @@ export default function Home() {
         localStorage.setItem("Collapsing", JSON.stringify(collapsed));
     }, [collapsed]);
 
-    // const queueSong = Array.from({ length: bottomBarRef.current.playlistPlayingRef.current.length }, (_, i) => ({
-    //     title: bottomBarRef.current.playlistPlayingRef.current[i].title,
-    //     artist: bottomBarRef.current.playlistPlayingRef.current[i].artist,
-    // }));
+    const getIndex = (targetID, weight) => {
+        return (playlistPlaying?.tracks?.findIndex((track) => track._id === targetID) ?? 0) + weight;
+    }
 
-    const handleClickSong = async (songId) => {
-        await bottomBarRef.current.playTrack(songId);
-        // setQueueSong((prev) => prev.slice(1));
-        console.log(bottomBarRef.current.playlistPlayingRef.current);
+    const toggleTrack = async (trackId) => {
+        const index = getIndex(nowPlaying.current._id, 0); 
+        await bottomBarRef.current.play(trackId, playlistPlaying._id, index);
     };
 
-    // useEffect(() => {
-    //     setQueueSong(
-    //         bottomBarRef.current.playlistPlayingRef.current.slice(
-    //             bottomBarRef.current.playlistPlayingRef.current.findIndex(
-    //                 (song) => song._id === bottomBarRef.current.trackPlaying.current._id
-    //             ) + 1
-    //         )
-    //     );
-    // }, []);
-
-    // useEffect(() => {
-	// 	if (!queueSong.length) return;
-    //     bottomBarRef.current.playlistPlayingRef.current = queueSong;
-    // }, [queueSong]);
+    const totalCount = Math.max(0, (playlistPlaying?.tracks?.length ?? 0) - (playlistPlaying?.tracks?.findIndex((song) => song._id === nowPlaying.current?._id) ?? 0) - 1);
 
     const listSong = ({ index, style }) => {
-        const song = queueSong[index];
+        const song = playlistPlaying?.tracks[index + getIndex(nowPlaying.current._id, 1)];
         return (
-            <div style={style} className="listSong" onClick={async () => await handleClickSong(song._id)}>
+            <div style={style} className="listSong" onClick={async () => await toggleTrack(song._id)}>
                 <img src="/play.png" className="play-button no-select" />
                 <button className="next-song-queue">
                     <div className="song-in-queue">
                         <div className="mini-thumbnail">
-                            <img src={song.thumbnailUrl} className="cover no-select" />
+                            <img src={song?.thumbnailUrl} className="cover no-select" />
                         </div>
                         <div className="song-detail">
                             <div className="song-name-queue">
-                                <div className="bold-text no-select">{song.title}</div>
+                                <div className="bold-text no-select">{song?.title}</div>
                             </div>
-                            <div className="artist-name-queue no-select">{song.artist}</div>
+                            <div className="artist-name-queue no-select">{song?.artist}</div>
                         </div>
                     </div>
                 </button>
@@ -128,7 +112,7 @@ export default function Home() {
                             <div className="list-song-container">
                                 <Virtuoso
                                     style={{ height: 332, width: "100%" }}
-                                    totalCount={queueSong.length}
+                                    totalCount={totalCount}
                                     itemContent={(index) => listSong({ index })}
                                 />
                             </div>

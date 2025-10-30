@@ -11,13 +11,12 @@ import { resolve } from "styled-jsx/css";
 import { useImageColors } from "../hooks/useImageColors";
 
 const BottomBar = forwardRef((props, ref) => {
-    const { nowPlaying, playback, url, setUrl, getTrack } = useBottomBar();
+    const { nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, handlePlaylist } = useBottomBar();
 
     const playerRef = useRef(null);
     const hlsRef = useRef(null);
     const isSeeking = useRef(false);
     const listenedSegments = useRef(new Set());
-    const playlistPlayingRef = useRef(null);
 
     const [progress, setProgress] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -394,13 +393,19 @@ const BottomBar = forwardRef((props, ref) => {
         if (!isSeeking.current && !playerRef.current.paused) updatePlaybackTime();
     }
 
-    const chooseTrack = async (trackID) => {
+    const play = async (trackID, playlistID = null, index = null) => {
         const res = await getTrack(trackID);
+
         setLyrics([]);
         setCurrentLyricIndex(-1);
         await fetchLyrics(trackID);
+        
         nowPlaying.current = res.track;
+        setCurrTrack(res.track);
         handleTrack(res.url);
+
+        handlePlaylist(playlistID, index);
+        saveProgressToRedis(playlistID, index);
     }
 
     // Effect để cập nhật thumbnail khi bài hát thay đổi
@@ -467,6 +472,7 @@ const BottomBar = forwardRef((props, ref) => {
         const ended = () => {
             setIsPlaying(false);
             setCurrentLyricIndex(-1); // Reset lyrics khi hết bài
+            toggleNext();
         }
 
         // Lắng nghe sự kiện với tần suất cao hơn
@@ -521,10 +527,26 @@ const BottomBar = forwardRef((props, ref) => {
     const minutes = Math.floor(progress / 60);
     const seconds = Math.floor(progress % 60);
 
+    const toggleNext = async () => {
+        if (playlistPlaying) {
+            const nextTrackIdx = playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id) + 1;
+            if (nextTrackIdx >= playlistPlaying.tracks.length) return;
+            const nextTrackID = playlistPlaying.tracks[nextTrackIdx]._id;
+            await play(nextTrackID, playlistPlaying._id, nextTrackIdx);
+        }
+    }
+
+    const togglePrevious = async () => {
+        if (playlistPlaying) {
+            const prevTrackIdx = playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id) - 1;
+            if (prevTrackIdx < 0) return;
+            const prevTrackID = playlistPlaying.tracks[prevTrackIdx]._id;
+            await play(prevTrackID, playlistPlaying._id, prevTrackIdx);
+        }
+    }
+
     useImperativeHandle(ref, () => ({
-        chooseTrack,
-        playlistPlayingRef,
-        saveProgressToRedis,
+        play,
         fetchLyrics,
     }));
 
@@ -559,13 +581,13 @@ const BottomBar = forwardRef((props, ref) => {
                     <button className={style["shuffle"]}>
                         <img src="/shuffle.png" className={style["menu-btn"]}/>
                     </button>
-                    <button className={style["previous"]}>
+                    <button className={style["previous"]} onClick={togglePrevious}>
                         <img src="/previous.png" className={style["menu-btn"]}/>
                     </button>
                     <a className={style["play"]} onClick={togglePlay}>
                         <img src={!isPlaying ? "/play.png" : "pause.png"} className={style["menu-btn"]}/>
                     </a>
-                    <button className={style["next"]}>
+                    <button className={style["next"]} onClick={toggleNext}>
                         <img src="/next.png" className={style["menu-btn"]}/>
                     </button>
                     <button className={style["repeat"]}>

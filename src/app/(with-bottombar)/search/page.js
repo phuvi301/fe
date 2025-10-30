@@ -16,10 +16,8 @@ export default function Search() {
     const { bottomBarRef } = useBottomBar();
     const [searchResults, setSearchResults] = useState([]);
 
-    const handleTrackPlay = async (trackId) => {
-        await bottomBarRef.current.chooseTrack(trackId);
-        await bottomBarRef.current.fetchLyrics(trackId);
-        bottomBarRef.current.saveProgressToRedis();
+    const toggleTrack = async (trackId) => {
+        await bottomBarRef.current.play(trackId);
     };
     const handleDownload = async (trackId) => {
         try {
@@ -72,7 +70,7 @@ export default function Search() {
                                 />
                                 <div className={style.songInfo}>
                                     <div className={style.playAndTitle}>
-                                        <div className={style.playButtonContainer} onClick={() => handleTrackPlay(song._id)}>
+                                        <div className={style.playButtonContainer} onClick={() => toggleTrack(song._id)}>
                                             <Image src="/play_black.png" alt="Play" width={24} height={24}/>
                                         </div>
                                         <div className={style.titleArtist}>
