@@ -46,52 +46,78 @@ export default function Home() {
         }
     }, [oauthConfig]);
 
-    const handleSubmitSignUp = (e) => {
-        e.preventDefault();
-        const { email, password } = e.target;
-        
-        axios
-            .post(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
-                { email: email.value, password: password.value },
-                {
-                    withCredentials: true,
-                }
-            )
-            .then((response) => {
-                console.log("Registration successful:", response.data);
-                alert("Registration successful! Please sign in.");
-                containerRef.current.classList.remove(style["right-panel-active"]);
+    useEffect(() => {
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/oauth-config`)
+            .then(response => {
+                setOauthConfig(response.data);
             })
-            .catch((error) => {
-                console.error("There was an error registering!", error);
-                alert(error.response?.data?.message || "Registration failed!");
+            .catch(error => {
+                console.error("Failed to get OAuth config:", error);
             });
+    }, []);
+
+    useEffect(() => {
+        if (oauthConfig?.facebookAppId && typeof window !== 'undefined') {
+            const fbScript = document.createElement('script');
+            fbScript.id = 'facebook-jssdk';
+            fbScript.src = 'https://connect.facebook.net/en_US/sdk.js';
+            
+            window.fbAsyncInit = function() {
+                window.FB.init({
+                    appId: oauthConfig.facebookAppId,
+                    cookie: true,
+                    xfbml: true,
+                    version: 'v18.0'
+                });
+            };
+            
+            if (!document.getElementById('facebook-jssdk')) {
+                document.head.appendChild(fbScript);
+            }
+        }
+    }, [oauthConfig]);
+
+    const handleSubmitSignUp = async (e) => {
+        e.preventDefault();
+        const { signUpEmail, signUpPassword, signUpConfirmPassword } = e.target;
+        if (signUpPassword.value !== signUpConfirmPassword.value) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+        try {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
+                {
+                    email: signUpEmail.value,
+                    password: signUpPassword.value,
+                }
+            );
+            console.log("Registration successful:", response.data);
+            alert("Registration successful! Please log in.");
+        } catch (error) {
+            console.error("There was an error registering!", error);
+        }
     };
 
-    const handleSubmitSignIn = (e) => {
+    const handleSubmitSignIn = async (e) => {
         e.preventDefault();
-        const { email, password } = e.target;
-        console.log("Email:", email.value);
-        console.log("Password:", password.value);
+        const { signInEmail, signInPassword } = e.target;
 
-        axios
-            .post(
+        try {
+            const response = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signin`,
-                { email: email.value, password: password.value },
+                { email: signInEmail.value, password: signInPassword.value },
                 {
                     withCredentials: true,
                 }
-            )
-            .then((response) => {
-                console.log("Login successful:", response.data);
-                localStorage.setItem("userInfo", JSON.stringify(response.data.data))
-                document.cookie = `accessToken=${response.data.data.accessToken}; expires=${new Date(response.data.data.accessExpireTime).toUTCString()}; path=/;` ;
-                homeRouter();
-            })
-            .catch((error) => {
-                console.error("There was an error logging in!", error);
-            });
+            );
+            console.log("Login successful:", response.data);
+            localStorage.setItem("userInfo", JSON.stringify(response.data.data))
+            document.cookie = `accessToken=${response.data.data.accessToken}; expires=${new Date(response.data.data.accessExpireTime).toUTCString()}; path=/;` ;
+            homeRouter();
+        } catch (error) {
+            console.error("There was an error logging in!", error);
+        }
     };
 
     // Slider login template
@@ -264,7 +290,7 @@ export default function Home() {
                                 <div className={style["email-border"]}>
                                     <img src="/mail.png" alt="Email Icon" className={style["email-icon"]} />
                                 </div>
-                                <input type="email" name="email" placeholder="Email" />
+                                <input type="email" placeholder="Email" id="signUpEmail" />
                                 <span className={style.nothing}></span>
                             </div>
                             {/* Password input */}
@@ -277,6 +303,7 @@ export default function Home() {
                                     type={showSignUpPassword ? "password" : "text"}
                                     placeholder="Password"
                                     className={style.password}
+                                    id="signUpPassword"
                                 />
                                 <button
                                     type="button"
@@ -303,6 +330,7 @@ export default function Home() {
                                     type={showConfirmPassword ? "password" : "text"}
                                     placeholder="Confirm Password"
                                     className={style["confirm-password"]}
+                                    id="signUpConfirmPassword"
                                 />
                                 <button
                                     type="button"
@@ -353,7 +381,7 @@ export default function Home() {
                                 <div className={style["email-border"]}>
                                     <img src="/mail.png" alt="Email Icon" className={style["email-icon"]} />
                                 </div>
-                                <input type="text" id="email" placeholder="Email" />
+                                <input type="email" placeholder="Email" id="signInEmail" />
                                 <span className={style.nothing}></span>
                             </div>
                             {/* Password input */}
@@ -362,10 +390,10 @@ export default function Home() {
                                     <img src="/pw.png" alt="Password Icon" className={style["password-icon"]} />
                                 </div>
                                 <input
-                                    id="password"
                                     type={showSignInPassword ? "password" : "text"}
                                     placeholder="Password"
                                     className={style.password}
+                                    id="signInPassword"
                                 />
                                 <button
                                     type="button"
