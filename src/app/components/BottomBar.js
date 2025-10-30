@@ -17,6 +17,7 @@ const BottomBar = forwardRef((props, ref) => {
     const hlsRef = useRef(null);
     const isSeeking = useRef(false);
     const listenedSegments = useRef(new Set());
+    const repeatMode = useRef("off");
 
     const [progress, setProgress] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -369,20 +370,22 @@ const BottomBar = forwardRef((props, ref) => {
                 trackID: nowPlaying.current._id, 
                 playbackTime: playerRef.current.currentTime, 
                 playlistID: plID,
-                index: idx
+                index: idx,
+                repeat: repeatMode.current
             });
         } catch(err) {
             console.error("Error while saving progress", err);
         }
     }
 
-    const updatePlaybackTime = async (plID = null, idx = null) => {
+    const updatePlaybackTime = async (repeat) => {
         const {_id} = JSON.parse(localStorage.getItem("userInfo")); 
         if (!_id || !nowPlaying.current) return; // Chỉ đăng nhập mới lưu vào redis
 
         try {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users/playback/${_id}`, {
                 playbackTime: playerRef.current.currentTime, 
+                repeat: repeatMode.current
             });
         } catch(err) {
             console.error("Error while updating playbackTime", err);
@@ -465,14 +468,23 @@ const BottomBar = forwardRef((props, ref) => {
         const handleBeforeUnload = () => {
             if (player && !isNaN(player.currentTime)) {
                 updatePlaybackTime();
-                
             }
         };
 
         const ended = () => {
             setIsPlaying(false);
             setCurrentLyricIndex(-1); // Reset lyrics khi hết bài
-            toggleNext();
+            if (playlistPlaying) {
+                if (repeatMode.current === "track") {
+                    play(nowPlaying.current._id, playlistPlaying._id, playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id));
+                }
+                else if (repeatMode.current === "context" && playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id) === playlistPlaying.tracks.length - 1) {
+                    play(playlistPlaying.tracks[0]._id, playlistPlaying._id, 0);
+                }
+                else {
+                    toggleNext();
+                }
+            }
         }
 
         // Lắng nghe sự kiện với tần suất cao hơn
@@ -545,9 +557,16 @@ const BottomBar = forwardRef((props, ref) => {
         }
     }
 
+    const toggleRepeat = async () => {
+        if (repeatMode.current === "off") repeatMode.current = "context";
+        else if (repeatMode.current === "context") repeatMode.current = "track";
+        else repeatMode.current = "off";
+    }
+
     useImperativeHandle(ref, () => ({
         play,
         fetchLyrics,
+        repeatMode
     }));
 
     return (
@@ -590,8 +609,8 @@ const BottomBar = forwardRef((props, ref) => {
                     <button className={style["next"]} onClick={toggleNext}>
                         <img src="/next.png" className={style["menu-btn"]}/>
                     </button>
-                    <button className={style["repeat"]}>
-                        <img src="/repeat.png" className={style["menu-btn"]}/>
+                    <button className={style["repeat"]} onClick={toggleRepeat}>
+                        <img src={repeatMode.current === "off" ? "/repeat.png" : (repeatMode.current === "track" ? "/repeat-one.png" : "/repeat-blue.png")} className={style["menu-btn"]}/>
                     </button>
                     <button 
                         className={clsx(style["lyrics-btn"], { [style["active"]]: showLyrics })} 
