@@ -532,7 +532,7 @@ const BottomBar = forwardRef((props, ref) => {
             const nextTrackIdx = playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id) + 1;
             if (nextTrackIdx >= playlistPlaying.tracks.length) return;
             const nextTrackID = playlistPlaying.tracks[nextTrackIdx]._id;
-            await play(nextTrackID, playback.playlistID, nextTrackIdx);
+            await play(nextTrackID, playlistPlaying._id, nextTrackIdx);
         }
     }
 
@@ -541,7 +541,7 @@ const BottomBar = forwardRef((props, ref) => {
             const prevTrackIdx = playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id) - 1;
             if (prevTrackIdx < 0) return;
             const prevTrackID = playlistPlaying.tracks[prevTrackIdx]._id;
-            await play(prevTrackID, playback.playlistID, prevTrackIdx);
+            await play(prevTrackID, playlistPlaying._id, prevTrackIdx);
         }
     }
 
