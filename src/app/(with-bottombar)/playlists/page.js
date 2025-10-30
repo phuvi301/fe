@@ -344,7 +344,7 @@ export default function PlaylistsPage() {
                                                         <span>{t.title}</span>
                                                     </td>
                                                     <td>{t.artist}</td>
-                                                    <td>{formatDuration(t.duration)}</td>
+                                                    <td>{formatDuration(t.duration) === "0:0" ? "" : formatDuration(t.duration)}</td>
                                                     <td className={styles.rowActions}>
                                                         <button
                                                             className={styles.iconBtn}
