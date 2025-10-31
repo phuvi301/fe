@@ -252,7 +252,7 @@
     flex-direction: row;
     gap: 20px;
     overflow: hidden;
-    height: 260px;
+    height: 280px;
 }
 
 .featured-item {
@@ -596,7 +596,9 @@
     position: fixed;
     bottom: 0;
     z-index: 1000;
+    gap: 170px;
 }
+
 
 .song-in-bottom-bar {
     width: 200px;
@@ -760,8 +762,7 @@
 .lyrics-btn {
     background: none;
     border: none;
-    cursor: pointer;
-    padding: 0.5rem;
+    cursor: pointer;    
     /* transition: filter 0.3s, opacity 0.3s; */
     display: flex;
     align-items: center;
@@ -781,7 +782,7 @@
     left: 250px; /* Chiều rộng của sidebar */
     right: 0;
     bottom: 75px; /* Chiều cao của bottom bar */
-    z-index: 1000;
+    z-index: 500;
     display: flex;
     flex-direction: column;
     transition: background 0.5s ease;
@@ -921,8 +922,10 @@
     text-align: center;
     color: #aba8a8;
     font-style: italic;
+    font-weight: bold;
     padding: 40px 20px;
     user-select: none;
+    font-size: 30px;
 }
 
 .lyrics-controls {
@@ -949,6 +952,130 @@
     width: 20px;
     height: 20px;
     filter: brightness(0) invert(1);
+}
+.like-btn-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-left: 15px;
+}
+.like-btn {
+    background: none;
+    border: none;
+    cursor: pointer;    
+    /* transition: filter 0.3s, opacity 0.3s; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.right-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+/* Queue button */
+.queue-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.queue-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    /* transition: filter 0.3s, opacity 0.3s; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.queue-btn:hover img {
+    opacity: 1;
+    filter: brightness(1.2);
+}
+/* NEW: volume control styles for bottom bar */
+.volume-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.volume-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer; 
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+/* slider base */
+.volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 120px;
+    height: 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+    background: linear-gradient(to right, #3c74cfff 50%, #333 50%);
+}
+
+/* webkit thumb */
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 3px rgba(0,0,0,0.6);
+}
+
+/* firefox thumb */
+.volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 3px rgba(0,0,0,0.6);
+}
+.like-toast {
+    position: fixed;
+    bottom: calc(var(--bottom-bar-height, 75px) + 16px); /* sits above bottom bar */
+    background: rgba(6, 98, 226, 0.85);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(3, 7, 239, 0.33);
+    font-weight: 600;
+    z-index: 2000;
+    pointer-events: none; 
+    opacity: 0;
+    transform: translateY(6px);
+    animation: likeToastInOut 2.5s ease forwards;
+    white-space: nowrap;
+    right: 16px;
+}
+
+/* Simple fade in & out: appear quickly, stay, then fade */
+@keyframes likeToastInOut {
+    0% { opacity: 0; transform: translateY(8px); }
+    8% { opacity: 1; transform: translateY(0); }
+    88% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(8px); }
+}
+
+/* small responsive tweak */
+@media (max-width: 700px) {
+    .volume-slider {
+        width: 80px;
+    }
 }
 
 /* Responsive */

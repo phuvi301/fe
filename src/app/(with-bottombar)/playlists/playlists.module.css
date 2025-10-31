@@ -464,7 +464,7 @@
     list-style: none;
     max-height: 40vh;
     overflow: auto;
-    border: 1px solid #2d2d2d;
+    /* border: 1px solid #2d2d2d; */
     border-radius: 12px;
 }
 
@@ -489,6 +489,7 @@
     width: 44px;
     height: 44px;
     border-radius: 8px;
+    border: none;
     object-fit: cover;
     background: #fff;
 }
