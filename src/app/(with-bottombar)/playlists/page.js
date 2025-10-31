@@ -501,10 +501,10 @@ function CreatePlaylistModal({ onClose, onSubmit, existingNames }) {
     };
 
     return (
-        <div className={styles.modalBackdrop} role="dialog" aria-modal="true" aria-label="Tạo playlist mới">
+        <div className={styles.modalBackdrop} role="dialog" aria-modal="true" aria-label="Create new playlist">
             <div className={styles.modal}>
-                <h2>Tạo playlist mới</h2>
-                <p className={styles.muted}>Có thể bỏ trống, hệ thống sẽ đặt “Unnamed Playlist”.</p>
+                <h2>Create new playlist</h2>
+                <p className={styles.muted}>Can be left blank, system will set "Unnamed Playlist".</p>
                 <input
                     ref={inputRef}
                     className={styles.input}
