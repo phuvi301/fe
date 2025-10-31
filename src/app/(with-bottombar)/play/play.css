@@ -1,7 +1,8 @@
 /* Header navigation */
 .background{
-    --header-height: 8vh;
+    --header-height: 9vh;
     --aside-width: 350px;
+    --bottom-bar-height: 75px;
     --theme-color-black: #111214;
     --theme-color-blue: #00286A;
 }
@@ -165,23 +166,22 @@
     display: flex;
     min-height: calc(100vh - var(--header-height));
     width: 100%;
-
 }
 
 /* Queue */
 .queue-container {
     width: 100%;
-    max-width: 310px;
+    max-width: var(--aside-width);
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     background-color: #121212;
-    display: flex;
-    height: calc(100% - 70px - 9vh);
+    height: calc(100vh - var(--header-height) - var(--bottom-bar-height) - 2vh);
     position: fixed;
     right: 10px;
-    top: 65px;
+    top: var(--header-height);
     border-radius: 10px;
-    flex-direction: column;
 }
 
 .collapsed {
@@ -265,11 +265,12 @@
 .is-playing-container {
     background-color: #121212;
     display: flex;
-    width: 300px;
+    width: calc(var(--aside-width) - 10px);
     height: 125px;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     justify-content: flex-start;
+    position: relative;
 }
 
 .playing-text {
@@ -279,15 +280,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    align-self: flex-start;
 }
 
 .playing-song-queue {
-    width: 296px;
+    width: calc(var(--aside-width) - 10px);
     height: 70px;
     background-color: #121212;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    padding: 0 15px;
     border: none;
     cursor: pointer;
     outline: none;
@@ -311,9 +314,11 @@
 }
 
 .mini-thumbnail .cover {
+    /* width: 80px; */
     width: 60px;
     height: 60px;
     border-radius: 4px;
+    object-fit: cover;
 }
 
 .song-detail {
@@ -323,6 +328,7 @@
     display: flex;
     flex-direction: column;
     text-align: left;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .song-name-queue {
@@ -342,22 +348,24 @@
 
 .next-song-list {
     background-color: #121212;
-    width: 300px;
+    width: calc(var(--aside-width) - 10px);
     height: 100%;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    padding: 15px 0;
 }
 
 .playing-song-container {
     height: 70px;
-    width: 292px;
+    width: calc(var(--aside-width) - 30px);
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 10px;
     position: relative;
+    align-self: center;
 }
 
 .play-button2 {
@@ -387,8 +395,10 @@
 .listSong {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    padding: 0 15px;
     border-radius: 10px;
+    position: relative;
 }
 
 .listSong:hover .artist-name-queue, .listSong:hover .song-name-queue, .listSong:hover .song-in-queue, .listSong:hover, .listSong:hover .next-song-queue {
@@ -417,12 +427,14 @@
 
 .list-song-container {
     background-color: #121212;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     height: 100%;
-    width: 300px;
+    width: calc(var(--aside-width) - 30px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 10px;
+    position: relative;
+    align-self: center;
 }
 
 .list-song-container > div::-webkit-scrollbar {
@@ -465,6 +477,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    align-self: flex-start;
 }
 /* End queue */
 
