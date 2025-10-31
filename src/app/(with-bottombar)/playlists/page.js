@@ -332,12 +332,19 @@ export default function PlaylistsPage() {
 
                                 <div className={styles.sectionHeader}>
                                     <div className={styles.detailHeader}>
-                                        <img
-                                            src={!!current.thumbnailUrl ? current.thumbnailUrl : DEFAULT_PLAYLIST_COVER}
-                                            alt=""
-                                            className={styles.detailCover}
-                                            onClick={handleEditPlaylist}
-                                        />
+                                        <button className={styles.detailCover}>
+                                            <img
+                                                src={
+                                                    !!current.thumbnailUrl
+                                                        ? current.thumbnailUrl
+                                                        : DEFAULT_PLAYLIST_COVER
+                                                }
+                                                alt=""
+                                                className={styles.detailCover}
+                                                onClick={handleEditPlaylist}
+                                            />
+                                            <FontAwesomeIcon icon={faPencil} className={styles.detailIcon}/>
+                                        </button>
                                         <div className={styles.detailText}>
                                             <h1
                                                 id="playlist-detail-heading"
@@ -449,7 +456,7 @@ export default function PlaylistsPage() {
                 <AddSongModal
                     onClose={() => setIsAddOpen(false)}
                     onPick={(track) => {
-                        setIsAddOpen(false);
+                        // setIsAddOpen(false);
                         handleAddSong(track);
                     }}
                     searchTerm={searchTerm}

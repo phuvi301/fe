@@ -112,10 +112,26 @@
     flex: 0 0 auto;
     cursor: pointer;
     transition: all .2s ease-in;
+    position: relative;
 }
 
 .detailCover:hover {
     opacity: 0.8;
+}
+
+.detailIcon {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 16px;
+    visibility: hidden;
+    opacity: 0;
+    transition: all .2s ease-in;
+}
+
+.detailCover:hover .detailIcon {
+    visibility: visible;
+    opacity: 1;
 }
 
 .detailText {
@@ -739,7 +755,8 @@
 }
 
 .edit-action-button.active {
-    background-color: #5cb85c;
+    background-color: #005ff6;
+    color: #fff;
 }
 
 .edit-details {
