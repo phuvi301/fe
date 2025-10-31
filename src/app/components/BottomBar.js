@@ -67,24 +67,24 @@ const BottomBar = forwardRef((props, ref) => {
     }, [pathname]);
 
     // Đóng lyrics overlay khi reload trang / chuyển tab / chuyển site
-    useEffect(() => {
-        const closeLyrics = () => setShowLyrics(false);
-        const handleVisibility = () => {
-            if (document.visibilityState === 'hidden') closeLyrics();
-        };
+    // useEffect(() => {
+    //     const closeLyrics = () => setShowLyrics(false);
+    //     const handleVisibility = () => {
+    //         if (document.visibilityState === 'hidden') closeLyrics();
+    //     };
 
-        window.addEventListener('beforeunload', closeLyrics);
-        window.addEventListener('pagehide', closeLyrics);
-        window.addEventListener('blur', closeLyrics);
-        document.addEventListener('visibilitychange', handleVisibility);
+    //     window.addEventListener('beforeunload', closeLyrics);
+    //     window.addEventListener('pagehide', closeLyrics);
+    //     window.addEventListener('blur', closeLyrics);
+    //     document.addEventListener('visibilitychange', handleVisibility);
     
-        return () => {
-            window.removeEventListener('beforeunload', closeLyrics);
-            window.removeEventListener('pagehide', closeLyrics);
-            window.removeEventListener('blur', closeLyrics);
-            document.removeEventListener('visibilitychange', handleVisibility);
-        };
-    }, []);
+    //     return () => {
+    //         window.removeEventListener('beforeunload', closeLyrics);
+    //         window.removeEventListener('pagehide', closeLyrics);
+    //         window.removeEventListener('blur', closeLyrics);
+    //         document.removeEventListener('visibilitychange', handleVisibility);
+    //     };
+    // }, []);
 
 
     //Toggle likes + show toast
@@ -619,6 +619,7 @@ const BottomBar = forwardRef((props, ref) => {
     }, [lyrics, isLyricsSynced]);
 
     const togglePlay = () => {
+        if (!nowPlaying.current) return;
         const player = playerRef.current;
         if (player.paused) {
             player.play();
@@ -747,6 +748,7 @@ const BottomBar = forwardRef((props, ref) => {
                         }}
                         onChange={(e) => setProgress(e.target.value)}
                         onMouseUp={() => {
+                            if(!nowPlaying.current) return;
                             playerRef.current.currentTime = progress;
                             isSeeking.current = false;
                             hlsRef.current.stopLoad();
@@ -838,6 +840,7 @@ const BottomBar = forwardRef((props, ref) => {
                     rgba(0,0,0,0.8) 100%)`,
             }}
         >
+            {nowPlaying.current && (
             <div 
                 className={style["lyrics-header"]}
                 style={{
@@ -847,26 +850,28 @@ const BottomBar = forwardRef((props, ref) => {
                     borderBottom: `1px solid ${colors.vibrant}66`,
                 }}
             >
-                <div className={style["lyrics-details"]}>
-                    <Image 
-                        className={style["lyrics-thumbnail"]} 
-                        src={nowPlaying.current.thumbnailUrl} 
-                        width={80} 
-                        height={80}
-                        alt="Thumbnail"
-                        style={{
-                            boxShadow: `0 4px 20px ${colors.vibrant}44`,
-                        }}
-                    />
-                    <div className={style["lyrics-song-info"]}>
-                        <h3 className={style["lyrics-song-title"]} style={{ color: colors.lightVibrant || '#ffffff' }}>
-                            {nowPlaying.current.title}
-                        </h3>
-                        <h4 className={style["lyrics-song-artist"]}>
-                            {nowPlaying.current.artist}
-                        </h4>
+                
+                    <div className={style["lyrics-details"]}>
+                        <Image 
+                            className={style["lyrics-thumbnail"]} 
+                            src={nowPlaying.current.thumbnailUrl} 
+                            width={80} 
+                            height={80}
+                            alt="Thumbnail"
+                            style={{
+                                boxShadow: `0 4px 20px ${colors.vibrant}44`,
+                            }}
+                        />
+                        <div className={style["lyrics-song-info"]}>
+                            <h3 className={style["lyrics-song-title"]} style={{ color: colors.lightVibrant || '#ffffff' }}>
+                                {nowPlaying.current.title}
+                            </h3>
+                            <h4 className={style["lyrics-song-artist"]}>
+                                {nowPlaying.current.artist}
+                            </h4>
+                        </div>
                     </div>
-                </div>
+                
                 <div className={style["lyrics-controls"]}>
                     <button 
                         className={style["close-lyrics"]} 
@@ -881,7 +886,8 @@ const BottomBar = forwardRef((props, ref) => {
                         <Image src="/close.png" alt="Close" width={24} height={24}/>
                     </button>
                 </div>
-            </div>
+            </div>)}
+
             <div 
                 className={style["lyrics-content"]}
                 ref={lyricsContentRef}

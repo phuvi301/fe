@@ -176,8 +176,7 @@
     justify-content: flex-start;
     background-color: #121212;
     display: flex;
-    height: 100%;
-    max-height: 550px;
+    height: calc(100% - 70px - 9vh);
     position: fixed;
     right: 10px;
     top: 65px;
@@ -344,7 +343,7 @@
 .next-song-list {
     background-color: #121212;
     width: 300px;
-    height: 70%;
+    height: 100%;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
@@ -358,11 +357,12 @@
     align-items: center;
     justify-content: center;
     border-radius: 10px;
+    position: relative;
 }
 
 .play-button2 {
     position: absolute;
-    top: 23.5%;
+    top: 50%;
     left: 15%;
     transform: translate(-50%, -50%);
     width: 30px;
@@ -420,7 +420,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 330px;
+    height: 100%;
     width: 300px;
     border-radius: 10px;
 }
