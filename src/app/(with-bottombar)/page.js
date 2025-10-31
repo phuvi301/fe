@@ -105,7 +105,7 @@ export default function Home() {
                     </button>
                   </div>         
                 ) : (
-                  <div></div>
+                  <></>
                 )
               }
             {/* Featured items */}
@@ -114,7 +114,7 @@ export default function Home() {
                 <a className={style["featured-item"]} key={track._id} onClick={() => toggleTrack(track._id)}>
                   <span className={style["track-container"]}>
                     <Image src={track.thumbnailUrl} width={600} height={600} alt={track.title} priority={true} />
-                    {track.title}
+                    <span>{track.title}</span>
                   </span>
                 </a>
               ))}
@@ -179,7 +179,6 @@ export default function Home() {
             </div>
           </article>)}
         </section>
-        <div className={style.fakebottombar}></div>
       </main>
     </div>
   );

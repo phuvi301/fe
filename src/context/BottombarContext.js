@@ -25,6 +25,7 @@ export function BottomBarProvider({ children }) {
     }
 
     const getTrack = async (songID) => {
+        // if (!songID) return;
         try{
             const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${songID}`)
             const url = `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${response.data.data.audioUrl}`;
@@ -42,19 +43,24 @@ export function BottomBarProvider({ children }) {
     };
 
     const getPlaylist = async (playlistID) => {
-        if (playlistID) {
-            try {
-                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${playlistID}`);
-                setPlaylistPlaying(res.data.data);
-            } catch(err) {
-                console.error("Can't get playing playlist", err);
-            }
-        } else {
+        if (!playlistID) {
             setPlaylistPlaying(null);
+            return;
+        }
+
+        try {
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${playlistID}`);
+            setPlaylistPlaying(res.data.data);
+        } catch(err) {
+            console.error("Can't get playing playlist", err);
         }
     }
 
     const handlePlaylist = async (playlistID, index) => {
+        if (!playlistID) {
+            setPlaylistPlaying(null);
+            return;
+        }
         getPlaylist(playlistID);
         nowPlaying.current.index = index;
     }
@@ -63,7 +69,7 @@ export function BottomBarProvider({ children }) {
         const loadPlayback = async () => {
             const pb = await getPlayback();
             setPlayback(pb);
-            if (pb && !nowPlaying.current) {
+            if (Object.keys(pb).length !== 0 && !nowPlaying.current) {
                 bottomBarRef.current.repeatMode.current = pb.repeat;
                 const trackInfo = await getTrack(pb.trackID);
                 await bottomBarRef.current.fetchLyrics(pb.trackID);
