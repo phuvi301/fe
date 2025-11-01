@@ -110,7 +110,7 @@
     height: 180px;
     object-fit: cover;
     margin: 0 15px;
-    border: 2px solid skyblue;
+    border: 1px solid skyblue;
 }
 
 .personal-name-group {
@@ -120,6 +120,11 @@
 
 .personal-name {
     font-size: 28px;
+    margin-bottom: 5px;
+}
+
+.personal-bio {
+    font-size: 16px;
     margin-bottom: 15px;
 }
 
@@ -322,6 +327,10 @@
             border: none
         }
     }
+
+    &.error {
+        border: 2px solid rgb(172, 45, 23);
+    }
 }
 
 .user-form-text {
@@ -356,7 +365,7 @@
     border: none;
     max-width: 20%;
     padding: 8px;
-    align-self: flex-end;
+    align-self: flex-start;
     opacity: 0.5;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: not-allowed;
@@ -373,28 +382,65 @@
     position: relative;
     width: 260px;
     height: 260px;
+    border-radius: 99999px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #aaa;
 }
 
 .user-image {
-    border-radius: 50%;
     width: inherit;
     height: inherit;
-    border: 5px solid #666;
 }
 
-.user-image-btn {
+.user-image-placeholder {
     position: absolute;
-    bottom: 15%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 14px;
-    outline: none;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 8px;
-    background-color: #333;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.1s cubic-bezier(0.165, 0.84, 0.44, 1);
     cursor: pointer;
-    font-family: 'Montserrat', sans-serif;
+}
+
+.user-image-placeholder-input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.user-image-placeholder-icon {
+    font-size: 36px;
+}
+
+.user-image-placeholder-text {
+    margin-top: 10px;
+    font-size: 18px;
+}
+
+.user-image:hover ~ .user-image-placeholder,
+.user-image-placeholder:hover {
+    opacity: 1;
+    visibility: visible;
+    background-color: #333333cc;
+}
+
+.user-image-options {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    outline: none;
+    background-color: #33333333;
+    border-radius: 999999px;
+    font-size: 16px;
+    cursor: pointer;
 }
 
 .security-title {

@@ -166,13 +166,13 @@ export default function Header() {
 						{/* Profile */}
 						<div className={style["profile-container"]}>
 							<button id={style["profile-button"]} title="Profile" onClick={toggleProfileMenu}>
-								<Image src="/hcmut.png" alt="Profile" width={600} height={600} />
+								<Image src={userInfo?.thumbnailUrl || "/avatar-default.svg"} alt="Profile" width={600} height={600} />
 							</button>
 							{showProfileMenu && (
 								<div className={style["profile-dropdown"]}>
 									<div className={style["profile-header"]}>
 										<div className={style["profile-info"]}>
-											<Image src="/hcmut.png" alt="Profile" width={600} height={600} className={style["profile-avatar"]} />
+											<Image src={userInfo?.thumbnailUrl || "/avatar-default.svg"} alt="Profile" width={600} height={600} className={style["profile-avatar"]} />
 											<div className={style["profile-details"]}>
 												<h4>{userInfo?.nickname || userInfo?.username || ""}</h4>
 												<p>{userInfo?.email || ""}</p>

@@ -57,7 +57,7 @@ function Artist() {
         <>
             <div className={styles["personal-info-wrapper"]}>
                 <Image
-                    src={userInfo?.avatar || "/hcmut.png"}
+                    src={userInfo?.thumbnailUrl || "/hcmut.png"}
                     alt=""
                     width={600}
                     height={600}
@@ -66,6 +66,7 @@ function Artist() {
                 />
                 <div className={styles["personal-name-group"]}>
                     <h4 className={styles["personal-name"]}>{userInfo?.nickname || userInfo?.username || userInfo?.email}</h4>
+                    <p className={styles["personal-bio"]}>{userInfo?.bio}</p>
                     <p className={styles["personal-follower"]}>Follower: {userInfo?.followerCount}</p>
                     <p className={styles["personal-follower"]}>Following: {userInfo?.followingCount}</p>
                 </div>
