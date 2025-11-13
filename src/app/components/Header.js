@@ -12,6 +12,8 @@ export default function Header() {
 	const [showProfileMenu, setShowProfileMenu] = useState(false);
 	const [loginStatus, setLoginStatus] = useState(false);
 	const [userInfo, setUserInfo] = useState(null);
+	const [notifications, setNotifications] = useState([]);
+	const [unreadCount, setUnreadCount] = useState(0);
 	const searchInputRef = useRef(null);
 
 	const router = useRouter();
@@ -43,13 +45,75 @@ export default function Header() {
 		}
 	};
 
-	// Mock data cho notifications
-	const notifications = [
-		{ id: 1, message: "New song added to your playlist", time: "2 minutes ago" },
-		{ id: 2, message: "Your friend liked your song", time: "1 hour ago" },
-		{ id: 3, message: "New album from your favorite artist", time: "3 hours ago" },
-		// { id: 4, message: "Vinh cu qua luoi", time: "1 day ago" },
-	];
+	// API functions for notifications
+	const getAccessToken = () => {
+		const token = document.cookie.split('accessToken=')[1];
+		return token ? token.split(';')[0] : null;
+	};
+
+	const fetchNotifications = async () => {
+		try {
+			const token = getAccessToken();
+			if (!token) return;
+
+			const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications`, {
+				headers: {
+					'Authorization': `Bearer ${token}`,
+				},
+				params: {
+					page: 1,
+					limit: 10
+				}
+			});
+
+			if (response.data.data) {
+				setNotifications(response.data.data.notifications);
+				setUnreadCount(response.data.data.unreadCount);
+			}
+		} catch (error) {
+			console.error("Error fetching notifications:", error);
+		}
+	};
+
+	const markNotificationAsRead = async (notificationId) => {
+		try {
+			const token = getAccessToken();
+			if (!token) return;
+
+			await axios.patch(
+				`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/${notificationId}/read`,
+				{}, 
+				{
+					headers: {
+						'Authorization': `Bearer ${token}`,
+					}
+				}
+			);
+
+			// Update local state
+			setNotifications(prev => 
+				prev.map(notif => 
+					notif._id === notificationId 
+						? { ...notif, isRead: true }
+						: notif
+				)
+			);
+			setUnreadCount(prev => Math.max(0, prev - 1));
+		} catch (error) {
+			console.error("Error marking notification as read:", error);
+		}
+	};
+
+	const formatTimeAgo = (dateString) => {
+		const now = new Date();
+		const notificationDate = new Date(dateString);
+		const diffInMinutes = Math.floor((now - notificationDate) / (1000 * 60));
+		
+		if (diffInMinutes < 1) return "Vừa xong";
+		if (diffInMinutes < 60) return `${diffInMinutes} phút trước`;
+		if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} giờ trước`;
+		return `${Math.floor(diffInMinutes / 1440)} ngày trước`;
+	};
 	
 	// Xử lý sự kiện khi người dùng nhập vào ô tìm kiếm
 	const handleSearchInput = () => {
@@ -64,8 +128,17 @@ export default function Header() {
 
 		if (!!accessToken) {
 			setUserInfo(JSON.parse(localStorage.getItem("userInfo"))); // Lấy thông tin user từ localStorage
+			fetchNotifications(); // Fetch notifications when user is logged in
 		}
 	}, []);
+
+	// Fetch notifications periodically
+	useEffect(() => {
+		if (loginStatus) {
+			const interval = setInterval(fetchNotifications, 30000); // Fetch every 30 seconds
+			return () => clearInterval(interval);
+		}
+	}, [loginStatus]);
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
@@ -134,8 +207,8 @@ export default function Header() {
 								title="Notifications"
 							>
 								<img src="/notification.png" alt="Notifications" />
-								{notifications.length > 0 && (
-									<span className={style["notification-badge"]}>{notifications.length}</span>
+								{unreadCount > 0 && (
+									<span className={style["notification-badge"]}>{unreadCount}</span>
 								)}
 							</button>
 
@@ -148,14 +221,31 @@ export default function Header() {
 									<div className={style["notification-list"]}>
 										{notifications.length > 0 ? (
 											notifications.map((notification) => (
-												<div key={notification.id} className={style["notification-item"]}>
-													<p className={style["notification-message"]}>{notification.message}</p>
-													<span className={style["notification-time"]}>{notification.time}</span>
+												<div 
+													key={notification._id} 
+													className={`${style["notification-item"]} ${!notification.isRead ? style["unread"] : ""}`}
+													onClick={() => {
+														if (!notification.isRead) {
+															markNotificationAsRead(notification._id);
+														}
+													}}
+													style={{ cursor: notification.isRead ? 'default' : 'pointer' }}
+												>
+													<div className={style["notification-content"]}>
+														<h4 className={style["notification-title"]}>{notification.title}</h4>
+														<p className={style["notification-message"]}>{notification.message}</p>
+														<span className={style["notification-time"]}>
+															{formatTimeAgo(notification.createdAt)}
+														</span>
+													</div>
+													{!notification.isRead && (
+														<div className={style["notification-dot"]}></div>
+													)}
 												</div>
 											))
 										) : (
 											<div className={style["no-notifications"]}>
-												<p>No new notifications</p>
+												<p>Không có thông báo mới</p>
 											</div>
 										)}
 									</div>

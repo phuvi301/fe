@@ -453,6 +453,24 @@
     border-bottom: 1px solid #333;
     transition: background-color 0.2s;
     cursor: pointer;
+    position: relative;
+}
+
+.notification-item.unread {
+    background-color: rgba(0, 102, 219, 0.1);
+    border-left: 3px solid #0066db;
+}
+
+.notification-item.unread::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background-color: #0066db;
+    border-radius: 50%;
 }
 
 .notification-item:hover {
