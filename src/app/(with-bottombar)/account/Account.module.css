@@ -9,10 +9,11 @@
 }
 
 .overview {
-    height: calc(100vh - 70px);
-    width: calc(100vw - 250px);
-    margin-top: 9vh;
-    margin-left: 250px; /* Giảm margin-left vì sidebar bây giờ nằm bên phải */
+    position: absolute;
+    top: 70px;            /* hoặc sử dụng biến header height: var(--header-height) */
+    left: 250px;          /* sidebar width */
+    right: 0;
+    bottom: 0;
     color: #ccc;
     overflow: hidden;
 }
@@ -172,8 +173,15 @@
 
 .personal-upload-list {
     display: flex;
-    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
     align-items: flex-start;
+    padding-right: 8px; /* tránh che bởi scrollbar */
+    --upload-item-height: calc(145px + 32px + 22px); /* image + spacing + title (tùy chỉnh nếu cần) */
+    --upload-rows: 2;
+    max-height: calc(var(--upload-item-height) * var(--upload-rows) + (var(--upload-rows) - 1) * 12px);
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .personal-upload-item {
