@@ -1,13 +1,16 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import "./play.css";
+import layout from "~/app/homepage.module.css";
+import styles from "./play.module.css";
 import { Virtuoso } from "react-virtuoso";
 import Header from "../../components/Header";
 import { useBottomBar } from "~/context/BottombarContext";
+import Sidebar from "~/app/components/Sidebar";
+import clsx from "clsx";
 
 export default function Home() {
-    const { bottomBarRef, nowPlaying, playlistPlaying } = useBottomBar();
+    const { bottomBarRef, nowPlaying, playlistPlaying, shufflePlaylist } = useBottomBar();
 
     // const [collapsed, setCollapsed] = useState(false);
 
@@ -22,8 +25,12 @@ export default function Home() {
     //     localStorage.setItem("Collapsing", JSON.stringify(collapsed));
     // }, [collapsed]);
 
+
+    // console.log(bottomBarRef.current?.shuffle)
+    const list = shufflePlaylist && playlistPlaying ? shufflePlaylist : playlistPlaying?.tracks;
+
     const getIndex = (targetID, weight) => {
-        return (playlistPlaying?.tracks?.findIndex((track) => track._id === targetID) ?? 0) + weight;
+        return (list?.findIndex((track) => track._id === targetID) ?? 0) + weight;
     }
 
     const toggleTrack = async (trackId) => {
@@ -31,23 +38,23 @@ export default function Home() {
         await bottomBarRef.current.play(trackId, playlistPlaying._id, index);
     };
 
-    const totalCount = Math.max(0, (playlistPlaying?.tracks?.length ?? 0) - (playlistPlaying?.tracks?.findIndex((song) => song._id === nowPlaying.current?._id) ?? 0) - 1);
+    const totalCount = Math.max(0, (list?.length ?? 0) - (list?.findIndex((song) => song._id === nowPlaying.current?._id) ?? 0) - 1);
 
     const listSong = ({ index, style }) => {
-        const song = playlistPlaying?.tracks[index + getIndex(nowPlaying.current._id, 1)];
+        const song = list?.[index + getIndex(nowPlaying.current._id, 1)];
         return (
-            <div style={style} className="listSong" onClick={async () => await toggleTrack(song._id)}>
-                <img src="/play.png" className="play-button no-select" />
-                <button className="next-song-queue">
-                    <div className="song-in-queue">
-                        <div className="mini-thumbnail">
-                            <img src={song?.thumbnailUrl} className="cover no-select" />
+            <div style={style} className={styles["listSong"]} onClick={async () => await toggleTrack(song._id)}>
+                <img src="/play.png" className={clsx(styles["play-button"], styles["no-select"])} />
+                <button className={styles["next-song-queue"]}>
+                    <div className={styles["song-in-queue"]}>
+                        <div className={styles["mini-thumbnail"]}>
+                            <img src={song?.thumbnailUrl} className={clsx(styles["cover"], styles["no-select"])} />
                         </div>
-                        <div className="song-detail">
-                            <div className="song-name-queue">
-                                <div className="bold-text no-select">{song?.title}</div>
+                        <div className={styles["song-detail"]}>
+                            <div className={styles["song-name-queue"]}>
+                                <div className={clsx(styles["bold-text"], styles["no-select"])}>{song?.title}</div>
                             </div>
-                            <div className="artist-name-queue no-select">{song?.artist}</div>
+                            <div className={clsx(styles["artist-name-queue"], styles["no-select"])}>{song?.artist}</div>
                         </div>
                     </div>
                 </button>
@@ -56,31 +63,32 @@ export default function Home() {
     };
 
     return (
-        <div className="background">
+        <div className={layout.background}>
+            <Sidebar/>
             <Header />
-            <div className="child">
-                <div className="queue-container">
-                    <div className="is-playing-container">
-                        <div className="playing-text">
-                            <div className="bold-text no-select">Playing</div>
+            <div className={styles["child"]}>
+                <div className={styles["queue-container"]}>
+                    <div className={styles["is-playing-container"]}>
+                        <div className={styles["playing-text"]}>
+                            <div className={clsx(styles["bold-text"], styles["no-select"])}>Playing</div>
                         </div>
-                        <div className="playing-song-container">
-                            <img src="/play.png" className="play-button2 no-select" />
-                            <button className="playing-song-queue">
-                                <div className="song-in-queue">
-                                    <div className="mini-thumbnail">
+                        <div className={styles["playing-song-container"]}>
+                            <img src="/play.png" className={clsx(styles["play-button2"], styles["no-select"])} />
+                            <button className={styles["playing-song-queue"]}>
+                                <div className={styles["song-in-queue"]}>
+                                    <div className={styles["mini-thumbnail"]}>
                                         <img
                                             src={nowPlaying.current?.thumbnailUrl}
-                                            className="cover no-select"
+                                            className={clsx(styles["cover"], styles["no-select"])}
                                         />
                                     </div>
-                                    <div className="song-detail">
-                                        <div className="song-name-queue">
-                                            <div className="bold-text no-select">
+                                    <div className={styles["song-detail"]}>
+                                        <div className={styles["song-name-queue"]}>
+                                            <div className={clsx(styles["bold-text"], styles["no-select"])}>
                                                 {nowPlaying.current?.title}
                                             </div>
                                         </div>
-                                        <div className="artist-name-queue no-select">
+                                        <div className={clsx(styles["artist-name-queue"], styles["no-select"])}>
                                             {nowPlaying.current?.artist}
                                         </div>
                                     </div>
@@ -88,23 +96,17 @@ export default function Home() {
                             </button>
                         </div>
                     </div>
-                    <div className="next-song-list">
-                        <div className="next-text">
-                            <div className="bold-text no-select">Next</div>
+                    <div className={styles["next-song-list"]}>
+                        <div className={styles["next-text"]}>
+                            <div className={clsx(styles["bold-text"], styles["no-select"])}>Next</div>
                         </div>
-                        <div className="list-song-container">
+                        <div className={styles["list-song-container"]}>
                             <Virtuoso
                                 style={{ height: "100%", width: "100%", overflow: "overlay" }}
                                 totalCount={totalCount}
                                 itemContent={(index) => listSong({ index })}
                             />
                         </div>
-                    </div>
-                </div>
-
-                <div className="card">
-                    <div className="banner-container">
-                        <img src="/albumcover.jpg" alt="cover" />
                     </div>
                 </div>
             </div>

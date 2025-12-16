@@ -7,10 +7,30 @@ const BottomBarContext = createContext();
 export function BottomBarProvider({ children }) {
     const bottomBarRef = useRef(null);
     const nowPlaying = useRef(null);
+    const playlistIDRef = useRef(null);
+    const shuffleRef = useRef(null);
+
     const [playlistPlaying, setPlaylistPlaying] = useState(null);
     const [playback, setPlayback] = useState(null);
     const [url, setUrl] = useState(null);
     const [currTrack, setCurrTrack] = useState(null);
+    const [shufflePlaylist, setShufflePlaylist] = useState(null);
+    const [repeatMode, setRepeatMode] = useState("off");
+    const [volume, setVolume] = useState(0.5);
+
+    useEffect(() => {
+        if (!playlistPlaying) return;
+
+        if (playlistIDRef.current && shuffleRef) {
+            bottomBarRef.current.shuffleTracks();
+        }
+        else if (!playlistIDRef.current && shuffleRef) {
+            shuffleRef.current.length !== 1 ? setShufflePlaylist(shuffleRef.current) : bottomBarRef.current.shuffleTracks();
+        }
+        else setShufflePlaylist(null);
+
+        playlistIDRef.current = playlistPlaying._id;
+    }, [playlistPlaying]);
 
     const getPlayback = async () => {
         const {_id} = JSON.parse(localStorage.getItem("userInfo")); 
@@ -25,20 +45,21 @@ export function BottomBarProvider({ children }) {
     }
 
     const getTrack = async (songID) => {
-        // if (!songID) return;
-        try{
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${songID}`)
-            const url = `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${response.data.data.audioUrl}`;
-            if (!url) throw "Audio URL not found";
-                        
-            console.log("Playing track:", response.data.data.title);
-            console.log("Audio URL:", url);
-            console.log("Id song:", response.data.data._id);
-            return { url: url, track: response.data.data};
-        }
-        catch(error) {
-            console.error("Error playing track:", error);
-            return "error"; 
+        if (songID) {
+            try{
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${songID}`)
+                const url = `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${response.data.data.audioUrl}`;
+                if (!url) throw "Audio URL not found";
+                            
+                console.log("Playing track:", response.data.data.title);
+                console.log("Audio URL:", url);
+                console.log("Id song:", response.data.data._id);
+                return { url: url, track: response.data.data};
+            }
+            catch(error) {
+                console.error("Error playing track:", error);
+                return "error"; 
+            }
         }
     };
 
@@ -56,12 +77,22 @@ export function BottomBarProvider({ children }) {
         }
     }
 
-    const handlePlaylist = async (playlistID, index) => {
+    const handlePlaylist = async (playlistID, index, shuffle) => {
+        shuffleRef.current = shuffle        
+
         if (!playlistID) {
             setPlaylistPlaying(null);
+            setShufflePlaylist(shuffle ? [nowPlaying.current] : null);
+            playlistIDRef.current = null;
             return;
         }
-        getPlaylist(playlistID);
+
+        console.log(playlistIDRef?.current)
+
+        if (playlistIDRef?.current !== playlistID) {
+            await getPlaylist(playlistID);
+        }
+
         nowPlaying.current.index = index;
     }
 
@@ -70,12 +101,13 @@ export function BottomBarProvider({ children }) {
             const pb = await getPlayback();
             setPlayback(pb);
             if (Object.keys(pb).length !== 0 && !nowPlaying.current) {
-                bottomBarRef.current.repeatMode.current = pb.repeat;
+                setRepeatMode(pb.repeat);
+                setVolume(pb.volume)
                 const trackInfo = await getTrack(pb.trackID);
                 await bottomBarRef.current.fetchLyrics(pb.trackID);
                 nowPlaying.current = trackInfo.track;
                 setUrl(trackInfo.url);
-                handlePlaylist(pb.playlistID, pb.index);
+                handlePlaylist(pb.playlistID, pb.index, JSON.parse(pb.shuffle));
             }
         }
         loadPlayback();
@@ -83,7 +115,7 @@ export function BottomBarProvider({ children }) {
 
 
     return (
-        <BottomBarContext.Provider value={{ bottomBarRef, nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, handlePlaylist }}>
+        <BottomBarContext.Provider value={{ bottomBarRef, nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, handlePlaylist, shufflePlaylist, setShufflePlaylist, volume, setVolume, repeatMode, setRepeatMode }}>
         {children}
         </BottomBarContext.Provider>
     );

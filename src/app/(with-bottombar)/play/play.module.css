@@ -158,7 +158,6 @@
 }
 
 .child {
-    width: 100%;
     flex-direction: row;
     align-items: center;
     justify-content: center;
@@ -166,6 +165,7 @@
     display: flex;
     min-height: calc(100vh - var(--header-height));
     width: 100%;
+    height: 100%;
 }
 
 /* Queue */

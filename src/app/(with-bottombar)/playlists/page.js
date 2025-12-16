@@ -51,7 +51,7 @@ export default function PlaylistsPage() {
     const [isEditPlaylistOpen, setIsEditPlaylistOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [pickerResults, setPickerResults] = useState([]);
-    const { bottomBarRef } = useBottomBar();
+    const { bottomBarRef, shufflePlaylist } = useBottomBar();
 
     const current = useMemo(() => playlists.find((p) => p._id === selectedId) || null, [playlists, selectedId]);
 

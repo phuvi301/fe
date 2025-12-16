@@ -12,13 +12,16 @@ import { useImageColors } from "../hooks/useImageColors";
 import { usePathname } from 'next/navigation';
 
 const BottomBar = forwardRef((props, ref) => {
-    const { nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, handlePlaylist } = useBottomBar();
+    const { nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, shufflePlaylist, setShufflePlaylist, handlePlaylist, repeatMode, setRepeatMode, volume, setVolume } = useBottomBar();
 
     const playerRef = useRef(null);
     const hlsRef = useRef(null);
     const isSeeking = useRef(false);
     const listenedSegments = useRef(new Set());
-    const repeatMode = useRef("off");
+    const repeatRef = useRef("off");
+    const shuffleRef = useRef([]);
+
+    const list = shufflePlaylist && playlistPlaying ? shufflePlaylist : playlistPlaying?.tracks;
 
     const [progress, setProgress] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -44,13 +47,20 @@ const BottomBar = forwardRef((props, ref) => {
     const pathname = usePathname();
 
     //Volume state
-    const [volume, setVolume] = useState(0.5);
     const previousVolumeRef = useRef(volume);
 
     //Like button state
     const [isLiked, setIsLiked] = useState(false);
     const [likeToast, setLikeToast] = useState({show: false, message: ""});
     const toastTimeoutRef = useRef(null);
+
+    useEffect(() => {
+        repeatRef.current = repeatMode;
+    }, [repeatMode]);
+
+    useEffect(() => {
+        shuffleRef.current = shufflePlaylist;
+    }, [shufflePlaylist]);
 
     useEffect(() => {
         if (playerRef.current) {
@@ -65,27 +75,6 @@ const BottomBar = forwardRef((props, ref) => {
         // Automatically close lyrics overlay on navigation
         setShowLyrics(false);
     }, [pathname]);
-
-    // Đóng lyrics overlay khi reload trang / chuyển tab / chuyển site
-    // useEffect(() => {
-    //     const closeLyrics = () => setShowLyrics(false);
-    //     const handleVisibility = () => {
-    //         if (document.visibilityState === 'hidden') closeLyrics();
-    //     };
-
-    //     window.addEventListener('beforeunload', closeLyrics);
-    //     window.addEventListener('pagehide', closeLyrics);
-    //     window.addEventListener('blur', closeLyrics);
-    //     document.addEventListener('visibilitychange', handleVisibility);
-    
-    //     return () => {
-    //         window.removeEventListener('beforeunload', closeLyrics);
-    //         window.removeEventListener('pagehide', closeLyrics);
-    //         window.removeEventListener('blur', closeLyrics);
-    //         document.removeEventListener('visibilitychange', handleVisibility);
-    //     };
-    // }, []);
-
 
     //Toggle likes + show toast
     const toggleLike = () => {
@@ -410,10 +399,8 @@ const BottomBar = forwardRef((props, ref) => {
             hls.on(Hls.Events.ERROR, (event, data) => {
                 console.log('HLS error:', data);
                 if (data.details === "bufferSeekOverHole") {
-                    console.log("hello");
                 }
                 if (data.details === "bufferStalledError") {
-                    console.log("hello");
                     hls.startLoad(playerRef.current.currentTime);
                 }
 
@@ -469,21 +456,25 @@ const BottomBar = forwardRef((props, ref) => {
                 playbackTime: playerRef.current.currentTime, 
                 playlistID: plID,
                 index: idx,
-                repeat: repeatMode.current
+                repeat: repeatRef.current,
+                shuffle: shuffleRef.current,
+                volume: playerRef.current.volume
             });
         } catch(err) {
             console.error("Error while saving progress", err);
         }
     }
 
-    const updatePlaybackTime = async (repeat) => {
+    const updatePlaybackTime = async () => {
         const {_id} = JSON.parse(localStorage.getItem("userInfo")); 
         if (!_id || !nowPlaying.current) return; // Chỉ đăng nhập mới lưu vào redis
 
         try {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users/playback/${_id}`, {
                 playbackTime: playerRef.current.currentTime, 
-                repeat: repeatMode.current
+                repeat: repeatRef.current,
+                shuffle: shuffleRef.current,
+                volume: playerRef.current.volume
             });
         } catch(err) {
             console.error("Error while updating playbackTime", err);
@@ -505,7 +496,7 @@ const BottomBar = forwardRef((props, ref) => {
         setCurrTrack(res.track);
         handleTrack(res.url);
 
-        handlePlaylist(playlistID, index);
+        await handlePlaylist(playlistID, index, shufflePlaylist);
         saveProgressToRedis(playlistID, index);
     }
 
@@ -569,19 +560,26 @@ const BottomBar = forwardRef((props, ref) => {
             }
         };
 
-        const ended = () => {
+        const ended = async () => {
             setIsPlaying(false);
             setCurrentLyricIndex(-1); // Reset lyrics khi hết bài
+            if (repeatMode === "track") {
+                await play(nowPlaying.current._id, playlistPlaying ? playlistPlaying._id : null, playlistPlaying ? list.findIndex((track) => track._id === nowPlaying.current._id) : null);
+                return;
+            }
             if (playlistPlaying) {
-                if (repeatMode.current === "track") {
-                    play(nowPlaying.current._id, playlistPlaying._id, playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id));
-                }
-                else if (repeatMode.current === "context" && playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id) === playlistPlaying.tracks.length - 1) {
-                    play(playlistPlaying.tracks[0]._id, playlistPlaying._id, 0);
+                if (repeatMode === "context" && list.findIndex((track) => track._id === nowPlaying.current._id) === playlistPlaying.tracks.length - 1) {
+                    await play(list[0]._id, playlistPlaying._id, 0);
                 }
                 else {
-                    toggleNext();
+                    const nextTrackIdx = list.findIndex((track) => track._id === nowPlaying.current._id) + 1;
+                    if (nextTrackIdx >= playlistPlaying.tracks.length) return;
+                    const nextTrackID = list[nextTrackIdx]._id;
+                    await play(nextTrackID, playlistPlaying._id, nextTrackIdx);
                 }
+            }
+            else {
+                if (repeatMode === "context") await play(nowPlaying.current._id);
             }
         }
 
@@ -639,33 +637,73 @@ const BottomBar = forwardRef((props, ref) => {
     const seconds = Math.floor(progress % 60);
 
     const toggleNext = async () => {
+        if (repeatMode === "track") {
+            setRepeatMode("context");
+            await play(nowPlaying.current._id, playlistPlaying ? playlistPlaying._id : null, playlistPlaying ? list.findIndex((track) => track._id === nowPlaying.current._id) : null);
+            return;
+        }
         if (playlistPlaying) {
-            const nextTrackIdx = playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id) + 1;
-            if (nextTrackIdx >= playlistPlaying.tracks.length) return;
-            const nextTrackID = playlistPlaying.tracks[nextTrackIdx]._id;
-            await play(nextTrackID, playlistPlaying._id, nextTrackIdx);
+            if (repeatMode === "context" && list.findIndex((track) => track._id === nowPlaying.current._id) === playlistPlaying.tracks.length - 1) {
+                await play(list[0]._id, playlistPlaying._id, 0);
+            }
+            else {
+                const nextTrackIdx = list.findIndex((track) => track._id === nowPlaying.current._id) + 1;
+                if (nextTrackIdx >= playlistPlaying.tracks.length) return;
+                const nextTrackID = list[nextTrackIdx]._id;
+                await play(nextTrackID, playlistPlaying._id, nextTrackIdx);
+            }
+        }
+        else {
+            if (repeatMode === "context") await play(nowPlaying.current._id);
         }
     }
 
     const togglePrevious = async () => {
         if (playlistPlaying) {
-            const prevTrackIdx = playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id) - 1;
+            const prevTrackIdx = list.findIndex((track) => track._id === nowPlaying.current._id) - 1;
             if (prevTrackIdx < 0) return;
-            const prevTrackID = playlistPlaying.tracks[prevTrackIdx]._id;
+            const prevTrackID = list[prevTrackIdx]._id;
             await play(prevTrackID, playlistPlaying._id, prevTrackIdx);
+        }
+        else {
+            await play(nowPlaying.current._id);
         }
     }
 
     const toggleRepeat = async () => {
-        if (repeatMode.current === "off") repeatMode.current = "context";
-        else if (repeatMode.current === "context") repeatMode.current = "track";
-        else repeatMode.current = "off";
+        if (repeatMode === "off") setRepeatMode("context");
+        else if (repeatMode === "context") setRepeatMode("track");
+        else setRepeatMode("off");
+    }
+
+    const shuffleTracks = async () => {
+        if (playlistPlaying) {
+            const tracks = playlistPlaying.tracks;
+            const idxPlaying = playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id);
+            let arr = Array.from({ length: tracks.length }, (_, i) => i).filter(i => i !== idxPlaying);
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            arr = [idxPlaying, ...arr];
+            setShufflePlaylist(arr.map(i => tracks[i]));
+        }
+        else setShufflePlaylist([nowPlaying.current]);
+    };
+
+    const toggleShuffle = () => {
+        if (!shufflePlaylist) {
+            shuffleTracks();
+        }
+        else {
+            setShufflePlaylist(null)
+        }
     }
 
     useImperativeHandle(ref, () => ({
         play,
         fetchLyrics,
-        repeatMode
+        shuffleTracks
     }));
 
     return (
@@ -717,9 +755,9 @@ const BottomBar = forwardRef((props, ref) => {
             )}
             <div className={style["music-player"]}>
                 <div className={style["bottom-menu"]}>
-                    <button className={style["shuffle"]}>
-                        <img src="/shuffle.png" className={style["menu-btn"]}/>
-                    </button>
+                    <a className={style["shuffle"]}  onClick={toggleShuffle}>
+                        <img src={shufflePlaylist ? "/shuffle-on.png" : "/shuffle.png"} className={style["menu-btn"]}/>
+                    </a>
                     <button className={style["previous"]} onClick={togglePrevious}>
                         <img src="/previous.png" className={style["menu-btn"]}/>
                     </button>
@@ -730,7 +768,7 @@ const BottomBar = forwardRef((props, ref) => {
                         <img src="/next.png" className={style["menu-btn"]}/>
                     </button>
                     <button className={style["repeat"]} onClick={toggleRepeat}>
-                        <img src={repeatMode.current === "off" ? "/repeat.png" : (repeatMode.current === "track" ? "/repeat-one.png" : "/repeat-blue.png")} className={style["menu-btn"]}/>
+                        <img src={repeatMode === "off" ? "/repeat.png" : (repeatMode === "track" ? "/repeat-one.png" : "/repeat-blue.png")} className={style["menu-btn"]}/>
                     </button>
                 </div>
                 <div className={style["progress"]}>
