@@ -56,12 +56,27 @@ export function BottomBarProvider({ children }) {
         }
     }
 
-    const handlePlaylist = async (playlistID, index) => {
+    const handlePlaylist = async (playlistID, index, tracks = null) => {
         if (!playlistID) {
             setPlaylistPlaying(null);
             return;
         }
-        getPlaylist(playlistID);
+
+        // Support virtual playlists (e.g., artist page) without hitting playlist API
+        if (playlistID.startsWith("artist-")) {
+            const sourceTracks = tracks || playlistPlaying?.tracks;
+            if (sourceTracks) {
+                setPlaylistPlaying({
+                    _id: playlistID,
+                    name: "Artist tracks",
+                    tracks: sourceTracks
+                });
+                nowPlaying.current.index = index;
+                return;
+            }
+        }
+
+        await getPlaylist(playlistID);
         nowPlaying.current.index = index;
     }
 
@@ -69,7 +84,7 @@ export function BottomBarProvider({ children }) {
         const loadPlayback = async () => {
             const pb = await getPlayback();
             setPlayback(pb);
-            if (Object.keys(pb).length !== 0 && !nowPlaying.current) {
+            if (pb && Object.keys(pb).length !== 0 && !nowPlaying.current) {
                 bottomBarRef.current.repeatMode.current = pb.repeat;
                 const trackInfo = await getTrack(pb.trackID);
                 await bottomBarRef.current.fetchLyrics(pb.trackID);
