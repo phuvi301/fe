@@ -457,3 +457,97 @@
     align-items: center;
     gap: 20px;
 }
+.lyricUploadContainer {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.lyricUploadBox {
+    margin-top: 20px;
+    width: 400px;
+    height: 180px; /* Chiều cao nhỏ hơn box ảnh */
+    border: 2px dashed #888;
+    border-radius: 10px;
+    padding: 15px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.lyricUploadBox:hover {
+    border-color: #fff;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.lyricIcon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+.uploadMiniButton {
+    border-radius: 15px;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 15px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.uploadMiniButton:hover {
+    background-color: #fff;
+    color: #007bff;
+}
+
+/* Style khi đã chọn file lyric */
+.lyricFileInfo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    justify-content: center;
+}
+
+.lyricDetails {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.lyricName {
+    font-weight: bold;
+    font-size: 14px;
+    color: #fff;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.changeLyricButton {
+    padding: 5px 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.changeLyricButton:hover {
+    background-color: #218838;
+}
