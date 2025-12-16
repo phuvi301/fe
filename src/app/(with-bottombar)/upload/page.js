@@ -27,7 +27,7 @@ export default function Upload() {
         { value: "pop", label: "Pop" }, { value: "rock", label: "Rock" }, { value: "hiphop", label: "Hip-Hop" }, { value: "rnb", label: "R&B" }, { value: "jazz", label: "Jazz" }, { value: "classical", label: "Classical" },
         { value: "electronic", label: "Electronic" }, { value: "country", label: "Country" }, { value: "folk", label: "Folk" }, { value: "reggae", label: "Reggae" }, { value: "blues", label: "Blues" },
         { value: "metal", label: "Metal" }, { value: "punk", label: "Punk" }, { value: "alternative", label: "Alternative" }, { value: "indie", label: "Indie" }, { value: "dance", label: "Dance" },
-        { value: "house", label: "House" }, { value: "techno", label: "Techno" }, { value: "ambient", label: "Ambient" }, { value: "other", label: "Other" }
+        { value: "house", label: "House" }, { value: "deephouse", label: "Deep House" }, { value: "techno", label: "Techno" }, { value: "ambient", label: "Ambient" }, { value: "other", label: "Other" }
     ];
 
     const handleGenreChange = (value) => {

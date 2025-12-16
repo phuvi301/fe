@@ -114,7 +114,7 @@ export default function Home() {
                 <a className={style["featured-item"]} key={track._id} onClick={() => toggleTrack(track._id)}>
                   <span className={style["track-container"]}>
                     <Image src={track.thumbnailUrl} width={600} height={600} alt={track.title} priority={true} />
-                    <span>{track.title}</span>
+                    {track.title}
                   </span>
                 </a>
               ))}
@@ -171,7 +171,7 @@ export default function Home() {
               {listenedTracks.map(track => (
                 <a className={style["featured-item"]} key={track._id} onClick={() => toggleTrack(track._id)}>
                   <span className={style["track-container"]} width={220}>
-                    <Image src={track.thumbnailUrl} width={180} height={180} alt={track.title} priority={true} />
+                    <Image src={track.thumbnailUrl} width={500} height={500} alt={track.title} priority={true} />
                     {track.title}
                   </span>
                 </a>
