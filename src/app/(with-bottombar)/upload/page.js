@@ -33,7 +33,8 @@ export default function Upload() {
     const handleGenreChange = (value) => {
         setSelectedGenre(value);
     }
-
+    const [lyricFile, setLyricFile] = useState(null);
+    const lyricInputRef = useRef(null);
     const handleFileSelect = () => {
         fileInputRef.current?.click();
     };
@@ -75,16 +76,36 @@ export default function Upload() {
         }
     };
 
+    // Chọn file lời bài hát
+    const handleLyricSelect = () => {
+        lyricInputRef.current?.click();
+    };
+
+    const handleLyricChange = (e) => {
+        const file = e.target.files[0];
+        // Kiểm tra đuôi file có phải .lrc hoặc .txt không
+        if (file && (file.name.endsWith('.lrc') || file.name.endsWith('.txt'))) {
+            setLyricFile(file);
+        } else {
+            alert("Please upload a valid .lrc file");
+        }
+    };
+    
+    // Lấy accessToken từ localStorage (được lưu sau khi đăng nhập)
+    const getAccessToken = () => {
+        try {
+            const raw = localStorage.getItem("userInfo");
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            return parsed?.accessToken || null;
+        } catch (e) {
+            return null;
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (titleRef.current.value.trim() === "") {
-            alert("Please enter a song title.");
-            return;
-        }
-        if (artistRef.current.value.trim() === "") {
-            alert("Please enter an artist name.");
-            return;
-        }
+        // ... validate title, artist giữ nguyên
 
         const metaData = new FormData();
         metaData.append('title', titleRef.current.value);
@@ -92,15 +113,31 @@ export default function Upload() {
         metaData.append('genre', selectedGenre.map(g => g.value).join(','));
         metaData.append('originalName', selectedFile.name);
         metaData.append('thumbnail', imgFile);
+        
+        // 3. Append Lyric file vào FormData
+        if (lyricFile) {
+            metaData.append('lyrics', lyricFile);
+        }
 
         try {
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, metaData, {
-                headers: {
-                    token: `Bearer ${document.cookie.split('accessToken=')[1]}`
-                },
-                withCredentials: true,
-            });
-
+            const accessToken = getAccessToken();
+            if (!accessToken) {
+                alert('Bạn cần đăng nhập để tải lên bài hát.');
+                return;
+            }
+            // ⚠️ QUAN TRỌNG: Phải thêm "/upload" vào cuối đường dẫn
+            const res = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, // Sửa dòng này
+                metaData, 
+                {
+                    headers: { 
+                        'Content-Type': 'multipart/form-data',
+                        // Backend yêu cầu header 'token' dạng 'Bearer <accessToken>'
+                        token: `Bearer ${accessToken}`
+                    },
+                    withCredentials: true,
+                }
+            );
             setSelectedFile(null);
             setImgFile(null);
             setImgPreview(null);
@@ -109,13 +146,14 @@ export default function Upload() {
 
             if (fileInputRef.current) fileInputRef.current.value = null;
             if (imgInputRef.current) imgInputRef.current.value = null;
-
-            console.log('Files uploaded successfully:', res.data);
+            
+            // ... xử lý thành công ...
+            console.log("Upload success:", res.data);
         } catch (error) {
-            console.error('Error uploading files:', error);
+            // In lỗi chi tiết ra để debug
+            console.error("Upload error:", error.response ? error.response.data : error.message);
         }
     }
-
     // Đặt lại trạng thái và xóa file trên server
     const handleReset = async () => {
         // Xóa file trên server
@@ -129,7 +167,9 @@ export default function Upload() {
             setImgPreview(null);
             setImgZoom(100);
             setSelectedGenre([]);
+            setLyricFile(null);
 
+            if (lyricInputRef.current) lyricInputRef.current.value = null;
             if (fileInputRef.current) fileInputRef.current.value = null;
             if (imgInputRef.current) imgInputRef.current.value = null;
 
@@ -273,9 +313,56 @@ export default function Upload() {
                                             className={style.fileInput}
                                             onChange={handleImgChange}
                                             style={{ display: 'none' }}
-                                        />
-                                    </div>
+                                        /> 
+                            </div>
+                        </div>
+                        <div className={style.lyricUploadContainer}>
+                    <div className={style.lyricUploadBox}>
+                        {lyricFile ? (
+                            <div className={style.lyricFileInfo}>
+                                <Image src="/lyrics.png" width={40} height={40} alt="Lrc Icon" />
+                                <div className={style.lyricDetails}>
+                                    <span className={style.lyricName}>{lyricFile.name}</span>
+                                    <button 
+                                        className={style.changeLyricButton}
+                                        onClick={handleLyricSelect}
+                                        type="button"
+                                    >
+                                        Change .LRC
+                                    </button>
                                 </div>
+                            </div>
+                        ) : (
+                            <>
+                                <Image
+                                    src="/lyrics.png" // Đảm bảo bạn có icon này hoặc dùng icon khác
+                                    width={50}
+                                    height={50}
+                                    alt="Lyric Icon"
+                                    className={style.lyricIcon}
+                                />
+                                <h3>Add Lyrics</h3>
+                                <span className="upload-subtitle" style={{fontSize: '12px', color: '#ccc'}}>
+                                    (.lrc file)
+                                </span>
+                                <button 
+                                    className={style.uploadMiniButton}
+                                    onClick={handleLyricSelect}
+                                    type="button"
+                                >
+                                    Select File
+                                </button>
+                            </>
+                        )}
+                        <input 
+                            ref={lyricInputRef}
+                            type="file" 
+                            accept=".lrc,.txt" 
+                            className={style.fileInput}
+                            onChange={handleLyricChange}
+                        />
+                            </div>
+                        </div>
                             </div>
                             <div className={style.metadataBox}>
                                 <div className={style.metadataHeader}>
