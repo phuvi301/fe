@@ -87,6 +87,20 @@ export function BottomBarProvider({ children }) {
             return;
         }
 
+        // Support virtual playlists (e.g., artist page) without hitting playlist API
+        if (playlistID.startsWith("artist-")) {
+            const sourceTracks = tracks || playlistPlaying?.tracks;
+            if (sourceTracks) {
+                setPlaylistPlaying({
+                    _id: playlistID,
+                    name: "Artist tracks",
+                    tracks: sourceTracks
+                });
+                nowPlaying.current.index = index;
+                return;
+            }
+        }
+
         console.log(playlistIDRef?.current)
 
         if (playlistIDRef?.current !== playlistID) {
@@ -100,7 +114,7 @@ export function BottomBarProvider({ children }) {
         const loadPlayback = async () => {
             const pb = await getPlayback();
             setPlayback(pb);
-            if (Object.keys(pb).length !== 0 && !nowPlaying.current) {
+            if (pb && Object.keys(pb).length !== 0 && !nowPlaying.current) {
                 setRepeatMode(pb.repeat);
                 setVolume(pb.volume)
                 const trackInfo = await getTrack(pb.trackID);
