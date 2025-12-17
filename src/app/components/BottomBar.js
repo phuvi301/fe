@@ -76,26 +76,6 @@ const BottomBar = forwardRef((props, ref) => {
         setShowLyrics(false);
     }, [pathname]);
 
-    // Đóng lyrics overlay khi reload trang / chuyển tab / chuyển site
-    // useEffect(() => {
-    //     const closeLyrics = () => setShowLyrics(false);
-    //     const handleVisibility = () => {
-    //         if (document.visibilityState === 'hidden') closeLyrics();
-    //     };
-
-    //     window.addEventListener('beforeunload', closeLyrics);
-    //     window.addEventListener('pagehide', closeLyrics);
-    //     window.addEventListener('blur', closeLyrics);
-    //     document.addEventListener('visibilitychange', handleVisibility);
-    
-    //     return () => {
-    //         window.removeEventListener('beforeunload', closeLyrics);
-    //         window.removeEventListener('pagehide', closeLyrics);
-    //         window.removeEventListener('blur', closeLyrics);
-    //         document.removeEventListener('visibilitychange', handleVisibility);
-    //     };
-    // }, []);
-
     const getOwnerId = (track) => {
     if (!track?.owner) return null;
     // Nếu owner là object (đã populate), lấy _id. Nếu là chuỗi, lấy chính nó.
@@ -444,8 +424,7 @@ const BottomBar = forwardRef((props, ref) => {
                 if (data.details === "bufferSeekOverHole") {
                 }
                 if (data.details === "bufferStalledError") {
-                    console.log("hello");
-                    hls.startLoad(audioEl.currentTime);
+                    hls.startLoad(playerRef.current.currentTime);
                 }
 
                 resolve();
@@ -462,9 +441,6 @@ const BottomBar = forwardRef((props, ref) => {
         if (saved) listenedSegments.current = new Set(JSON.parse(saved));
 
         listenedSegments.current.add(Math.round(playerRef.current.currentTime));
-        // console.log(listenedSegments.current.size);
-        // console.log(trackPlaying.current.duration);
-        // console.log((listenedSegments.current.size / Math.round(trackPlaying.current.duration)) >= 0.4)
         if ((listenedSegments.current.size / Math.round(nowPlaying.current.duration)) >= 0.4 && !nowPlaying.current.hasCounted) {
             increasePlayCount();
             addToHistory(_id);
@@ -540,7 +516,8 @@ const BottomBar = forwardRef((props, ref) => {
         setCurrTrack(res.track);
         handleTrack(res.url);
 
-        await handlePlaylist(playlistID, index, tracks);
+        await handlePlaylist(playlistID, index, shufflePlaylist, tracks);
+        // await handlePlaylist(playlistID, index, tracks);
         saveProgressToRedis(playlistID, index);
     }
 

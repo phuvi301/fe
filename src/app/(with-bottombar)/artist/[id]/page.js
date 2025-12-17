@@ -85,6 +85,7 @@ export default function ArtistPage() {
     // Xử lý khi nhấn play bài hát trong danh sách
     const handlePlayTrack = async (trackId, index) => {
         const artistPlaylistId = `artist-${id}`;
+        console.log("bbbbbbbbbbbbbbbbbb", tracks)
         await bottomBarRef.current.play(trackId, artistPlaylistId, index, tracks);
     };
 
