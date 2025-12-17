@@ -3,7 +3,7 @@
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
-import layout from "~/app/homepage.module.css";
+import layout from "~/app/homepage.module.scss";
 import styles from "./playlists.module.css";
 import Header from "~/app/components/Header";
 import Sidebar from "~/app/components/Sidebar";

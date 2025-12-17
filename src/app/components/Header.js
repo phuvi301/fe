@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import style from "../homepage.module.css";
+import style from "../homepage.module.scss";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 

@@ -1,5 +1,5 @@
 'use client'
-import style from "../homepage.module.css";
+import style from "../homepage.module.scss";
 import { forwardRef, useState, useRef, useImperativeHandle, useEffect, use } from "react";
 import Hls from "hls.js";
 import axios from "axios";
@@ -12,7 +12,7 @@ import { useImageColors } from "../hooks/useImageColors";
 import { usePathname } from 'next/navigation';
 
 const BottomBar = forwardRef((props, ref) => {
-    const { nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, shufflePlaylist, setShufflePlaylist, handlePlaylist, repeatMode, setRepeatMode, volume, setVolume } = useBottomBar();
+    const { nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, shufflePlaylist, setShufflePlaylist, handlePlaylist, repeatMode, setRepeatMode, volume, setVolume, showQueue, setShowQueue } = useBottomBar();
 
     const playerRef = useRef(null);
     const hlsRef = useRef(null);
@@ -75,6 +75,11 @@ const BottomBar = forwardRef((props, ref) => {
         // Automatically close lyrics overlay on navigation
         setShowLyrics(false);
     }, [pathname]);
+
+    // If queue is opened, ensure lyrics are closed
+    useEffect(() => {
+        if (showQueue) setShowLyrics(false);
+    }, [showQueue]);
 
     const getOwnerId = (track) => {
     if (!track?.owner) return null;
@@ -148,17 +153,6 @@ const BottomBar = forwardRef((props, ref) => {
             }
         } catch (error) {
             console.log("API lyrics not found, trying mock data...");
-        }
-        
-        try {
-            // Thử dùng mock lyrics từ file
-            const { mockLyrics } = await import('../mockData/lyrics.js');
-            if (mockLyrics[songID]) {
-                parseLyrics(mockLyrics[songID]);
-                return;
-            }
-        } catch (error) {
-            console.log("Mock lyrics not found, using default...");
         }
     };
 
@@ -650,8 +644,16 @@ const BottomBar = forwardRef((props, ref) => {
         }
     };
 
+    const toggleQueue = () => {
+        const newVal = !showQueue;
+        setShowQueue(newVal);
+        if (newVal) setShowLyrics(false);
+    };
+
     const toggleLyrics = () => {
-        setShowLyrics(!showLyrics);
+        const newVal = !showLyrics;
+        setShowLyrics(newVal);
+        if (newVal) setShowQueue(false);
     };
 
     const safeDuration = Number.isFinite(duration) && duration > 0 ? duration : 0;
@@ -739,15 +741,15 @@ const BottomBar = forwardRef((props, ref) => {
             </div>
             {nowPlaying.current ? (
             <div className={style["song-in-bottom-bar"]}>
-                <Link href="/play" className={clsx(style["mini-thumbnail2"], style["no-select"])}>
+                <div  className={clsx(style["mini-thumbnail2"], style["no-select"])}>
                     <Image src={nowPlaying.current.thumbnailUrl} className={style["cover2"]} width={500} height={500} alt="Thumbnail" />
-                </Link> 
+                </div> 
                 <div className={style["song-detail2"]}>
-                    <Link href="/play" className={style["mini-song-name"]}>
+                    <div className={style["mini-song-name"]}>
                         <div className={clsx(style["bold-text"], style["no-select"])}>
                             {nowPlaying.current.title}
                         </div>  
-                    </Link>
+                    </div>
                     <Link 
                         /* Logic: Nếu có owner ID thì link tới đó, không thì link # */
                         href={artistId ? `/artist/${artistId}` : "#"} 
@@ -840,7 +842,10 @@ const BottomBar = forwardRef((props, ref) => {
             </div>
             <div className={style["right-container"]}>
                 <div className={style["queue-container"]}>
-                    <button className={style["queue-btn"]}>
+                    <button
+                        className={style["queue-btn"]}
+                        onClick={toggleQueue}    
+                    >
                         <img src="/queue.png" className={style["menu-btn"]}/>
                     </button>
                 </div>
@@ -1020,6 +1025,64 @@ const BottomBar = forwardRef((props, ref) => {
             </div>
         </div>
     </div>
+        )}
+        {/* Queue overlay: show current playlist/shuffle across all with-bottombar pages */}
+        {showQueue && (
+            <div className={style["queueOverlay"]}>
+                <div className={style["queuePanel"]}>
+                    {/* Playing section */}
+                    <div className={style["queuePlaying"]}>
+                        <div className={style["queueSectionHeader"]}>Playing</div>
+                        {nowPlaying.current ? (
+                            <div className={style["queuePlayingRow"]}>
+                                <img src={nowPlaying.current.thumbnailUrl || '/background.jpg'} className={style["queueThumb"]} alt="thumb" />
+                                <div className={style["queueMeta"]}>
+                                    <div className={style["queueTrackTitle"]} title={nowPlaying.current.title}>{nowPlaying.current.title}</div>
+                                    <div className={style["queueTrackArtist"]} title={nowPlaying.current.artist}>{nowPlaying.current.artist}</div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className={style["queueEmpty"]}>No track is playing</div>
+                        )}
+                    </div>
+
+                    {/* Up Next section */}
+                    <div className={style["queueUpNextHeader"]}>
+                        <div className={style["queueSectionHeader"]}>Up Next</div>
+                    </div>
+                    <div className={style["queueList"]}>
+                        {(() => {
+                            const base = list || [];
+                            const currIdx = base.findIndex(t => t?._id === nowPlaying.current?._id);
+                            const upNext = currIdx >= 0 ? base.slice(currIdx + 1) : base;
+                            return upNext.length > 0 ? (
+                                upNext.map((track, idx) => (
+                                    <div key={track._id || idx} className={style["queueListItem"]} onClick={async () => {
+                                        try {
+                                            const plID = playlistPlaying?._id ?? null;
+                                            const index = base.findIndex(t => t?._id === nowPlaying.current?._id) ?? 0; // follow existing play() usage
+                                            await play(track._id, plID, index, playlistPlaying?.tracks ?? null);
+                                        } catch (e) {
+                                            console.error('Error playing from queue', e);
+                                        }
+                                    }}>
+                                        {/* Nút play */}
+                                        <img src="/play.png" className={style["queuePlayButton"]} alt="Play" />
+                                        {/* Thông tin nhạc */}
+                                        <img src={track?.thumbnailUrl || '/background.jpg'} className={style["queueThumbSmall"]} alt="thumb" />
+                                        <div className={style["queueMeta"]}>
+                                            <div className={style["queueTrackTitle"]} title={track?.title}>{track?.title}</div>
+                                            <div className={style["queueTrackArtist"]} title={track?.artist}>{track?.artist}</div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className={style["queueEmpty"]}>No upcoming tracks</div>
+                            );
+                        })()}
+                    </div>
+                </div>
+            </div>
         )}
         </>
     );

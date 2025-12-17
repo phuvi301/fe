@@ -8,7 +8,7 @@ import { useBottomBar } from '~/context/BottombarContext';
 import Sidebar from "../../../components/Sidebar";
 import Header from '../../../components/Header';
 import clsx from 'clsx';
-import layout from "~/app/homepage.module.css";
+import layout from "~/app/homepage.module.scss";
 import style from "./artist.module.css";
 export default function ArtistPage() {
     const { id } = useParams();

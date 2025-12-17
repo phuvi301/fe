@@ -2,7 +2,7 @@
 import { useState, useRef } from "react";
 import Select from 'react-select';
 import Image from "next/image";
-import layout from "~/app/homepage.module.css"
+import layout from "~/app/homepage.module.scss"
 import style from "./upload.module.css";
 import Header from "~/app/components/Header";
 import Sidebar from "~/app/components/Sidebar";

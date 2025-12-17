@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useBottomBar } from "~/context/BottombarContext";
 import Image from "next/image";
-import layout from "~/app/homepage.module.css"
+import layout from "~/app/homepage.module.scss"
 import style from "./search.module.css";
 import Header from "~/app/components/Header";
 import Sidebar from "~/app/components/Sidebar";

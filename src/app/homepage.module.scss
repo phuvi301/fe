@@ -645,7 +645,6 @@
     all: unset;
     border-radius: 3px;
     margin-right: 10px;
-    cursor: pointer;
 }
 
 .cover2 {
@@ -669,11 +668,6 @@
     font-size: 12px;
     display: flex;
     align-items: center;
-    cursor: pointer;
-}
-
-.mini-song-name:hover {
-    text-decoration: underline;
 }
 
 .mini-artist-name {
@@ -1152,4 +1146,124 @@
         right: 20px;
         left: 20px;
     }
+}
+
+/* ========= Queue Overlay (global across with-bottombar) ========= */
+.queueOverlay {
+    position: fixed;
+    right: 20px;
+    top: calc(var(--header-height, 70px) + 10px);
+    bottom: calc(var(--bottom-bar-height, 75px) + 15px);
+    width: 380px;
+    z-index: 2000;
+}
+
+.queuePanel {
+    background: rgba(10, 10, 10, 0.95);
+    border-radius: 12px;
+    overflow: hidden;
+    height: 100%;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.queuePlaying {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.queueSectionHeader {
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.queuePlayingRow {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.queueThumb {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.queueThumbSmall {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.queueMeta {
+    min-width: 0;
+}
+
+.queueTrackTitle {
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.queueTrackArtist {
+    color: #aaa;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.queueUpNextHeader {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.queueList {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.queueListItem {
+    display: flex;
+    position: relative;
+    gap: 10px;
+    padding: 10px;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.2);
+
+        .queuePlayButton {
+            opacity: 1;
+        }
+
+        .queueThumbSmall {
+            filter: brightness(0.6);
+        }
+    }
+}
+
+.queuePlayButton {
+    position: absolute;
+    left: 25px;  
+    width: 20px;
+    aspect-ratio: 1 / 1;
+    opacity: 0;
+    transition: 0.3s;
+    z-index: 10;
+}
+
+.queueEmpty {
+    padding: 12px;
+    color: #ccc;
 }

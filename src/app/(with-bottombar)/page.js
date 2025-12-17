@@ -1,5 +1,5 @@
 'use client'
-import style from "../homepage.module.css"
+import style from "../homepage.module.scss"
 import Image from "next/image";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";

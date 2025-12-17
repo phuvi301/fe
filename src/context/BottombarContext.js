@@ -17,6 +17,7 @@ export function BottomBarProvider({ children }) {
     const [shufflePlaylist, setShufflePlaylist] = useState(null);
     const [repeatMode, setRepeatMode] = useState("off");
     const [volume, setVolume] = useState(0.5);
+    const [showQueue, setShowQueue] = useState(false);
 
     useEffect(() => {
         if (!playlistPlaying) return;
@@ -131,7 +132,7 @@ export function BottomBarProvider({ children }) {
 
 
     return (
-        <BottomBarContext.Provider value={{ bottomBarRef, nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, handlePlaylist, shufflePlaylist, setShufflePlaylist, volume, setVolume, repeatMode, setRepeatMode }}>
+        <BottomBarContext.Provider value={{ bottomBarRef, nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, handlePlaylist, shufflePlaylist, setShufflePlaylist, volume, setVolume, repeatMode, setRepeatMode, showQueue, setShowQueue }}>
         {children}
         </BottomBarContext.Provider>
     );
