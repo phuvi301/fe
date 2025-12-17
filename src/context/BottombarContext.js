@@ -21,13 +21,17 @@ export function BottomBarProvider({ children }) {
     useEffect(() => {
         if (!playlistPlaying) return;
 
-        if (playlistIDRef.current && shuffleRef) {
+        if (playlistIDRef.current && shuffleRef.current) {
             bottomBarRef.current.shuffleTracks();
         }
-        else if (!playlistIDRef.current && shuffleRef) {
+        else if (!playlistIDRef.current && shuffleRef.current) {
             shuffleRef.current.length !== 1 ? setShufflePlaylist(shuffleRef.current) : bottomBarRef.current.shuffleTracks();
         }
-        else setShufflePlaylist(null);
+        else {
+            setShufflePlaylist(null);
+        }
+
+        console.log(playlistPlaying.tracks)
 
         playlistIDRef.current = playlistPlaying._id;
     }, [playlistPlaying]);
@@ -64,11 +68,6 @@ export function BottomBarProvider({ children }) {
     };
 
     const getPlaylist = async (playlistID) => {
-        if (!playlistID) {
-            setPlaylistPlaying(null);
-            return;
-        }
-
         try {
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${playlistID}`);
             setPlaylistPlaying(res.data.data);
@@ -77,8 +76,17 @@ export function BottomBarProvider({ children }) {
         }
     }
 
-    const handlePlaylist = async (playlistID, index, shuffle) => {
-        shuffleRef.current = shuffle        
+    const getArtistTracks = async (artistID) => {
+        try {
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${artistID}/artist-profile`);
+            return res.data.tracks;
+        } catch(err) {
+            console.error("Can't get playing playlist", err);
+        }
+    }
+
+    const handlePlaylist = async (playlistID, index, shuffle, tracks = null) => {
+        shuffleRef.current = shuffle    
 
         if (!playlistID) {
             setPlaylistPlaying(null);
@@ -87,10 +95,18 @@ export function BottomBarProvider({ children }) {
             return;
         }
 
-        console.log(playlistIDRef?.current)
-
         if (playlistIDRef?.current !== playlistID) {
-            await getPlaylist(playlistID);
+            if (playlistID.startsWith("artist-")) {
+                if (!tracks) {
+                    tracks = await getArtistTracks(playlistID.split("-")[1]);                
+                } 
+                setPlaylistPlaying({
+                    _id: playlistID,
+                    name: "Artist tracks",
+                    tracks: tracks
+                });                
+            }
+            else await getPlaylist(playlistID);
         }
 
         nowPlaying.current.index = index;
