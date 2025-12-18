@@ -107,6 +107,14 @@ export function BottomBarProvider({ children }) {
                     tracks: tracks
                 });                
             }
+            else if (playlistID.startsWith("recommend-")) {
+                // Playlist đề xuất ảo
+                setPlaylistPlaying({
+                    _id: playlistID,
+                    name: "Recommended tracks",
+                    tracks: tracks
+                });
+            }
             else await getPlaylist(playlistID);
         }
 

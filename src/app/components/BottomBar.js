@@ -141,6 +141,17 @@ const BottomBar = forwardRef((props, ref) => {
         }
     };
 
+    // Đề xuất playlist dựa trên bài hát hiện tại
+    const recommendPlaylist = async (songID) => {
+        try {
+            // Gọi API đề xuất
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/recommend/${songID}`);
+            return res.data.data || [];
+        } catch (err) {
+            console.error("Can't get recommended playlist", err);
+            return [];
+        }
+    };
 
     // Hàm fetch lyrics từ API hoặc file
     const fetchLyrics = async (songID) => {
@@ -509,6 +520,13 @@ const BottomBar = forwardRef((props, ref) => {
         nowPlaying.current = res.track;
         setCurrTrack(res.track);
         handleTrack(res.url);
+
+        if (!playlistID && !tracks) {
+            // Tạo playlist ảo từ danh sách đề xuất
+            tracks = await recommendPlaylist(trackID);
+            playlistID = `recommend-${trackID}`;
+            index = 0;
+        }
 
         await handlePlaylist(playlistID, index, shufflePlaylist, tracks);
         // await handlePlaylist(playlistID, index, tracks);
