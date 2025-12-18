@@ -1221,6 +1221,12 @@
     text-overflow: ellipsis;
 }
 
+.queueTrackArtist:hover {
+    text-decoration: underline;
+}
+.queueTrackTitle:hover {
+    text-decoration: underline;
+}
 .queueUpNextHeader {
     padding: 10px 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
