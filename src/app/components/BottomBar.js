@@ -88,7 +88,23 @@ const BottomBar = forwardRef((props, ref) => {
 
 
     //Toggle likes + show toast
-    const toggleLike = () => {
+    const toggleLike = async () => {
+        const reqLikeTrack = async () => {
+            try {
+                const userData = JSON.parse(localStorage.getItem("userInfo"));
+                await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${userData._id}/liked-tracks/${nowPlaying.current?._id}`, {}, {
+                    headers: {
+                        token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
+                    },
+                })
+            } catch (error) {
+                console.log(error);
+                return;
+            }
+        }
+
+        await reqLikeTrack();
+
         const newLiked = !isLiked;
         setIsLiked(newLiked);
 
