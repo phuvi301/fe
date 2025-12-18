@@ -182,6 +182,7 @@
     max-height: calc(var(--upload-item-height) * var(--upload-rows) + (var(--upload-rows) - 1) * 12px);
     overflow-y: auto;
     overflow-x: hidden;
+    scrollbar-color: rgba(0, 95, 246, 0.7) transparent;
 }
 
 .personal-upload-item {

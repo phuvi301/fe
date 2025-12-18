@@ -1,10 +1,11 @@
 'use client'
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import style from "../homepage.module.scss";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import MusicRecognitionModal from '../components/Recognition';
 
 export default function Header() {
 	const [searchInput, setSearchInput] = useState("");
@@ -14,6 +15,8 @@ export default function Header() {
 	const [userInfo, setUserInfo] = useState(null);
 	const [notifications, setNotifications] = useState([]);
 	const [unreadCount, setUnreadCount] = useState(0);
+	const [showRecognition, setShowRecognition] = useState(false);
+
 	const searchInputRef = useRef(null);
 
 	const router = useRouter();
@@ -190,9 +193,10 @@ export default function Header() {
 								<img src="/cancel-icon.png" alt="Cancel" />
 							</span>
 						)}
-						<span className={style["micro-button"]} title="Music recognition">
+						<button className={style["micro-button"]} title="Music recognition" onClick={() => setShowRecognition(true)}>
 							<img src="/microphone.png" alt="Recognition" />
-						</span>
+						</button>
+						{showRecognition && <MusicRecognitionModal onClose={() => setShowRecognition(false)} />}
 					</div>
 				</div>
 				{!loginStatus ? (
