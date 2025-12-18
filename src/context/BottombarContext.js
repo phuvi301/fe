@@ -49,6 +49,18 @@ export function BottomBarProvider({ children }) {
         }
     }
 
+    // Đề xuất playlist dựa trên bài hát hiện tại
+    const recommendPlaylist = async (songID) => {
+        try {
+            // Gọi API đề xuất
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/recommend/${songID}`);
+            return res.data.data || [];
+        } catch (err) {
+            console.error("Can't get recommended playlist", err);
+            return [];
+        }
+    };
+
     const getTrack = async (songID) => {
         if (songID) {
             try{
@@ -109,6 +121,9 @@ export function BottomBarProvider({ children }) {
             }
             else if (playlistID.startsWith("recommend-")) {
                 // Playlist đề xuất ảo
+                if (!tracks) {
+                    tracks = await recommendPlaylist(nowPlaying.current._id);                
+                }
                 setPlaylistPlaying({
                     _id: playlistID,
                     name: "Recommended tracks",
@@ -140,7 +155,7 @@ export function BottomBarProvider({ children }) {
 
 
     return (
-        <BottomBarContext.Provider value={{ bottomBarRef, nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, handlePlaylist, shufflePlaylist, setShufflePlaylist, volume, setVolume, repeatMode, setRepeatMode, showQueue, setShowQueue }}>
+        <BottomBarContext.Provider value={{ bottomBarRef, nowPlaying, playback, url, setUrl, recommendPlaylist, getTrack, playlistPlaying, setCurrTrack, handlePlaylist, shufflePlaylist, setShufflePlaylist, volume, setVolume, repeatMode, setRepeatMode, showQueue, setShowQueue }}>
         {children}
         </BottomBarContext.Provider>
     );

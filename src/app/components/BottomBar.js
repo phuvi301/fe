@@ -12,7 +12,7 @@ import { useImageColors } from "../hooks/useImageColors";
 import { usePathname } from 'next/navigation';
 
 const BottomBar = forwardRef((props, ref) => {
-    const { nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, shufflePlaylist, setShufflePlaylist, handlePlaylist, repeatMode, setRepeatMode, volume, setVolume, showQueue, setShowQueue } = useBottomBar();
+    const { nowPlaying, playback, url, setUrl, recommendPlaylist, getTrack, playlistPlaying, setCurrTrack, shufflePlaylist, setShufflePlaylist, handlePlaylist, repeatMode, setRepeatMode, volume, setVolume, showQueue, setShowQueue } = useBottomBar();
 
     const playerRef = useRef(null);
     const hlsRef = useRef(null);
@@ -138,18 +138,6 @@ const BottomBar = forwardRef((props, ref) => {
         } else {
             setVolume(0);
             if (playerRef.current) playerRef.current.volume = 0;
-        }
-    };
-
-    // Đề xuất playlist dựa trên bài hát hiện tại
-    const recommendPlaylist = async (songID) => {
-        try {
-            // Gọi API đề xuất
-            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/recommend/${songID}`);
-            return res.data.data || [];
-        } catch (err) {
-            console.error("Can't get recommended playlist", err);
-            return [];
         }
     };
 
