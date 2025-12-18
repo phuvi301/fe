@@ -1229,6 +1229,17 @@
 .queueList {
     flex: 1;
     overflow-y: auto;
+    // scrollbar-width: thin;
+    // scrollbar-color: rgba(85, 85, 85, 0.7) transparent;
+}
+
+.queueList::-webkit-scrollbar {
+    width: 4px;
+}
+
+.queueList::-webkit-scrollbar-thumb {
+    background-color: rgba(87, 87, 87, 0.7);
+    border-radius: 10px;
 }
 
 .queueListItem {
