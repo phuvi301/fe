@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef } from "react";
-import style from "../homepage.module.css";
+import style from "../homepage.module.scss";
 import Link from "next/link";
 
 export default function Sidebar() {

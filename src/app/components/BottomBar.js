@@ -1,5 +1,5 @@
 'use client'
-import style from "../homepage.module.css";
+import style from "../homepage.module.scss";
 import { forwardRef, useState, useRef, useImperativeHandle, useEffect, use } from "react";
 import Hls from "hls.js";
 import axios from "axios";
@@ -12,13 +12,16 @@ import { useImageColors } from "../hooks/useImageColors";
 import { usePathname } from 'next/navigation';
 
 const BottomBar = forwardRef((props, ref) => {
-    const { nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, handlePlaylist } = useBottomBar();
+    const { nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, shufflePlaylist, setShufflePlaylist, handlePlaylist, repeatMode, setRepeatMode, volume, setVolume, showQueue, setShowQueue } = useBottomBar();
 
     const playerRef = useRef(null);
     const hlsRef = useRef(null);
     const isSeeking = useRef(false);
     const listenedSegments = useRef(new Set());
-    const repeatMode = useRef("off");
+    const repeatRef = useRef("off");
+    const shuffleRef = useRef([]);
+
+    const list = shufflePlaylist && playlistPlaying ? shufflePlaylist : playlistPlaying?.tracks;
 
     const [progress, setProgress] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -44,13 +47,20 @@ const BottomBar = forwardRef((props, ref) => {
     const pathname = usePathname();
 
     //Volume state
-    const [volume, setVolume] = useState(0.5);
     const previousVolumeRef = useRef(volume);
 
     //Like button state
     const [isLiked, setIsLiked] = useState(false);
     const [likeToast, setLikeToast] = useState({show: false, message: ""});
     const toastTimeoutRef = useRef(null);
+
+    useEffect(() => {
+        repeatRef.current = repeatMode;
+    }, [repeatMode]);
+
+    useEffect(() => {
+        shuffleRef.current = shufflePlaylist;
+    }, [shufflePlaylist]);
 
     useEffect(() => {
         if (playerRef.current) {
@@ -66,26 +76,17 @@ const BottomBar = forwardRef((props, ref) => {
         setShowLyrics(false);
     }, [pathname]);
 
-    // Đóng lyrics overlay khi reload trang / chuyển tab / chuyển site
-    // useEffect(() => {
-    //     const closeLyrics = () => setShowLyrics(false);
-    //     const handleVisibility = () => {
-    //         if (document.visibilityState === 'hidden') closeLyrics();
-    //     };
+    // If queue is opened, ensure lyrics are closed
+    useEffect(() => {
+        if (showQueue) setShowLyrics(false);
+    }, [showQueue]);
 
-    //     window.addEventListener('beforeunload', closeLyrics);
-    //     window.addEventListener('pagehide', closeLyrics);
-    //     window.addEventListener('blur', closeLyrics);
-    //     document.addEventListener('visibilitychange', handleVisibility);
-    
-    //     return () => {
-    //         window.removeEventListener('beforeunload', closeLyrics);
-    //         window.removeEventListener('pagehide', closeLyrics);
-    //         window.removeEventListener('blur', closeLyrics);
-    //         document.removeEventListener('visibilitychange', handleVisibility);
-    //     };
-    // }, []);
-
+    const getOwnerId = (track) => {
+    if (!track?.owner) return null;
+    // Nếu owner là object (đã populate), lấy _id. Nếu là chuỗi, lấy chính nó.
+    return typeof track.owner === 'object' ? track.owner._id : track.owner;
+    };
+    const artistId = getOwnerId(nowPlaying.current);
 
     //Toggle likes + show toast
     const toggleLike = async () => {
@@ -168,17 +169,6 @@ const BottomBar = forwardRef((props, ref) => {
             }
         } catch (error) {
             console.log("API lyrics not found, trying mock data...");
-        }
-        
-        try {
-            // Thử dùng mock lyrics từ file
-            const { mockLyrics } = await import('../mockData/lyrics.js');
-            if (mockLyrics[songID]) {
-                parseLyrics(mockLyrics[songID]);
-                return;
-            }
-        } catch (error) {
-            console.log("Mock lyrics not found, using default...");
         }
     };
 
@@ -382,6 +372,14 @@ const BottomBar = forwardRef((props, ref) => {
                 hlsRef.current.destroy();
                 hlsRef.current = null;
             }
+
+            const applyDuration = (dur) => {
+                const numericDuration = Number(dur);
+                if (!Number.isFinite(numericDuration) || numericDuration <= 0) return;
+                setDuration(numericDuration);
+                nowPlaying.current.duration = numericDuration;
+            };
+
             // Cấu hình hls
             const hls = new Hls({
                 maxBufferLength: 30,
@@ -393,16 +391,25 @@ const BottomBar = forwardRef((props, ref) => {
                 liveMaxLatencyDurationCount: 10
             });
             hlsRef.current = hls;
-            // setTrackPlaying(true);
-            // trackPlaying.current = info;
-            hls.attachMedia(playerRef.current); 
+
+            const audioEl = playerRef.current;
+
+            // Cập nhật duration từ metadata (fallback cho trường hợp manifest không có totalduration)
+            audioEl.onloadedmetadata = () => applyDuration(audioEl.duration);
+
+            // Lắng nghe sự kiện LEVEL_LOADED để lấy totalduration chính xác
+            hls.on(Hls.Events.LEVEL_LOADED, (_event, data) => {
+                applyDuration(data?.details?.totalduration);
+            });
+
+            hls.attachMedia(audioEl); 
             hls.loadSource(audioUrl);
-            hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-                setDuration(data.levels[0].details.totalduration);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                // Manifest PARSED không phải lúc nào cũng có details; duration sẽ được set ở LEVEL_LOADED/metadata
                 let hasCounted;
                 // Khi reload trang, nhạc tạm dừng
                 if (url) {
-                    playerRef.current.pause(); 
+                    audioEl.pause(); 
                     setIsPlaying(false);
                     hasCounted = localStorage.getItem("hasCounted");
                     setUrl(null);
@@ -415,9 +422,8 @@ const BottomBar = forwardRef((props, ref) => {
                     hasCounted = false;
                     localStorage.setItem("hasCounted", false);
                 }
-                // console.log(isPlaying);
+
                 nowPlaying.current.hasCounted = hasCounted;
-                nowPlaying.current.duration = data.levels[0].details.totalduration;
                 localStorage.setItem("playedTrack", nowPlaying.current._id); 
 
                 resolve();
@@ -426,10 +432,8 @@ const BottomBar = forwardRef((props, ref) => {
             hls.on(Hls.Events.ERROR, (event, data) => {
                 console.log('HLS error:', data);
                 if (data.details === "bufferSeekOverHole") {
-                    console.log("hello");
                 }
                 if (data.details === "bufferStalledError") {
-                    console.log("hello");
                     hls.startLoad(playerRef.current.currentTime);
                 }
 
@@ -447,9 +451,6 @@ const BottomBar = forwardRef((props, ref) => {
         if (saved) listenedSegments.current = new Set(JSON.parse(saved));
 
         listenedSegments.current.add(Math.round(playerRef.current.currentTime));
-        // console.log(listenedSegments.current.size);
-        // console.log(trackPlaying.current.duration);
-        // console.log((listenedSegments.current.size / Math.round(trackPlaying.current.duration)) >= 0.4)
         if ((listenedSegments.current.size / Math.round(nowPlaying.current.duration)) >= 0.4 && !nowPlaying.current.hasCounted) {
             increasePlayCount();
             addToHistory(_id);
@@ -485,21 +486,25 @@ const BottomBar = forwardRef((props, ref) => {
                 playbackTime: playerRef.current.currentTime, 
                 playlistID: plID,
                 index: idx,
-                repeat: repeatMode.current
+                repeat: repeatRef.current,
+                shuffle: shuffleRef.current,
+                volume: playerRef.current.volume
             });
         } catch(err) {
             console.error("Error while saving progress", err);
         }
     }
 
-    const updatePlaybackTime = async (repeat) => {
+    const updatePlaybackTime = async () => {
         const {_id} = JSON.parse(localStorage.getItem("userInfo")); 
         if (!_id || !nowPlaying.current) return; // Chỉ đăng nhập mới lưu vào redis
 
         try {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users/playback/${_id}`, {
                 playbackTime: playerRef.current.currentTime, 
-                repeat: repeatMode.current
+                repeat: repeatRef.current,
+                shuffle: shuffleRef.current,
+                volume: playerRef.current.volume
             });
         } catch(err) {
             console.error("Error while updating playbackTime", err);
@@ -510,7 +515,7 @@ const BottomBar = forwardRef((props, ref) => {
         if (!isSeeking.current && !playerRef.current.paused) updatePlaybackTime();
     }
 
-    const play = async (trackID, playlistID = null, index = null) => {
+    const play = async (trackID, playlistID = null, index = null, tracks = null) => {
         const res = await getTrack(trackID);
 
         setLyrics([]);
@@ -521,7 +526,8 @@ const BottomBar = forwardRef((props, ref) => {
         setCurrTrack(res.track);
         handleTrack(res.url);
 
-        handlePlaylist(playlistID, index);
+        await handlePlaylist(playlistID, index, shufflePlaylist, tracks);
+        // await handlePlaylist(playlistID, index, tracks);
         saveProgressToRedis(playlistID, index);
     }
 
@@ -585,19 +591,26 @@ const BottomBar = forwardRef((props, ref) => {
             }
         };
 
-        const ended = () => {
+        const ended = async () => {
             setIsPlaying(false);
             setCurrentLyricIndex(-1); // Reset lyrics khi hết bài
+            if (repeatMode === "track") {
+                await play(nowPlaying.current._id, playlistPlaying ? playlistPlaying._id : null, playlistPlaying ? list.findIndex((track) => track._id === nowPlaying.current._id) : null);
+                return;
+            }
             if (playlistPlaying) {
-                if (repeatMode.current === "track") {
-                    play(nowPlaying.current._id, playlistPlaying._id, playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id));
-                }
-                else if (repeatMode.current === "context" && playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id) === playlistPlaying.tracks.length - 1) {
-                    play(playlistPlaying.tracks[0]._id, playlistPlaying._id, 0);
+                if (repeatMode === "context" && list.findIndex((track) => track._id === nowPlaying.current._id) === playlistPlaying.tracks.length - 1) {
+                    await play(list[0]._id, playlistPlaying._id, 0);
                 }
                 else {
-                    toggleNext();
+                    const nextTrackIdx = list.findIndex((track) => track._id === nowPlaying.current._id) + 1;
+                    if (nextTrackIdx >= playlistPlaying.tracks.length) return;
+                    const nextTrackID = list[nextTrackIdx]._id;
+                    await play(nextTrackID, playlistPlaying._id, nextTrackIdx);
                 }
+            }
+            else {
+                if (repeatMode === "context") await play(nowPlaying.current._id);
             }
         }
 
@@ -647,41 +660,93 @@ const BottomBar = forwardRef((props, ref) => {
         }
     };
 
-    const toggleLyrics = () => {
-        setShowLyrics(!showLyrics);
+    const toggleQueue = () => {
+        const newVal = !showQueue;
+        setShowQueue(newVal);
+        if (newVal) setShowLyrics(false);
     };
 
+    const toggleLyrics = () => {
+        const newVal = !showLyrics;
+        setShowLyrics(newVal);
+        if (newVal) setShowQueue(false);
+    };
+
+    const safeDuration = Number.isFinite(duration) && duration > 0 ? duration : 0;
     const minutes = Math.floor(progress / 60);
     const seconds = Math.floor(progress % 60);
+    const durationMinutes = Math.floor(safeDuration / 60);
+    const durationSeconds = Math.floor(safeDuration % 60);
+    const progressPercent = safeDuration > 0 ? Math.min(100, (progress / safeDuration) * 100) : 0;
 
     const toggleNext = async () => {
+        if (repeatMode === "track") {
+            setRepeatMode("context");
+            await play(nowPlaying.current._id, playlistPlaying ? playlistPlaying._id : null, playlistPlaying ? list.findIndex((track) => track._id === nowPlaying.current._id) : null);
+            return;
+        }
         if (playlistPlaying) {
-            const nextTrackIdx = playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id) + 1;
-            if (nextTrackIdx >= playlistPlaying.tracks.length) return;
-            const nextTrackID = playlistPlaying.tracks[nextTrackIdx]._id;
-            await play(nextTrackID, playlistPlaying._id, nextTrackIdx);
+            if (repeatMode === "context" && list.findIndex((track) => track._id === nowPlaying.current._id) === playlistPlaying.tracks.length - 1) {
+                await play(list[0]._id, playlistPlaying._id, 0);
+            }
+            else {
+                const nextTrackIdx = list.findIndex((track) => track._id === nowPlaying.current._id) + 1;
+                if (nextTrackIdx >= playlistPlaying.tracks.length) return;
+                const nextTrackID = list[nextTrackIdx]._id;
+                await play(nextTrackID, playlistPlaying._id, nextTrackIdx);
+            }
+        }
+        else {
+            if (repeatMode === "context") await play(nowPlaying.current._id);
         }
     }
 
     const togglePrevious = async () => {
         if (playlistPlaying) {
-            const prevTrackIdx = playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id) - 1;
+            const prevTrackIdx = list.findIndex((track) => track._id === nowPlaying.current._id) - 1;
             if (prevTrackIdx < 0) return;
-            const prevTrackID = playlistPlaying.tracks[prevTrackIdx]._id;
+            const prevTrackID = list[prevTrackIdx]._id;
             await play(prevTrackID, playlistPlaying._id, prevTrackIdx);
+        }
+        else {
+            await play(nowPlaying.current._id);
         }
     }
 
     const toggleRepeat = async () => {
-        if (repeatMode.current === "off") repeatMode.current = "context";
-        else if (repeatMode.current === "context") repeatMode.current = "track";
-        else repeatMode.current = "off";
+        if (repeatMode === "off") setRepeatMode("context");
+        else if (repeatMode === "context") setRepeatMode("track");
+        else setRepeatMode("off");
+    }
+
+    const shuffleTracks = async () => {
+        if (playlistPlaying) {
+            const tracks = playlistPlaying.tracks;
+            const idxPlaying = playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id);
+            let arr = Array.from({ length: tracks.length }, (_, i) => i).filter(i => i !== idxPlaying);
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            arr = [idxPlaying, ...arr];
+            setShufflePlaylist(arr.map(i => tracks[i]));
+        }
+        else setShufflePlaylist([nowPlaying.current]);
+    };
+
+    const toggleShuffle = () => {
+        if (!shufflePlaylist) {
+            shuffleTracks();
+        }
+        else {
+            setShufflePlaylist(null)
+        }
     }
 
     useImperativeHandle(ref, () => ({
         play,
         fetchLyrics,
-        repeatMode
+        shuffleTracks
     }));
 
     return (
@@ -692,18 +757,25 @@ const BottomBar = forwardRef((props, ref) => {
             </div>
             {nowPlaying.current ? (
             <div className={style["song-in-bottom-bar"]}>
-                <Link href="/play" className={clsx(style["mini-thumbnail2"], style["no-select"])}>
+                <div  className={clsx(style["mini-thumbnail2"], style["no-select"])}>
                     <Image src={nowPlaying.current.thumbnailUrl} className={style["cover2"]} width={500} height={500} alt="Thumbnail" />
-                </Link> 
+                </div> 
                 <div className={style["song-detail2"]}>
-                    <Link href="/play" className={style["mini-song-name"]}>
+                    <div className={style["mini-song-name"]}>
                         <div className={clsx(style["bold-text"], style["no-select"])}>
                             {nowPlaying.current.title}
                         </div>  
+                    </div>
+                    <Link 
+                        /* Logic: Nếu có owner ID thì link tới đó, không thì link # */
+                        href={artistId ? `/artist/${artistId}` : "#"} 
+                        className={clsx(style["mini-artist-name"], style["no-select"])}
+                        onClick={(e) => {
+                        if (!artistId) e.preventDefault(); 
+                        }}
+                    >
+                        {nowPlaying.current.artist} 
                     </Link>
-                    <a href="/play" className={clsx(style["mini-artist-name"], style["no-select"])}>
-                        {nowPlaying.current.artist}
-                    </a>
                 </div>
                 <div className={style["like-btn-container"]}>
                     <button className={style["like-btn"]} onClick={toggleLike}>
@@ -733,20 +805,24 @@ const BottomBar = forwardRef((props, ref) => {
             )}
             <div className={style["music-player"]}>
                 <div className={style["bottom-menu"]}>
-                    <button className={style["shuffle"]}>
-                        <img src="/shuffle.png" className={style["menu-btn"]}/>
-                    </button>
+                    <a className={style["shuffle"]}  onClick={toggleShuffle}>
+                        <img src={shufflePlaylist ? "/shuffle-on.png" : "/shuffle.png"} className={style["menu-btn"]}/>
+                    </a>
                     <button className={style["previous"]} onClick={togglePrevious}>
                         <img src="/previous.png" className={style["menu-btn"]}/>
                     </button>
                     <a className={style["play"]} onClick={togglePlay}>
-                        <img src={!isPlaying ? "/play.png" : "pause.png"} className={style["menu-btn"]}/>
+                        <img
+                            src={!isPlaying ? "/play.png" : "/pause.png"}
+                            alt={!isPlaying ? "Play" : "Pause"}
+                            className={style["menu-btn"]}
+                        />
                     </a>
                     <button className={style["next"]} onClick={toggleNext}>
                         <img src="/next.png" className={style["menu-btn"]}/>
                     </button>
                     <button className={style["repeat"]} onClick={toggleRepeat}>
-                        <img src={repeatMode.current === "off" ? "/repeat.png" : (repeatMode.current === "track" ? "/repeat-one.png" : "/repeat-blue.png")} className={style["menu-btn"]}/>
+                        <img src={repeatMode === "off" ? "/repeat.png" : (repeatMode === "track" ? "/repeat-one.png" : "/repeat-blue.png")} className={style["menu-btn"]}/>
                     </button>
                 </div>
                 <div className={style["progress"]}>
@@ -756,7 +832,7 @@ const BottomBar = forwardRef((props, ref) => {
                     <input
                         type="range"
                         min="0"
-                        max={duration}
+                        max={safeDuration}
                         step="0.1"
                         value={progress}
                         onMouseDown={() => {
@@ -772,17 +848,20 @@ const BottomBar = forwardRef((props, ref) => {
                         }}
                         className={style["progress-bar"]}
                         style={{
-                            background: `linear-gradient(to right, #3c74cfff ${progress / duration * 100}%, #333 ${progress / duration * 100}%)`,
+                            background: `linear-gradient(to right, #3c74cfff ${progressPercent}%, #333 ${progressPercent}%)`,
                             borderRadius: '50px',
                         }}
                     />
-                    <span className={clsx(style["duration"], style["no-select"])}>{Math.floor(duration / 60)}:{String(Math.floor(duration % 60)).padStart(2, "0")}</span>
+                    <span className={clsx(style["duration"], style["no-select"])}>{durationMinutes}:{String(durationSeconds).padStart(2, "0")}</span>
                 </div>
 
             </div>
             <div className={style["right-container"]}>
                 <div className={style["queue-container"]}>
-                    <button className={style["queue-btn"]}>
+                    <button
+                        className={style["queue-btn"]}
+                        onClick={toggleQueue}    
+                    >
                         <img src="/queue.png" className={style["menu-btn"]}/>
                     </button>
                 </div>
@@ -962,6 +1041,64 @@ const BottomBar = forwardRef((props, ref) => {
             </div>
         </div>
     </div>
+        )}
+        {/* Queue overlay: show current playlist/shuffle across all with-bottombar pages */}
+        {showQueue && (
+            <div className={style["queueOverlay"]}>
+                <div className={style["queuePanel"]}>
+                    {/* Playing section */}
+                    <div className={style["queuePlaying"]}>
+                        <div className={style["queueSectionHeader"]}>Playing</div>
+                        {nowPlaying.current ? (
+                            <div className={style["queuePlayingRow"]}>
+                                <img src={nowPlaying.current.thumbnailUrl || '/background.jpg'} className={style["queueThumb"]} alt="thumb" />
+                                <div className={style["queueMeta"]}>
+                                    <div className={style["queueTrackTitle"]} title={nowPlaying.current.title}>{nowPlaying.current.title}</div>
+                                    <div className={style["queueTrackArtist"]} title={nowPlaying.current.artist}>{nowPlaying.current.artist}</div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className={style["queueEmpty"]}>No track is playing</div>
+                        )}
+                    </div>
+
+                    {/* Up Next section */}
+                    <div className={style["queueUpNextHeader"]}>
+                        <div className={style["queueSectionHeader"]}>Up Next</div>
+                    </div>
+                    <div className={style["queueList"]}>
+                        {(() => {
+                            const base = list || [];
+                            const currIdx = base.findIndex(t => t?._id === nowPlaying.current?._id);
+                            const upNext = currIdx >= 0 ? base.slice(currIdx + 1) : base;
+                            return upNext.length > 0 ? (
+                                upNext.map((track, idx) => (
+                                    <div key={track._id || idx} className={style["queueListItem"]} onClick={async () => {
+                                        try {
+                                            const plID = playlistPlaying?._id ?? null;
+                                            const index = base.findIndex(t => t?._id === nowPlaying.current?._id) ?? 0; // follow existing play() usage
+                                            await play(track._id, plID, index, playlistPlaying?.tracks ?? null);
+                                        } catch (e) {
+                                            console.error('Error playing from queue', e);
+                                        }
+                                    }}>
+                                        {/* Nút play */}
+                                        <img src="/play.png" className={style["queuePlayButton"]} alt="Play" />
+                                        {/* Thông tin nhạc */}
+                                        <img src={track?.thumbnailUrl || '/background.jpg'} className={style["queueThumbSmall"]} alt="thumb" />
+                                        <div className={style["queueMeta"]}>
+                                            <div className={style["queueTrackTitle"]} title={track?.title}>{track?.title}</div>
+                                            <div className={style["queueTrackArtist"]} title={track?.artist}>{track?.artist}</div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className={style["queueEmpty"]}>No upcoming tracks</div>
+                            );
+                        })()}
+                    </div>
+                </div>
+            </div>
         )}
         </>
     );

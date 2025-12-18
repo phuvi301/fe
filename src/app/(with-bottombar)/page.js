@@ -1,5 +1,5 @@
 'use client'
-import style from "../homepage.module.css"
+import style from "../homepage.module.scss"
 import Image from "next/image";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
@@ -22,8 +22,6 @@ export default function Home() {
     1: listTracks1,
     2: listTracks2
   }
-  const scrollBtnLeft = useRef(null);
-  const scrollBtnRight = useRef(null);
 
   const toggleTrack = async (trackId) => {
     await bottomBarRef.current.play(trackId);
@@ -92,29 +90,29 @@ export default function Home() {
             {/* <h1>More of what you like</h1>
                     <p>Recommended for you</p> */}
             {/* Scroll buttons */}
-              {
-                listTracks.current ? (
-                  <div>
-                    <h1>Recently Added </h1>
-                    <p>Check out the newest tracks</p>
-                    <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 0)} ref={scrollBtnLeft}>
-                      <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
-                    </button>
-                    <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 0)} ref={scrollBtnRight}>
-                      <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
-                    </button>
-                  </div>         
-                ) : (
-                  <></>
-                )
-              }
+            {
+              listTracks.current ? (
+                <div>
+                  <h1>Recently Added </h1>
+                  <p>Check out the newest tracks</p>
+                  <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 0)}>
+                    <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
+                  </button>
+                  <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 0)}>
+                    <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
+                  </button>
+                </div>         
+              ) : (
+                <></>
+              )
+            }
             {/* Featured items */}
             <div className={style["featured-container"]} ref={listTracks}>
               {recentTracks.map(track => (
                 <a className={style["featured-item"]} key={track._id} onClick={() => toggleTrack(track._id)}>
                   <span className={style["track-container"]}>
                     <Image src={track.thumbnailUrl} width={600} height={600} alt={track.title} priority={true} />
-                    <span>{track.title}</span>
+                    {track.title}
                   </span>
                 </a>
               ))}
@@ -130,10 +128,10 @@ export default function Home() {
                     <div>
                       <h1>Most Played Tracks</h1>
                       <p>See which songs top the play charts this week.</p>
-                      <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 1)} ref={scrollBtnLeft}>
+                      <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 1)}>
                         <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
                       </button>
-                      <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 1)} ref={scrollBtnRight}>
+                      <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 1)}>
                         <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
                       </button>
                     </div>         
@@ -159,10 +157,10 @@ export default function Home() {
             <div>
               <h1>Recently Listened Tracks</h1>
               <p>These are the tracks you've listened to recently.</p>
-              <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 2)} ref={scrollBtnLeft}>
+              <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 2)}>
                 <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
               </button>
-              <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 2)} ref={scrollBtnRight}>
+              <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 2)}>
                 <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
               </button>
             </div>
@@ -171,7 +169,7 @@ export default function Home() {
               {listenedTracks.map(track => (
                 <a className={style["featured-item"]} key={track._id} onClick={() => toggleTrack(track._id)}>
                   <span className={style["track-container"]} width={220}>
-                    <Image src={track.thumbnailUrl} width={180} height={180} alt={track.title} priority={true} />
+                    <Image src={track.thumbnailUrl} width={500} height={500} alt={track.title} priority={true} />
                     {track.title}
                   </span>
                 </a>

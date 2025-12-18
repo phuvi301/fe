@@ -1,0 +1,427 @@
+/* Artist Page Container */
+.artistPageWrapper {
+    position: absolute;
+    top: var(--header-height, 9vh);
+    left: 250px;
+    right: 0;
+    bottom: var(--bottom-bar-height, 75px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: transparent;
+    color: white;
+}
+
+.artistPageWrapper::-webkit-scrollbar {
+    width: 12px;
+}
+
+.artistPageWrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.artistPageWrapper::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 6px;
+}
+
+.artistPageWrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Banner Header */
+.artistHeaderSection {
+    height: 50vh;
+    min-height: 380px;
+    max-height: 500px;
+    background-size: cover;
+    background-position: center 20%;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 40px 32px;
+    position: relative;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.artistHeaderSection::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%);
+    z-index: 1;
+}
+
+.artistInfoContent {
+    z-index: 10;
+    max-width: 100%;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.verifiedBadge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.verifiedBadge img {
+    width: 28px;
+    height: 28px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.artistNameLarge {
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 900;
+    margin: 0;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    word-break: break-word;
+}
+
+.monthlyListeners {
+    font-size: 1.05rem;
+    margin-top: 20px;
+    font-weight: 400;
+    opacity: 0.85;
+    letter-spacing: 0.01em;
+}
+
+/* Body Section */
+.artistBodySection {
+    background: linear-gradient(180deg, rgba(18,18,18,0.6) 0%, #121212 20%);
+    padding: 32px 40px 60px;
+    min-height: 50vh;
+}
+
+.artistActions {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-bottom: 40px;
+}
+
+.btnPlayBig {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0510e4 0%, #0465ed 100%);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(30, 36, 215, 0.3);
+}
+
+.btnPlayBig:hover {
+    transform: scale(1.08);
+    background: linear-gradient(135deg, #1f5cdf 0%, #2144e0 100%);
+    box-shadow: 0 12px 32px rgba(30, 49, 215, 0.4);
+}
+
+.btnPlayBig:active {
+    transform: scale(1.02);
+}
+
+.btnPlayBig img {
+    width: 28px;
+    height: 28px;
+    filter: brightness(0);
+    margin-left: 2px;
+}
+
+.btnFollow {
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 24px;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btnFollow:hover {
+    border-color: white;
+    transform: scale(1.05);
+    background: rgba(255,255,255,0.05);
+}
+
+.btnMore {
+    background: transparent;
+    border: none;
+    color: #b3b3b3;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.btnMore:hover {
+    color: white;
+    background: rgba(255,255,255,0.1);
+}
+
+.sectionTitle {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+}
+
+/* Track List */
+.artistTrackList {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.trackRow {
+    display: grid;
+    grid-template-columns: 50px 4fr 2fr 1fr;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #b3b3b3;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.trackRow::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #070da5;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    border-radius: 6px 0 0 6px;
+}
+
+.trackRow:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.trackRow:hover::before {
+    opacity: 1;
+}
+
+.trackRow.active {
+    background-color: rgba(30, 215, 96, 0.15);
+    color: #1e37d7;
+}
+
+.trackRow.active::before {
+    opacity: 1;
+}
+
+.trackRow.active .trackTitle {
+    color: #1ed760;
+    font-weight: 600;
+}
+
+.trackIndex {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+}
+
+.indexNum {
+    font-size: 1rem;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+}
+
+.indexPlayIcon {
+    display: none;
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    transition: transform 0.2s ease;
+}
+
+.trackRow:hover .indexNum {
+    display: none;
+}
+
+.trackRow:hover .indexPlayIcon {
+    display: block;
+}
+
+.trackRow:hover .indexPlayIcon:hover {
+    transform: scale(1.15);
+}
+
+.trackInfo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: white;
+    overflow: hidden;
+}
+
+.trackThumb {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transition: all 0.2s ease;
+}
+
+.trackRow:hover .trackThumb {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.6);
+    transform: scale(1.02);
+}
+
+.trackTitle {
+    font-size: 1rem;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+}
+
+.trackRow:hover .trackTitle {
+    color: white;
+}
+
+.trackPlays, 
+.trackDuration {
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.2s ease;
+}
+
+.trackRow:hover .trackPlays,
+.trackRow:hover .trackDuration {
+    color: rgba(255,255,255,0.9);
+}
+
+/* Loading & Error States */
+.artistLoading,
+.artistError {
+    position: absolute;
+    top: var(--header-height, 9vh);
+    left: 250px;
+    right: 0;
+    bottom: var(--bottom-bar-height, 75px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #b3b3b3;
+    background: #121212;
+}
+
+.artistError {
+    color: #ff6b6b;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .artistNameLarge {
+        font-size: clamp(2.5rem, 6vw, 5rem);
+    }
+    
+    .trackRow {
+        grid-template-columns: 40px 3fr 1fr 80px;
+    }
+}
+
+@media (max-width: 768px) {
+    .artistPageWrapper {
+        left: 0;
+        top: var(--header-height, 9vh);
+    }
+    
+    .artistHeaderSection {
+        padding: 0 24px 24px;
+        min-height: 280px;
+    }
+    
+    .artistBodySection {
+        padding: 24px 24px 40px;
+    }
+    
+    .artistNameLarge {
+        font-size: clamp(2rem, 8vw, 3.5rem);
+    }
+    
+    .btnPlayBig {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .trackRow {
+        grid-template-columns: 40px 2fr 1fr;
+        padding: 10px 12px;
+    }
+    
+    .trackDuration {
+        display: none;
+    }
+    
+    .trackPlays {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .artistPageWrapper {
+        left: 0;
+    }
+    
+    .artistLoading,
+    .artistError {
+        left: 0;
+    }
+    
+    .trackRow {
+        grid-template-columns: 30px 1fr;
+    }
+    
+    .trackPlays {
+        display: none;
+    }
+    
+    .verifiedBadge {
+        font-size: 0.75rem;
+    }
+    
+    .verifiedBadge img {
+        width: 20px;
+        height: 20px;
+    }
+}

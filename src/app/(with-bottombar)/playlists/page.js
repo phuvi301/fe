@@ -3,7 +3,7 @@
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
-import layout from "~/app/homepage.module.css";
+import layout from "~/app/homepage.module.scss";
 import styles from "./playlists.module.css";
 import Header from "~/app/components/Header";
 import Sidebar from "~/app/components/Sidebar";
@@ -51,7 +51,7 @@ export default function PlaylistsPage() {
     const [isEditPlaylistOpen, setIsEditPlaylistOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [pickerResults, setPickerResults] = useState([]);
-    const { bottomBarRef } = useBottomBar();
+    const { bottomBarRef, shufflePlaylist } = useBottomBar();
 
     const current = useMemo(() => playlists.find((p) => p._id === selectedId) || null, [playlists, selectedId]);
 
