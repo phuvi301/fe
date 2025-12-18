@@ -4,11 +4,11 @@ import Image from 'next/image';
 
 const MusicRecognitionModal = ({ onClose }) => {
   const [isRecording, setIsRecording] = useState(false);
-  const [timer, setTimer] = useState(0);
   const [foundSongs, setFoundSongs] = useState([]);
   
   const intervalRef = useRef(null);
   const mediaRecorderRef = useRef(null);
+  const timerRef = useRef(0);
 
   // --- Logic API (Giữ nguyên) ---
   const callRecognitionAPI = async () => {
@@ -33,19 +33,18 @@ const MusicRecognitionModal = ({ onClose }) => {
       mediaRecorderRef.current.start();
       
       setIsRecording(true);
-      setTimer(0);
+      timerRef.current = 0;
       setFoundSongs([]); 
 
       intervalRef.current = setInterval(() => {
-        setTimer((prev) => {
-          const newTime = prev + 1;
-          if (newTime % 10 === 0) callRecognitionAPI();
-          if (newTime >= 30) {
-            stopRecording();
-            return 30; // Giữ ở số 30
-          }
-          return newTime;
-        });
+        const newTime = timerRef.current + 1;
+        timerRef.current = newTime;
+        console.log("Recording time:", newTime);
+        if (newTime % 10 === 0) callRecognitionAPI();
+        if (newTime >= 30) {
+          stopRecording();
+          return 30; // Giữ ở số 30
+        }
       }, 1000);
 
     } catch (err) {
