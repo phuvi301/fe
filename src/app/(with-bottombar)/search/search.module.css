@@ -76,9 +76,11 @@
 }
 
 .title:hover, .artist:hover {
-    text-decoration: underline;
+    text-decoration: underline !important;
     cursor: pointer;
 }
+
+
 
 
 
