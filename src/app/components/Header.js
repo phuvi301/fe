@@ -1,10 +1,11 @@
 'use client'
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import style from "../homepage.module.css";
+import style from "../homepage.module.scss";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import MusicRecognitionModal from '../components/Recognition';
 
 export default function Header() {
 	const [searchInput, setSearchInput] = useState("");
@@ -14,6 +15,8 @@ export default function Header() {
 	const [userInfo, setUserInfo] = useState(null);
 	const [notifications, setNotifications] = useState([]);
 	const [unreadCount, setUnreadCount] = useState(0);
+	const [showRecognition, setShowRecognition] = useState(false);
+
 	const searchInputRef = useRef(null);
 
 	const router = useRouter();
@@ -58,12 +61,13 @@ export default function Header() {
 
 			const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications`, {
 				headers: {
-					'Authorization': `Bearer ${token}`,
+					token: `Bearer ${token}`,
 				},
 				params: {
 					page: 1,
 					limit: 10
-				}
+				},
+				withCredentials: true
 			});
 
 			if (response.data.data) {
@@ -85,8 +89,9 @@ export default function Header() {
 				{}, 
 				{
 					headers: {
-						'Authorization': `Bearer ${token}`,
-					}
+						token: `Bearer ${token}`,
+					},
+					withCredentials: true
 				}
 			);
 
@@ -188,9 +193,10 @@ export default function Header() {
 								<img src="/cancel-icon.png" alt="Cancel" />
 							</span>
 						)}
-						<span className={style["micro-button"]} title="Music recognition">
+						<button className={style["micro-button"]} title="Music recognition" onClick={() => setShowRecognition(true)}>
 							<img src="/microphone.png" alt="Recognition" />
-						</span>
+						</button>
+						{showRecognition && <MusicRecognitionModal onClose={() => setShowRecognition(false)} />}
 					</div>
 				</div>
 				{!loginStatus ? (
@@ -256,13 +262,13 @@ export default function Header() {
 						{/* Profile */}
 						<div className={style["profile-container"]}>
 							<button id={style["profile-button"]} title="Profile" onClick={toggleProfileMenu}>
-								<Image src={userInfo?.thumbnailUrl || "/avatar-default.svg"} alt="Profile" width={600} height={600} />
+								<Image src={userInfo?.thumbnailUrl || "/background.jpg"} alt="Profile" width={600} height={600} />
 							</button>
 							{showProfileMenu && (
 								<div className={style["profile-dropdown"]}>
 									<div className={style["profile-header"]}>
 										<div className={style["profile-info"]}>
-											<Image src={userInfo?.thumbnailUrl || "/avatar-default.svg"} alt="Profile" width={600} height={600} className={style["profile-avatar"]} />
+											<Image src={userInfo?.thumbnailUrl || "/background.jpg"} alt="Profile" width={600} height={600} className={style["profile-avatar"]} />
 											<div className={style["profile-details"]}>
 												<h4>{userInfo?.nickname || userInfo?.username || ""}</h4>
 												<p>{userInfo?.email || ""}</p>

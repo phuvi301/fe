@@ -6,7 +6,7 @@ import User from "./User";
 import Security from "./Security";
 import Artist from "./Artist";
 import Header from "../../components/Header";
-import style from "~/app/homepage.module.css";
+import style from "~/app/homepage.module.scss";
 import Sidebar from "../../components/Sidebar";
 
 const sidebarList = [

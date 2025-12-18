@@ -29,9 +29,6 @@ const MusicRecognitionModal = ({ onClose }) => {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-      let options = { mimeType: "audio/webm" };
-
       mediaRecorderRef.current = new MediaRecorder(stream);
       mediaRecorderRef.current.start();
       
@@ -52,7 +49,7 @@ const MusicRecognitionModal = ({ onClose }) => {
       }, 1000);
 
     } catch (err) {
-      console.er("Không thể truy cập Micro.", err);
+      alert("Không thể truy cập Micro.");
       stopRecording();
     }
   };

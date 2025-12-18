@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Header from "~/app/components/Header";
 import Sidebar from "~/app/components/Sidebar";
-import layout from "~/app/homepage.module.css";
+import layout from "~/app/homepage.module.scss";
 import styles from "./like.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faPlay, faPlayCircle, faShuffle } from "@fortawesome/free-solid-svg-icons";
