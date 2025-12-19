@@ -49,6 +49,27 @@ export function BottomBarProvider({ children }) {
         }
     }
 
+    // Đề xuất playlist dựa trên bài hát hiện tại
+    const recommendPlaylist = async (songID, refresh = true) => {
+        try {
+            const raw = localStorage.getItem("userInfo");
+            if (!raw) return [];
+            const parsed = JSON.parse(raw); 
+            const accessToken = parsed?.accessToken || null;
+
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/recommend/${songID}?refresh=${refresh}`, {
+                headers: {
+                    token: `Bearer ${accessToken}`
+                },
+                withCredentials: true,
+            });
+            return res.data.data || [];
+        } catch (err) {
+            console.error("Can't get recommended playlist", err);
+            return [];
+        }
+    };
+
     const getTrack = async (songID) => {
         if (songID) {
             try{
@@ -107,6 +128,17 @@ export function BottomBarProvider({ children }) {
                     tracks: tracks
                 });                
             }
+            else if (playlistID.startsWith("recommend-")) {
+                // Playlist đề xuất ảo
+                if (!tracks) {
+                    tracks = await recommendPlaylist(nowPlaying.current._id, false); // Lấy danh sách đề xuất đã lưu
+                }
+                setPlaylistPlaying({
+                    _id: playlistID,
+                    name: "Recommended tracks",
+                    tracks: tracks
+                });
+            }
             else await getPlaylist(playlistID);
         }
 
@@ -132,7 +164,7 @@ export function BottomBarProvider({ children }) {
 
 
     return (
-        <BottomBarContext.Provider value={{ bottomBarRef, nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, handlePlaylist, shufflePlaylist, setShufflePlaylist, volume, setVolume, repeatMode, setRepeatMode, showQueue, setShowQueue }}>
+        <BottomBarContext.Provider value={{ bottomBarRef, nowPlaying, playback, url, setUrl, recommendPlaylist, getTrack, playlistPlaying, setCurrTrack, handlePlaylist, shufflePlaylist, setShufflePlaylist, volume, setVolume, repeatMode, setRepeatMode, showQueue, setShowQueue }}>
         {children}
         </BottomBarContext.Provider>
     );

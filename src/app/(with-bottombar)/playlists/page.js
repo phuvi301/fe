@@ -37,6 +37,12 @@ function formatDuration(s) {
     return `${m}:${ss}`;
 }
 
+function getOwnerId(track) {
+    if (!track?.owner) return null;
+    // Nếu owner là object (đã populate), lấy _id. Nếu là chuỗi, lấy chính nó.
+    return typeof track.owner === 'object' ? track.owner._id : track.owner;
+}
+
 // --- Main Page Component ---
 
 export default function PlaylistsPage() {
@@ -257,6 +263,11 @@ export default function PlaylistsPage() {
         handleEditPlaylist();
     };
 
+    const playPlaylist = async () => {
+        const idx = shufflePlaylist ? Math.floor(Math.random() * (current.tracks.length)) : 0;
+        await bottomBarRef.current.play(current.tracks[idx]._id, current._id, idx);
+    };
+
     // --- Render ---
     return (
         <div className={layout.background}>
@@ -364,7 +375,7 @@ export default function PlaylistsPage() {
                                         <button className={styles.secondary} onClick={() => setIsAddOpen(true)}>
                                             Add track
                                         </button>
-                                        <button className={styles.ghost} onClick={() => alert("Play - TODO")}>
+                                        <button className={styles.ghost} onClick={playPlaylist}>
                                             Play
                                         </button>
                                         <button
@@ -408,7 +419,17 @@ export default function PlaylistsPage() {
                                                         <img src={t.thumbnailUrl} alt="" />
                                                         <span>{t.title}</span>
                                                     </td>
-                                                    <td>{t.artist}</td>
+                                                    <td>
+                                                        <Link 
+                                                            href={getOwnerId(t) ? `/artist/${getOwnerId(t)}` : "#"}
+                                                            onClick={(e) => {
+                                                                if (!getOwnerId(t)) e.preventDefault();
+                                                            }}
+                                                            className={styles.Artist}
+                                                        >
+                                                            {t.artist}
+                                                        </Link>
+                                                    </td>
                                                     <td>
                                                         {formatDuration(t.duration) === "0:0"
                                                             ? ""
@@ -555,7 +576,16 @@ function AddSongModal({ onClose, onPick, searchTerm, setSearchTerm, results }) {
                                 <img src={t.thumbnailUrl} alt="" />
                                 <div>
                                     <div className={styles.songTitle}>{t.title}</div>
-                                    <div className={styles.songArtist}>{t.artist}</div>
+                                    <Link 
+                                        href={getOwnerId(t) ? `/artist/${getOwnerId(t)}` : "#"}
+                                        className={styles.songArtist}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (!getOwnerId(t)) e.preventDefault();
+                                        }}
+                                    >
+                                        {t.artist}
+                                    </Link>
                                 </div>
                                 {/* <span className={styles.duration}>{formatDuration(t.duration)}</span> */}
                             </button>

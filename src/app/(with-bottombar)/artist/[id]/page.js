@@ -12,7 +12,7 @@ import layout from "~/app/homepage.module.scss";
 import style from "./artist.module.css";
 export default function ArtistPage() {
     const { id } = useParams();
-    const { bottomBarRef, nowPlaying } = useBottomBar();
+    const { bottomBarRef, nowPlaying, shufflePlaylist } = useBottomBar();
     const [artistData, setArtistData] = useState(null);
     const [tracks, setTracks] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -83,10 +83,10 @@ export default function ArtistPage() {
     }, [id]);
 
     // Xử lý khi nhấn play bài hát trong danh sách
-    const handlePlayTrack = async (trackId, index) => {
+    const handlePlayTrack = async () => {
         const artistPlaylistId = `artist-${id}`;
-        console.log("bbbbbbbbbbbbbbbbbb", tracks)
-        await bottomBarRef.current.play(trackId, artistPlaylistId, index, tracks);
+        const idx = shufflePlaylist ? Math.floor(Math.random() * (tracks.length)) : 0;
+        await bottomBarRef.current.play(tracks[idx]._id, artistPlaylistId, idx, tracks);
     };
 
     const formatDuration = (seconds) => {
@@ -126,7 +126,7 @@ export default function ArtistPage() {
                 {/* Popular Songs Section */}
                 <div className={style.artistBodySection}>
                     <div className={style.artistActions}>
-                        <button className={style.btnPlayBig} onClick={() => tracks.length > 0 && handlePlayTrack(tracks[0]._id, 0)}>
+                        <button className={style.btnPlayBig} onClick={() => tracks.length > 0 && handlePlayTrack()}>
                             <img src="/play.png" alt="Play" />
                         </button>
                         <button className={style.btnFollow}>Following</button>

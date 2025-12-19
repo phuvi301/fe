@@ -12,7 +12,7 @@ import { useImageColors } from "../hooks/useImageColors";
 import { usePathname } from 'next/navigation';
 
 const BottomBar = forwardRef((props, ref) => {
-    const { nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, shufflePlaylist, setShufflePlaylist, handlePlaylist, repeatMode, setRepeatMode, volume, setVolume, showQueue, setShowQueue } = useBottomBar();
+    const { nowPlaying, playback, url, setUrl, recommendPlaylist, getTrack, playlistPlaying, setCurrTrack, shufflePlaylist, setShufflePlaylist, handlePlaylist, repeatMode, setRepeatMode, volume, setVolume, showQueue, setShowQueue } = useBottomBar();
 
     const playerRef = useRef(null);
     const hlsRef = useRef(null);
@@ -156,7 +156,6 @@ const BottomBar = forwardRef((props, ref) => {
             if (playerRef.current) playerRef.current.volume = 0;
         }
     };
-
 
     // Hàm fetch lyrics từ API hoặc file
     const fetchLyrics = async (songID) => {
@@ -525,6 +524,13 @@ const BottomBar = forwardRef((props, ref) => {
         nowPlaying.current = res.track;
         setCurrTrack(res.track);
         handleTrack(res.url);
+
+        if (!playlistID && !tracks) {
+            // Tạo playlist ảo từ danh sách đề xuất
+            tracks = await recommendPlaylist(trackID);
+            playlistID = `recommend-${trackID}`;
+            index = 0;
+        }
 
         await handlePlaylist(playlistID, index, shufflePlaylist, tracks);
         // await handlePlaylist(playlistID, index, tracks);
@@ -961,9 +967,16 @@ const BottomBar = forwardRef((props, ref) => {
                             <h3 className={style["lyrics-song-title"]} style={{ color: colors.lightVibrant || '#ffffff' }}>
                                 {nowPlaying.current.title}
                             </h3>
-                            <h4 className={style["lyrics-song-artist"]}>
+                            <Link 
+                                /* Logic: Nếu có owner ID thì link tới đó, không thì link # */
+                                href={artistId ? `/artist/${artistId}` : "#"} 
+                                className={style["lyrics-song-artist"]}
+                                onClick={(e) => {
+                                    if (!artistId) e.preventDefault(); 
+                                }}
+                            >
                                 {nowPlaying.current.artist}
-                            </h4>
+                            </Link>
                         </div>
                     </div>
                 
@@ -1054,7 +1067,16 @@ const BottomBar = forwardRef((props, ref) => {
                                 <img src={nowPlaying.current.thumbnailUrl || '/background.jpg'} className={style["queueThumb"]} alt="thumb" />
                                 <div className={style["queueMeta"]}>
                                     <div className={style["queueTrackTitle"]} title={nowPlaying.current.title}>{nowPlaying.current.title}</div>
-                                    <div className={style["queueTrackArtist"]} title={nowPlaying.current.artist}>{nowPlaying.current.artist}</div>
+                                    <Link 
+                                        href={artistId ? `/artist/${artistId}` : "#"} 
+                                        className={style["queueTrackArtist"]} 
+                                        title={nowPlaying.current.artist}
+                                        onClick={(e) => {
+                                            if (!artistId) e.preventDefault(); 
+                                        }}
+                                    >
+                                        {nowPlaying.current.artist}
+                                    </Link>
                                 </div>
                             </div>
                         ) : (
@@ -1088,7 +1110,16 @@ const BottomBar = forwardRef((props, ref) => {
                                         <img src={track?.thumbnailUrl || '/background.jpg'} className={style["queueThumbSmall"]} alt="thumb" />
                                         <div className={style["queueMeta"]}>
                                             <div className={style["queueTrackTitle"]} title={track?.title}>{track?.title}</div>
-                                            <div className={style["queueTrackArtist"]} title={track?.artist}>{track?.artist}</div>
+                                            <Link 
+                                                href={getOwnerId(track) ? `/artist/${getOwnerId(track)}` : "#"} 
+                                                className={style["queueTrackArtist"]} 
+                                                title={track?.artist}
+                                                onClick={(e) => {
+                                                    if (!getOwnerId(track)) e.preventDefault();
+                                                }}
+                                            >
+                                                {track?.artist}
+                                            </Link>
                                         </div>
                                     </div>
                                 ))
