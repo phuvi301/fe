@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
-import styles from '../styles/recognition.module.css';
+import styles from './recognition.module.css';
 import Image from 'next/image';
 import axios from 'axios';
+import { useBottomBar } from '~/context/BottombarContext';
 
 const MusicRecognitionModal = ({ onClose }) => {
     const [isRecording, setIsRecording] = useState(false);
     const [foundSongs, setFoundSongs] = useState([]);
     const tracks = useRef([]);
+    const { bottomBarRef } = useBottomBar();
     
     const intervalRef = useRef(null);
     const mediaRecorderRef = useRef(null);
@@ -15,6 +17,7 @@ const MusicRecognitionModal = ({ onClose }) => {
     // --- Logic API (Giữ nguyên) ---
     const callRecognitionAPI = async (blob) => {
         if (!blob || blob.size === 0) {
+            console.log("f")
             return "Failed";
         }
 
@@ -105,6 +108,10 @@ const MusicRecognitionModal = ({ onClose }) => {
         if (intervalRef.current) clearInterval(intervalRef.current);
     };
 
+    const toggleTrack = async (_id) => {
+        await bottomBarRef.current.play(_id);
+    };
+
   // Cleanup: Dừng thu âm nếu người dùng tắt modal đột ngột
     useEffect(() => {
         return () => stopRecording();
@@ -142,13 +149,13 @@ const MusicRecognitionModal = ({ onClose }) => {
                 </p>
                 ) : (
                 foundSongs.map((song) => (
-                    <div key={song.id} className={styles.songItem}>
-                    <img src={song.image} alt="Art" className={styles.songImg} />
-                    <div className={styles.songInfo}>
-                        <span className={styles.songTitle}>{song.title}</span>
-                        <span className={styles.songArtist}>{song.artist}</span>
-                    </div>
-                    <div className={styles.playIcon}>▶</div>
+                    <div key={song.id} className={styles.songItem} onClick={() => toggleTrack(song._id)}>
+                        <img src={song.image} alt="Art" className={styles.songImg} />
+                        <div className={styles.songInfo}>
+                            <span className={styles.songTitle}>{song.title}</span>
+                            <span className={styles.songArtist}>{song.artist}</span>
+                        </div>
+                        <div className={styles.playIcon}>▶</div>
                     </div>
                 ))
                 )}
