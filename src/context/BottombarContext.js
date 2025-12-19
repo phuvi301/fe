@@ -31,9 +31,6 @@ export function BottomBarProvider({ children }) {
         else {
             setShufflePlaylist(null);
         }
-
-        console.log(playlistPlaying.tracks)
-
         playlistIDRef.current = playlistPlaying._id;
     }, [playlistPlaying]);
 
