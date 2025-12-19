@@ -98,6 +98,8 @@ const BottomBar = forwardRef((props, ref) => {
                         token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
                     },
                 })
+                userData.likedTracks = userData.likedTracks.includes(nowPlaying.current?._id) ? userData.likedTracks.filter(trackId => trackId !== nowPlaying.current?._id) : [...userData.likedTracks, nowPlaying.current._id]
+                localStorage.setItem("userInfo", JSON.stringify(userData))
             } catch (error) {
                 console.log(error);
                 return;
@@ -129,6 +131,12 @@ const BottomBar = forwardRef((props, ref) => {
             }, 2500);
         }, 40); // 30-60ms is enough to force reflow/remount
     };
+
+    useEffect(() => {
+        const userData = JSON.parse(localStorage.getItem("userInfo"));
+        setIsLiked(userData.likedTracks.includes(nowPlaying.current?._id))
+    }, [nowPlaying.current?._id])
+
     //cleanup toast timeout on unmount
     useEffect(() => {
         return () => {
