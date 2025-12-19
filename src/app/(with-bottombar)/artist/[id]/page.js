@@ -82,11 +82,25 @@ export default function ArtistPage() {
         };
     }, [id]);
 
-    // Xử lý khi nhấn play bài hát trong danh sách
-    const handlePlayTrack = async () => {
+    // Xử lý phát bài: ưu tiên bài được click; nếu không, phát bài đầu hoặc ngẫu nhiên
+    const handlePlayTrack = async (trackId = null, index = null) => {
         const artistPlaylistId = `artist-${id}`;
-        const idx = shufflePlaylist ? Math.floor(Math.random() * (tracks.length)) : 0;
-        await bottomBarRef.current.play(tracks[idx]._id, artistPlaylistId, idx, tracks);
+
+        let idx = 0;
+        let songId = null;
+
+        if (typeof index === 'number' && index >= 0 && index < tracks.length) {
+            // Người dùng click vào một bài cụ thể trong danh sách
+            idx = index;
+            songId = trackId ?? tracks[idx]?._id;
+        } else {
+            // Nhấn nút Play lớn: tôn trọng shuffle nếu đang bật
+            idx = shufflePlaylist ? Math.floor(Math.random() * tracks.length) : 0;
+            songId = tracks[idx]?._id;
+        }
+
+        if (!songId) return;
+        await bottomBarRef.current.play(songId, artistPlaylistId, idx, tracks);
     };
 
     const formatDuration = (seconds) => {
