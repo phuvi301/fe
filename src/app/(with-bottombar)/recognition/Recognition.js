@@ -1,24 +1,25 @@
 import { useState, useRef, useEffect } from 'react';
-import styles from '../styles/recognition.module.css';
+import styles from './recognition.module.css';
 import Image from 'next/image';
 import axios from 'axios';
+import { useBottomBar } from '~/context/BottombarContext';
 
 const MusicRecognitionModal = ({ onClose }) => {
-  const [isRecording, setIsRecording] = useState(false);
-  const [foundSongs, setFoundSongs] = useState([]);
-  
-  const intervalRef = useRef(null);
-  const mediaRecorderRef = useRef(null);
-  const timerRef = useRef(0);
+    const [isRecording, setIsRecording] = useState(false);
+    const [foundSongs, setFoundSongs] = useState([]);
+    const tracks = useRef([]);
+    const { bottomBarRef } = useBottomBar();
+    
+    const intervalRef = useRef(null);
+    const mediaRecorderRef = useRef(null);
+    const timerRef = useRef(0);
 
     // --- Logic API (Giữ nguyên) ---
     const callRecognitionAPI = async (blob) => {
         if (!blob || blob.size === 0) {
-            console.log(blob.size);
+            console.log("f")
             return "Failed";
         }
-
-        console.log(blob.type);
 
         try {
             const form = new FormData();
@@ -27,9 +28,31 @@ const MusicRecognitionModal = ({ onClose }) => {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/recognize`, form, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
-            console.log(res.data.title);
-        
-            return "OK";
+            
+            const title = res.data.title;
+            if (!title) {
+                return "Failed";
+            }
+
+            const res1 = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/search`, { params: { q: title } })
+            const track = res1.data.data[0];
+
+            const existingTrack = tracks.current.find(t => t.id === track._id);
+            if (existingTrack) return "OK";
+
+            const newSong = {
+                id: track._id,
+                title: track.title,
+                artist: track.artist,
+                image: track.thumbnailUrl
+            };
+
+            tracks.current = [newSong, ...tracks.current];
+
+            if (track.artist !== res.data.artist) {
+                return "Failed";
+            }
+            else return "OK";
         } catch(err) {
             console.error(err);
         }
@@ -45,32 +68,24 @@ const MusicRecognitionModal = ({ onClose }) => {
             mediaRecorderRef.current.start(1000);
             
             setIsRecording(true);
+            timerRef.current = 0;
             setFoundSongs([]); 
+            tracks.current = [];
 
             intervalRef.current = setInterval(async () => {
                 const newTime = timerRef.current + 1;
                 timerRef.current = newTime;
-                console.log("Recording time:", newTime);
                 if (newTime % 10 === 0) {
                     const blob = new Blob(chunks, { type: "audio/webm" });
 
-                    // const a = document.createElement("a");
-                    // a.href = URL.createObjectURL(blob);
-
-                    // a.download = `record.webm`;
-                    // a.click();
                     const res = await callRecognitionAPI(blob);
-                    stopRecording();
-                    // if (res === "OK") {
-                    //     console.log(res, "hehe");
-                    //     stopRecording();
-                    // }
-                    // else {
-                    //     console.log(res, "huhu");
-                    //     stopRecording();
-                    // }
+                    if (res === "OK") {
+                        setFoundSongs(prev => [...tracks.current, ...prev])  
+                        stopRecording();
+                    }
                 }
                 if (newTime >= 30) {
+                    setFoundSongs(prev => [...tracks.current, ...prev]) 
                     stopRecording();
                     return 30; // Giữ ở số 30
                 }
@@ -91,6 +106,10 @@ const MusicRecognitionModal = ({ onClose }) => {
             mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
         }
         if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+
+    const toggleTrack = async (_id) => {
+        await bottomBarRef.current.play(_id);
     };
 
   // Cleanup: Dừng thu âm nếu người dùng tắt modal đột ngột
@@ -130,13 +149,13 @@ const MusicRecognitionModal = ({ onClose }) => {
                 </p>
                 ) : (
                 foundSongs.map((song) => (
-                    <div key={song.id} className={styles.songItem}>
-                    <img src={song.image} alt="Art" className={styles.songImg} />
-                    <div className={styles.songInfo}>
-                        <span className={styles.songTitle}>{song.title}</span>
-                        <span className={styles.songArtist}>{song.artist}</span>
-                    </div>
-                    <div className={styles.playIcon}>▶</div>
+                    <div key={song.id} className={styles.songItem} onClick={() => toggleTrack(song._id)}>
+                        <img src={song.image} alt="Art" className={styles.songImg} />
+                        <div className={styles.songInfo}>
+                            <span className={styles.songTitle}>{song.title}</span>
+                            <span className={styles.songArtist}>{song.artist}</span>
+                        </div>
+                        <div className={styles.playIcon}>▶</div>
                     </div>
                 ))
                 )}

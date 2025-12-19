@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import style from "../homepage.module.scss";
 import axios from "axios";
-import MusicRecognitionModal from '../components/Recognition';
+import MusicRecognitionModal from '../(with-bottombar)/recognition/Recognition';
 
 export default function Header() {
 	const [searchInput, setSearchInput] = useState("");
