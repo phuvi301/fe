@@ -263,6 +263,11 @@ export default function PlaylistsPage() {
         handleEditPlaylist();
     };
 
+    const playPlaylist = async () => {
+        const idx = shufflePlaylist ? Math.floor(Math.random() * (current.tracks.length)) : 0;
+        await bottomBarRef.current.play(current.tracks[idx]._id, current._id, idx);
+    };
+
     // --- Render ---
     return (
         <div className={layout.background}>
@@ -370,7 +375,7 @@ export default function PlaylistsPage() {
                                         <button className={styles.secondary} onClick={() => setIsAddOpen(true)}>
                                             Add track
                                         </button>
-                                        <button className={styles.ghost} onClick={() => alert("Play - TODO")}>
+                                        <button className={styles.ghost} onClick={playPlaylist}>
                                             Play
                                         </button>
                                         <button
