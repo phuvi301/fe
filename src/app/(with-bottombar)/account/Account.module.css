@@ -10,7 +10,7 @@
 
 .overview {
     position: absolute;
-    top: 70px;            /* hoặc sử dụng biến header height: var(--header-height) */
+    top: 65px;            /* hoặc sử dụng biến header height: var(--header-height) */
     left: 250px;          /* sidebar width */
     right: 0;
     bottom: 0;

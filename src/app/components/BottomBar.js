@@ -1079,7 +1079,9 @@ const BottomBar = forwardRef((props, ref) => {
                             <div className={style["queuePlayingRow"]}>
                                 <img src={nowPlaying.current.thumbnailUrl || '/background.jpg'} className={style["queueThumb"]} alt="thumb" />
                                 <div className={style["queueMeta"]}>
-                                    <div className={style["queueTrackTitle"]} title={nowPlaying.current.title}>{nowPlaying.current.title}</div>
+                                    <Link href={`/track/${nowPlaying.current._id}`} className={style["queueTrackTitle"]} title={nowPlaying.current.title}>
+                                        {nowPlaying.current.title}
+                                    </Link>
                                     <Link 
                                         href={artistId ? `/artist/${artistId}` : "#"} 
                                         className={style["queueTrackArtist"]} 
@@ -1123,7 +1125,9 @@ const BottomBar = forwardRef((props, ref) => {
                                         {/* Thông tin nhạc */}
                                         <img src={track?.thumbnailUrl || '/background.jpg'} className={style["queueThumbSmall"]} alt="thumb" />
                                         <div className={style["queueMeta"]}>
-                                            <div className={style["queueTrackTitle"]} title={track?.title}>{track?.title}</div>
+                                            <Link href={`/track/${track._id}`} className={style["queueTrackTitle"]} title={track?.title}>
+                                                {track?.title}
+                                            </Link>
                                             <Link 
                                                 href={getOwnerId(track) ? `/artist/${getOwnerId(track)}` : "#"} 
                                                 className={style["queueTrackArtist"]} 

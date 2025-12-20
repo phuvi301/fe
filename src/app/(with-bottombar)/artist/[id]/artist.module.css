@@ -315,6 +315,7 @@
 
 .trackRow:hover .trackTitle {
     color: white;
+    text-decoration: underline;
 }
 
 .trackPlays, 

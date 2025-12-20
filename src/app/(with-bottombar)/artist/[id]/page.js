@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import axios from 'axios';
 import Image from 'next/image';
 import { useBottomBar } from '~/context/BottombarContext';
@@ -161,7 +162,9 @@ export default function ArtistPage() {
                                 </div>
                                 <div className={style.trackInfo}>
                                     <img src={track.thumbnailUrl} alt={track.title} className={style.trackThumb} />
-                                    <span className={style.trackTitle}>{track.title}</span>
+                                    <Link href={`/track/${track._id}`} className={style.trackTitle}>
+                                        {track.title}
+                                    </Link>
                                 </div>
                                 <div className={style.trackPlays}>
                                     {formatNumber(track.playCount || 0)}
