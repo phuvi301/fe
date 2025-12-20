@@ -650,6 +650,25 @@ const BottomBar = forwardRef((props, ref) => {
         }
     };
 
+    const pause = () => {
+        if (!nowPlaying.current) return;
+        const player = playerRef.current;
+        if (!player.paused) {
+            saveProgress();
+            player.pause();
+            setIsPlaying(false);
+        }
+    };
+
+    const resume = () => {
+        if (!nowPlaying.current) return;
+        const player = playerRef.current;
+        if (player.paused) {
+            player.play();
+            setIsPlaying(true);
+        }
+    };
+
     const toggleQueue = () => {
         const newVal = !showQueue;
         setShowQueue(newVal);
@@ -735,6 +754,8 @@ const BottomBar = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         play,
+        pause,
+        resume,
         fetchLyrics,
         shuffleTracks
     }));
@@ -752,9 +773,12 @@ const BottomBar = forwardRef((props, ref) => {
                 </div> 
                 <div className={style["song-detail2"]}>
                     <div className={style["mini-song-name"]}>
-                        <div className={clsx(style["bold-text"], style["no-select"])}>
+                        <Link 
+                            href={`/track/${nowPlaying.current._id}`}
+                            className={clsx(style["bold-text"], style["no-select"])}
+                        >
                             {nowPlaying.current.title}
-                        </div>  
+                        </Link>  
                     </div>
                     <Link 
                         /* Logic: Nếu có owner ID thì link tới đó, không thì link # */
