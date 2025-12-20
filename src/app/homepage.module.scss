@@ -668,6 +668,12 @@
     font-size: 12px;
     display: flex;
     align-items: center;
+    cursor: pointer;
+    transition: text-decoration 0.2s ease;
+}
+
+.mini-song-name:hover {
+    text-decoration: underline;
 }
 
 .mini-artist-name {
@@ -783,6 +789,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 200px;
+    color: white;
+    text-decoration: none;
+    transition: text-decoration 0.2s ease;
+    cursor: pointer;
+}
+
+.bold-text:hover {
+    text-decoration: underline;
 }
 
 /* Lyrics button */

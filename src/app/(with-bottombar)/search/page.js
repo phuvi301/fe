@@ -81,7 +81,12 @@ export default function Search() {
                                             <Image src="/play_black.png" alt="Play" width={24} height={24}/>
                                         </div>
                                         <div className={style.titleArtist}>
-                                            <h3 className={style.title}>{song.title}</h3>
+                                            <Link 
+                                                href={`/track/${song._id}`}
+                                                className={style.title}
+                                            >
+                                                <h3>{song.title}</h3>
+                                            </Link>
                                             <Link 
                                                 /* Logic: Nếu có owner ID thì link tới đó, không thì link # */
                                                 href={getOwnerId(song) ? `/artist/${getOwnerId(song)}` : "#"} 

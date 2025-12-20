@@ -1,0 +1,616 @@
+/* Track Detail Page Styles */
+.trackPageWrapper {
+    position: absolute;
+    top: var(--header-height, 9vh);
+    left: 250px;
+    right: 0;
+    bottom: var(--bottom-bar-height, 75px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: transparent;
+    color: white;
+    padding: 0;
+}
+
+/* Page Layout */
+.pageLayout {
+    display: grid;
+    grid-template-columns: 1fr 0.45fr;
+    gap: 0;
+    height: 100%;
+    min-height: calc(100vh - 9vh - 75px);
+}
+
+.leftMainSection {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(90deg, transparent 90%, rgba(255, 255, 255, 0.05) 95%, rgba(255, 255, 255, 0.1) 100%);
+    position: relative;
+}
+
+.leftMainSection::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        rgba(255, 255, 255, 0.3) 30%, 
+        rgba(255, 255, 255, 0.3) 70%, 
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.rightMainSection {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0%, transparent 10%);
+    width: 100%;
+    overflow: hidden;
+} 
+
+.trackPageWrapper::-webkit-scrollbar {
+    width: 12px;
+}
+
+.trackPageWrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.trackPageWrapper::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 6px;
+}
+
+.trackPageWrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Loading and Error States */
+.trackLoading, .trackError {
+    margin-left: 250px;
+    margin-top: 80px;
+    padding: 40px;
+    color: white;
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.trackError {
+    color: #ff6b6b;
+}
+
+/* Track Header Section */
+.trackHeaderSection {
+    height: 40vh;
+    min-height: 300px;
+    max-height: 380px;
+    background: linear-gradient(180deg, #9f9797ff 0%, #5e5e5e 50%, #3a3434ff 100%);
+    display: flex;
+    align-items: flex-end;
+    padding: 0 32px 24px;
+    position: relative;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.trackImageContainer {
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+    margin-right: 32px;
+}
+
+.trackImage {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    object-fit: cover;
+}
+
+.trackInfoContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 12px;
+    z-index: 10;
+    max-width: 100%;
+}
+
+.trackType {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #cbcbcb;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.9;
+}
+
+.trackTitle {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    margin: 0;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    color: white;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+    word-break: break-word;
+}
+
+.trackMeta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1rem;
+    color: #b3b3b3;
+    margin-top: 12px;
+    opacity: 0.85;
+}
+
+.artistContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.smallArtistAvatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+}
+
+.trackStats {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 1rem;
+    color: #b3b3b3;
+    margin-top: 8px;
+    opacity: 0.9;
+}
+
+.statItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.statNumber {
+    color: white;
+    font-weight: 600;
+}
+
+.artistLink {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+    cursor: pointer;
+}
+
+.artistLink:hover {
+    text-decoration: underline;
+}
+
+.metaDot {
+    color: #666;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.trackYear, .trackDuration {
+    font-weight: 500;
+}
+
+/* Track Body Section - Artist Info */
+.trackBodySection {
+    background: linear-gradient(180deg, rgb(46, 43, 43) 0%, #0e0e0e 50%);
+    padding: 24px 32px 40px;
+    flex: 1;
+}
+
+/* Artist Info Section */
+.artistInfoSection {
+    margin-bottom: 0;
+}
+
+.artistCard {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.artistCard:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.artistAvatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.artistInfo {
+    flex: 1;
+}
+
+.artistLabel {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.artistName {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    transition: text-decoration 0.2s ease;
+    cursor: pointer;
+}
+
+.artistName:hover {
+    text-decoration: underline;
+}
+
+/* Track Controls Section */
+.trackControlsSection {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-shrink: 0;
+    margin-bottom: 32px;
+}
+
+.controlsWrapper {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.playButton {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0510e4 0%, #0465ed 100%);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(30, 36, 215, 0.3);
+}
+
+.playButton:hover {
+    transform: scale(1.08);
+    background: linear-gradient(135deg, #1f5cdf 0%, #2144e0 100%);
+    box-shadow: 0 12px 32px rgba(30, 49, 215, 0.4);
+}
+
+.playButton:active {
+    transform: scale(1.02);
+}
+
+.playButton.playing {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff7b7b 100%);
+    box-shadow: 0 8px 24px rgba(255, 107, 107, 0.3);
+}
+
+.playButton img {
+    width: 24px;
+    height: 24px;
+    filter: brightness(0);
+    margin-left: 2px;
+}
+
+.likeButton, .moreButton {
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: bold;
+}
+
+.likeButton:hover, .moreButton:hover {
+    border-color: white;
+    transform: scale(1.05);
+    background: rgba(255,255,255,0.05);
+}
+
+.likeButton img {
+    filter: brightness(0) invert(1);
+    transition: filter 0.2s ease;
+}
+
+.likeButton.liked {
+    border-color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
+}
+
+.likeButton.liked img {
+    filter: none;
+}
+
+/* Comments Section */
+.commentsSection {
+    background: #181818;
+    border-radius: 0;
+    padding: 30px;
+    border: none;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.commentsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.commentsTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+.commentsCount {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+}
+
+.commentsList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.commentItem {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.commentAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.commentContent {
+    flex: 1;
+}
+
+.commentAuthor {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 4px;
+}
+
+.commentText {
+    font-size: 0.9rem;
+    color: #e0e0e0;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.commentTime {
+    font-size: 0.8rem;
+    color: #b3b3b3;
+}
+
+.commentsPlaceholder {
+    text-align: center;
+    padding: 40px 20px;
+    color: #b3b3b3;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.commentsPlaceholder h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+}
+
+.commentsPlaceholder p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Loading and Error States */
+.trackLoading, .trackError {
+    position: absolute;
+    top: var(--header-height, 9vh);
+    left: 250px;
+    right: 0;
+    bottom: var(--bottom-bar-height, 75px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #b3b3b3;
+    background: #121212;
+}
+
+.trackError {
+    color: #ff6b6b;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .trackPageWrapper {
+        left: 200px;
+    }
+    
+    .trackLoading,
+    .trackError {
+        left: 200px;
+    }
+    
+    .trackHeaderSection {
+        padding: 0 30px 24px;
+        min-height: 320px;
+    }
+    
+    .trackBodySection {
+        padding: 24px 30px 50px;
+    }
+    
+    .trackImage {
+        width: 220px;
+        height: 220px;
+    }
+    
+    .trackTitle {
+        font-size: clamp(2rem, 5vw, 3.5rem);
+    }
+    
+    .bodyLayout {
+        gap: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .trackPageWrapper {
+        left: 0;
+    }
+    
+    .trackLoading,
+    .trackError {
+        left: 0;
+    }
+    
+    .trackHeaderSection {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 0 24px 24px;
+        min-height: 280px;
+    }
+    
+    .trackImageContainer {
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+    
+    .trackBodySection {
+        padding: 24px 24px 40px;
+        flex: 1;
+    }
+    
+    .trackImage {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .trackTitle {
+        font-size: clamp(1.8rem, 6vw, 2.8rem);
+    }
+    
+    .playButton {
+        width: 56px;
+        height: 56px;
+    }
+    
+    /* Stack layout on mobile */
+    .bodyLayout {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .leftSide {
+        gap: 24px;
+    }
+    
+    .rightSide {
+        height: auto;
+    }
+    
+    .commentsSection {
+        height: auto;
+        min-height: 300px;
+    }
+    
+    .statsGrid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .detailsGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .trackHeaderSection {
+        padding: 0 16px 20px;
+        min-height: 250px;
+    }
+    
+    .trackBodySection {
+        padding: 20px 16px 30px;
+    }
+    
+    .trackImage {
+        width: 180px;
+        height: 180px;
+    }
+    
+    .trackTitle {
+        font-size: clamp(1.5rem, 7vw, 2.2rem);
+    }
+    
+    .playButton {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .likeButton, .moreButton {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .commentsPlaceholder {
+        padding: 30px 20px;
+    }
+}
