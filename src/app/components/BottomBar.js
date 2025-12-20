@@ -664,6 +664,8 @@ const BottomBar = forwardRef((props, ref) => {
     const togglePlay = () => {
         if (!nowPlaying.current) return;
         const player = playerRef.current;
+        const isRecording = player.isRecording;
+        if (isRecording) return;
         if (player.paused) {
             player.play();
             setIsPlaying(true);
@@ -671,6 +673,25 @@ const BottomBar = forwardRef((props, ref) => {
             saveProgress();
             player.pause();
             setIsPlaying(false);
+        }
+    };
+
+    const pause = () => {
+        if (!nowPlaying.current) return;
+        const player = playerRef.current;
+        if (!player.paused) {
+            saveProgress();
+            player.pause();
+            setIsPlaying(false);
+        }
+    };
+
+    const resume = () => {
+        if (!nowPlaying.current) return;
+        const player = playerRef.current;
+        if (player.paused) {
+            player.play();
+            setIsPlaying(true);
         }
     };
 
@@ -734,6 +755,7 @@ const BottomBar = forwardRef((props, ref) => {
     }
 
     const shuffleTracks = async () => {
+        console.log(playlistPlaying)
         if (playlistPlaying) {
             const tracks = playlistPlaying.tracks;
             const idxPlaying = playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id);
@@ -759,8 +781,12 @@ const BottomBar = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         play,
+        pause,
+        resume,
         fetchLyrics,
-        shuffleTracks
+        shuffleTracks,
+        togglePlay,
+        playerRef
     }));
 
     return (
@@ -776,9 +802,12 @@ const BottomBar = forwardRef((props, ref) => {
                 </div> 
                 <div className={style["song-detail2"]}>
                     <div className={style["mini-song-name"]}>
-                        <div className={clsx(style["bold-text"], style["no-select"])}>
+                        <Link 
+                            href={`/track/${nowPlaying.current._id}`}
+                            className={clsx(style["bold-text"], style["no-select"])}
+                        >
                             {nowPlaying.current.title}
-                        </div>  
+                        </Link>  
                     </div>
                     <Link 
                         /* Logic: Nếu có owner ID thì link tới đó, không thì link # */
@@ -1101,6 +1130,7 @@ const BottomBar = forwardRef((props, ref) => {
                             const base = list || [];
                             const currIdx = base.findIndex(t => t?._id === nowPlaying.current?._id);
                             const upNext = currIdx >= 0 ? base.slice(currIdx + 1) : base;
+                            // console.log(upNext)
                             return upNext.length > 0 ? (
                                 upNext.map((track, idx) => (
                                     <div key={track._id || idx} className={style["queueListItem"]} onClick={async () => {

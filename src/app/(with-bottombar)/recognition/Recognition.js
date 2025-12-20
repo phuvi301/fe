@@ -3,6 +3,7 @@ import styles from './recognition.module.css';
 import Image from 'next/image';
 import axios from 'axios';
 import { useBottomBar } from '~/context/BottombarContext';
+import { Key } from 'lucide-react';
 
 const MusicRecognitionModal = ({ onClose }) => {
     const [isRecording, setIsRecording] = useState(false);
@@ -17,7 +18,6 @@ const MusicRecognitionModal = ({ onClose }) => {
     // --- Logic API (Giữ nguyên) ---
     const callRecognitionAPI = async (blob) => {
         if (!blob || blob.size === 0) {
-            console.log("f")
             return "Failed";
         }
 
@@ -61,6 +61,10 @@ const MusicRecognitionModal = ({ onClose }) => {
     let chunks = [];
 
     const startRecording = async () => {
+        if (!bottomBarRef.current.playerRef.current.paused) {
+            bottomBarRef.current.togglePlay();
+        }
+        bottomBarRef.current.playerRef.current.isRecording = true;
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             mediaRecorderRef.current = new MediaRecorder(stream);
@@ -98,6 +102,7 @@ const MusicRecognitionModal = ({ onClose }) => {
     };
 
     const stopRecording = () => {
+        bottomBarRef.current.playerRef.current.isRecording = false;
         setIsRecording(false);
         timerRef.current = 0;
         chunks = [];
@@ -109,6 +114,7 @@ const MusicRecognitionModal = ({ onClose }) => {
     };
 
     const toggleTrack = async (_id) => {
+        console.log(foundSongs)
         await bottomBarRef.current.play(_id);
     };
 
@@ -149,13 +155,12 @@ const MusicRecognitionModal = ({ onClose }) => {
                 </p>
                 ) : (
                 foundSongs.map((song) => (
-                    <div key={song.id} className={styles.songItem} onClick={() => toggleTrack(song._id)}>
+                    <div key={song.id} className={styles.songItem} onClick={() => toggleTrack(song.id)}>
                         <img src={song.image} alt="Art" className={styles.songImg} />
                         <div className={styles.songInfo}>
                             <span className={styles.songTitle}>{song.title}</span>
                             <span className={styles.songArtist}>{song.artist}</span>
                         </div>
-                        <div className={styles.playIcon}>▶</div>
                     </div>
                 ))
                 )}

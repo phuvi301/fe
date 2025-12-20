@@ -5,8 +5,8 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import { useBottomBar } from "~/context/BottombarContext";
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function Home() {
   const { bottomBarRef } = useBottomBar();

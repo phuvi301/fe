@@ -122,7 +122,7 @@ export default function Upload() {
         try {
             const accessToken = getAccessToken();
             if (!accessToken) {
-                alert('Bạn cần đăng nhập để tải lên bài hát.');
+                alert('You need to login.');
                 return;
             }
             // ⚠️ QUAN TRỌNG: Phải thêm "/upload" vào cuối đường dẫn
