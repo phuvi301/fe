@@ -17,6 +17,8 @@ export default function ArtistPage() {
     const [artistData, setArtistData] = useState(null);
     const [tracks, setTracks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [followLoading, setFollowLoading] = useState(false);
 
     const enrichTrackDurations = async (items) => {
         const fetchDuration = (track) => {
@@ -57,6 +59,103 @@ export default function ArtistPage() {
         return enriched;
     };
 
+    // Check follow status
+    const checkFollowStatus = async () => {
+        try {
+            const token = document.cookie.split('accessToken=')[1]?.split(';')[0];
+            if (!token) {
+                return;
+            }
+
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/follow/${id}/follow-status`, {
+                headers: { token: `Bearer ${token}` }
+            });
+            setIsFollowing(response.data.data.isFollowing);
+        } catch (error) {
+            console.error("Error checking follow status:", error.response?.status, error.response?.data || error.message);
+        }
+    };
+
+    // Handle follow/unfollow
+    const handleFollowToggle = async () => {
+        try {
+            setFollowLoading(true);
+            const token = document.cookie.split('accessToken=')[1]?.split(';')[0];
+            if (!token) {
+                alert("Please login to follow artists");
+                return;
+            }
+            
+            if (isFollowing) {
+                // Unfollow
+                await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/follow/${id}/follow`, {
+                    headers: { token: `Bearer ${token}` }
+                });
+                setIsFollowing(false);
+                
+                setArtistData(prev => ({
+                    ...prev,
+                    followerCount: Math.max((prev.followerCount || 0) - 1, 0)
+                }));
+
+                setTimeout(async () => {
+                    try {
+                        const refreshRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}/artist-profile`);
+                        setArtistData(prev => ({
+                            ...prev,
+                            followerCount: refreshRes.data.artist.followerCount || 0
+                        }));
+                    } catch (error) {
+                        console.error("Failed to refresh artist data:", error);
+                    }
+                }, 500);
+
+            } else {
+                // Follow
+                await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/follow/${id}/follow`, {}, {
+                    headers: { token: `Bearer ${token}` }
+                });
+                setIsFollowing(true);
+                
+                setArtistData(prev => ({
+                    ...prev,
+                    followerCount: (prev.followerCount || 0) + 1
+                }));
+
+                setTimeout(async () => {
+                    try {
+                        const refreshRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}/artist-profile`);
+                        setArtistData(prev => ({
+                            ...prev,
+                            followerCount: refreshRes.data.artist.followerCount || 0
+                        }));
+                    } catch (error) {
+                        console.error("Failed to refresh artist data:", error);
+                    }
+                }, 500);
+            }
+        } catch (error) {
+            console.error("Error toggling follow:", error.response?.data || error.message);
+            alert("Failed to update follow status");
+        } finally {
+            setFollowLoading(false);
+        }
+    };
+
+    // Format numbers
+    const formatNumber = (num) => {
+        return new Intl.NumberFormat('vi-VN').format(num);
+    };
+
+    // Format duration
+    const formatDuration = (seconds) => {
+        const total = Number(seconds);
+        if (!Number.isFinite(total) || total <= 0) return "--:--";
+        const min = Math.floor(total / 60);
+        const sec = Math.floor(total % 60);
+        return `${min}:${sec < 10 ? '0' + sec : sec}`;
+    };
+
     // Fetch dữ liệu từ Backend
     useEffect(() => {
         let active = true;
@@ -69,6 +168,9 @@ export default function ArtistPage() {
                 const enriched = await enrichTrackDurations(res.data.tracks || []);
                 if (!active) return;
                 setTracks(enriched);
+                
+                // Check follow status after fetching artist data
+                await checkFollowStatus();
             } catch (error) {
                 console.error("Failed to fetch artist profile", error);
             } finally {
@@ -104,18 +206,6 @@ export default function ArtistPage() {
         await bottomBarRef.current.play(songId, artistPlaylistId, idx, tracks);
     };
 
-    const formatDuration = (seconds) => {
-        const total = Number(seconds);
-        if (!Number.isFinite(total) || total <= 0) return "--:--";
-        const min = Math.floor(total / 60);
-        const sec = Math.floor(total % 60);
-        return `${min}:${sec < 10 ? '0' + sec : sec}`;
-    };
-
-    const formatNumber = (num) => {
-        return new Intl.NumberFormat('vi-VN').format(num);
-    };
-
     if (loading) return <div className={style.artistLoading}>Loading...</div>;
     if (!artistData) return <div className={style.artistError}>Artist not found</div>;
 
@@ -134,7 +224,13 @@ export default function ArtistPage() {
                             <span>Verified Artist</span>
                         </div>
                         <h2 className={style.artistNameLarge}>{artistData.name}</h2>
-                        <p className={style.monthlyListeners}>{formatNumber(artistData.totalPlays)} listeners</p>
+                        <div className={style.artistStats}>
+                            <p className={style.monthlyListeners}>{formatNumber(artistData.totalPlays)} listeners</p>
+                            <span className={style.statsDot}>•</span>
+                            <p className={style.followerCount}>
+                                {formatNumber(artistData.followerCount || 0)} followers
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -144,8 +240,15 @@ export default function ArtistPage() {
                         <button className={style.btnPlayBig} onClick={() => tracks.length > 0 && handlePlayTrack()}>
                             <img src="/play.png" alt="Play" />
                         </button>
-                        <button className={style.btnFollow}>Following</button>
-                            <button className={style.btnMore}>•••</button>
+                        <button 
+                            className={clsx(style.btnFollow, isFollowing && style.following)} 
+                            onClick={handleFollowToggle}
+                            disabled={followLoading}
+                            key={`follow-btn-${isFollowing}-${artistData?.followerCount}`}
+                        >
+                            {followLoading ? "Loading..." : isFollowing ? "Following" : "Follow"}
+                        </button>
+                        <button className={style.btnMore}>•••</button>
                     </div>
 
                     <h2 className={style.sectionTitle}>Popular Songs</h2>

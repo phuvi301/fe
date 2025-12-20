@@ -100,10 +100,32 @@
 
 .monthlyListeners {
     font-size: 1.05rem;
-    margin-top: 20px;
+    margin: 0;
     font-weight: 400;
     opacity: 0.85;
     letter-spacing: 0.01em;
+}
+
+.artistStats {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.followerCount {
+    font-size: 1.05rem;
+    margin: 0;
+    font-weight: 400;
+    opacity: 0.85;
+    letter-spacing: 0.01em;
+}
+
+.statsDot {
+    color: #b3b3b3;
+    font-weight: bold;
+    font-size: 0.8rem;
+    opacity: 0.6;
 }
 
 /* Body Section */
@@ -169,6 +191,75 @@
     border-color: white;
     transform: scale(1.05);
     background: rgba(255,255,255,0.05);
+}
+
+.btnFollow:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btnFollow.following {
+    background: #0066db;
+    border-color: #0066db;
+    color: transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.btnFollow.following::before {
+    content: "FOLLOWING";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0066db;
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: opacity 0.2s ease;
+    opacity: 1;
+}
+
+.btnFollow.following::after {
+    content: "UNFOLLOW";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.05);
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: opacity 0.2s ease;
+    opacity: 0;
+}
+
+.btnFollow.following:hover::before {
+    opacity: 0;
+}
+
+.btnFollow.following:hover::after {
+    opacity: 1;
+}
+
+.btnFollow.following:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: white;
+    color: transparent;
+    transform: scale(1.05);
 }
 
 .btnMore {
