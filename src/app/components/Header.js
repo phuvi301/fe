@@ -251,7 +251,7 @@ export default function Header() {
 											))
 										) : (
 											<div className={style["no-notifications"]}>
-												<p>Không có thông báo mới</p>
+												<p>Empty</p>
 											</div>
 										)}
 									</div>

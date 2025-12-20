@@ -60,7 +60,7 @@ export function BottomBarProvider({ children }) {
                 },
                 withCredentials: true,
             });
-            return res.data.data || [];
+            return [nowPlaying.current, ...res.data.data] || [];
         } catch (err) {
             console.error("Can't get recommended playlist", err);
             return [];
