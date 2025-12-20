@@ -1,15 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import axios from 'axios';
-import Image from 'next/image';
-import { useBottomBar } from '~/context/BottombarContext';
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import axios from "axios";
+import Image from "next/image";
+import { useBottomBar } from "~/context/BottombarContext";
 import Sidebar from "../../../components/Sidebar";
-import Header from '../../../components/Header';
-import clsx from 'clsx';
+import Header from "../../../components/Header";
+import clsx from "clsx";
 import layout from "~/app/homepage.module.scss";
 import style from "./track.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronDown, faPaperPlane, faThumbsUp, faTrashCan, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
+
+const DEFAULT_AVATAR = "/avatar-default.svg"
 
 export default function TrackPage() {
     const { id } = useParams();
@@ -18,13 +22,14 @@ export default function TrackPage() {
     const [trackData, setTrackData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isLiked, setIsLiked] = useState(false);
+    const [commentText, setCommentText] = useState("");
 
     useEffect(() => {
         const fetchTrackData = async () => {
             try {
                 const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${id}`);
                 setTrackData(res.data.data);
-                
+
                 // TODO: Fetch like status từ API khi có API like
             } catch (error) {
                 console.error("Failed to fetch track data", error);
@@ -55,12 +60,12 @@ export default function TrackPage() {
     const handleLikeToggle = async () => {
         try {
             // TODO: Implement API call để like/unlike khi có API
-            
+
             // Temporary toggle for UI demonstration
             setIsLiked(!isLiked);
-            setTrackData(prev => ({
+            setTrackData((prev) => ({
                 ...prev,
-                likeCount: isLiked ? (prev.likeCount || 1) - 1 : (prev.likeCount || 0) + 1
+                likeCount: isLiked ? (prev.likeCount || 1) - 1 : (prev.likeCount || 0) + 1,
             }));
         } catch (error) {
             console.error("Failed to toggle like", error);
@@ -80,12 +85,12 @@ export default function TrackPage() {
         if (!Number.isFinite(total) || total <= 0) return "--:--";
         const min = Math.floor(total / 60);
         const sec = Math.floor(total % 60);
-        return `${min}:${sec < 10 ? '0' + sec : sec}`;
+        return `${min}:${sec < 10 ? "0" + sec : sec}`;
     };
 
     // Format số
     const formatNumber = (num) => {
-        return new Intl.NumberFormat('vi-VN').format(num);
+        return new Intl.NumberFormat("vi-VN").format(num);
     };
 
     if (loading) {
@@ -118,7 +123,7 @@ export default function TrackPage() {
         <div className={layout.background}>
             <Header />
             <Sidebar />
-            
+
             <div className={style.trackPageWrapper}>
                 {/* Main Layout */}
                 <div className={style.pageLayout}>
@@ -127,11 +132,7 @@ export default function TrackPage() {
                         {/* Track Header Section */}
                         <div className={style.trackHeaderSection}>
                             <div className={style.trackImageContainer}>
-                                <img 
-                                    src={trackData.thumbnailUrl} 
-                                    alt={trackData.title}
-                                    className={style.trackImage}
-                                />
+                                <img src={trackData.thumbnailUrl} alt={trackData.title} className={style.trackImage} />
                             </div>
 
                             <div className={style.trackInfoContainer}>
@@ -139,26 +140,21 @@ export default function TrackPage() {
                                 <h1 className={style.trackTitle}>{trackData.title}</h1>
                                 <div className={style.trackMeta}>
                                     <div className={style.artistContainer}>
-                                        <img 
+                                        <img
                                             src={trackData.owner?.thumbnailUrl || trackData.thumbnailUrl}
-                                            alt={trackData.owner?.nickname || trackData.owner?.username || 'Artist'}
+                                            alt={trackData.owner?.nickname || trackData.owner?.username || "Artist"}
                                             className={style.smallArtistAvatar}
                                         />
-                                        <span 
-                                            className={style.artistLink}
-                                            onClick={goToArtist}
-                                        >
-                                            {trackData.owner?.nickname || trackData.owner?.username || 'Unknown Artist'}
+                                        <span className={style.artistLink} onClick={goToArtist}>
+                                            {trackData.owner?.nickname || trackData.owner?.username || "Unknown Artist"}
                                         </span>
                                     </div>
                                     <span className={style.metaDot}>•</span>
                                     <span className={style.trackYear}>
-                                        {trackData.createdAt ? new Date(trackData.createdAt).getFullYear() : 'Unknown'}
+                                        {trackData.createdAt ? new Date(trackData.createdAt).getFullYear() : "Unknown"}
                                     </span>
                                     <span className={style.metaDot}>•</span>
-                                    <span className={style.trackDuration}>
-                                        {formatDuration(trackData.duration)}
-                                    </span>
+                                    <span className={style.trackDuration}>{formatDuration(trackData.duration)}</span>
                                 </div>
                                 {/* Track Stats */}
                                 <div className={style.trackStats}>
@@ -184,49 +180,44 @@ export default function TrackPage() {
                             {/* Track Controls */}
                             <div className={style.trackControlsSection}>
                                 <div className={style.controlsWrapper}>
-                                    <button 
-                                        className={clsx(style.playButton, isCurrentTrack && isPlaying && style.playing)} 
+                                    <button
+                                        className={clsx(style.playButton, isCurrentTrack && isPlaying && style.playing)}
                                         onClick={handlePlayPause}
                                     >
-                                        <img 
-                                            src={isCurrentTrack && isPlaying ? "/pause.png" : "/play.png"} 
+                                        <img
+                                            src={isCurrentTrack && isPlaying ? "/pause.png" : "/play.png"}
                                             alt={isCurrentTrack && isPlaying ? "Pause" : "Play"}
                                         />
                                     </button>
 
-                                    <button 
-                                        className={clsx(style.likeButton, isLiked && style.liked)} 
+                                    <button
+                                        className={clsx(style.likeButton, isLiked && style.liked)}
                                         onClick={handleLikeToggle}
                                     >
-                                        <img 
-                                            src={isLiked ? "/like_colored.png" : "/like.png"} 
+                                        <img
+                                            src={isLiked ? "/like_colored.png" : "/like.png"}
                                             alt="Like"
                                             width={20}
                                             height={20}
                                         />
                                     </button>
 
-                                    <button className={style.moreButton}>
-                                        •••
-                                    </button>
+                                    <button className={style.moreButton}>•••</button>
                                 </div>
                             </div>
 
                             {/* Artist Info */}
                             <div className={style.artistInfoSection}>
-                                <div 
-                                    className={style.artistCard}
-                                    onClick={goToArtist}
-                                >
-                                    <img 
+                                <div className={style.artistCard} onClick={goToArtist}>
+                                    <img
                                         src={trackData.owner?.thumbnailUrl || trackData.thumbnailUrl}
-                                        alt={trackData.owner?.nickname || trackData.owner?.username || 'Artist'}
+                                        alt={trackData.owner?.nickname || trackData.owner?.username || "Artist"}
                                         className={style.artistAvatar}
                                     />
                                     <div className={style.artistInfo}>
                                         <div className={style.artistLabel}>Artist</div>
                                         <h3 className={style.artistName}>
-                                            {trackData.owner?.nickname || trackData.owner?.username || 'Unknown Artist'}
+                                            {trackData.owner?.nickname || trackData.owner?.username || "Unknown Artist"}
                                         </h3>
                                     </div>
                                 </div>
@@ -239,12 +230,54 @@ export default function TrackPage() {
                         <div className={style.commentsSection}>
                             <div className={style.commentsHeader}>
                                 <h3 className={style.commentsTitle}>Comments</h3>
-                                <span className={style.commentsCount}>0 comments</span>
+                                <span className={style.commentsCount}>73 comments</span>
                             </div>
-                            
-                            <div className={style.commentsPlaceholder}>
-                                <h4>No comments yet</h4>
-                                <p>Be the first to share what you think!</p>
+
+                            {/* Scrollable Comment List */}
+                            <div className={style.commentListWrapper}>
+                                <BlockComment />
+                            </div>
+
+                            {/* 3. Bottom Input Bar */}
+                            <div className={style.bottomBar}>
+                                <img src="/default_avatar.png" className={style.inputAvatar} alt="me" />
+
+                                <div className={style.inputContainer}>
+                                    <input
+                                        type="text"
+                                        placeholder="Add a comment..."
+                                        className={style.textInput}
+                                        value={commentText}
+                                        onChange={(e) => setCommentText(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter" && commentText.trim()) {
+                                                console.log("Submitting:", commentText);
+                                                setCommentText("");
+                                            }
+                                        }}
+                                    />
+                                    <div className={style.inputActions}>
+                                        {commentText.length > 0 && (
+                                            <button
+                                                className={style.inputBtn}
+                                                onClick={() => setCommentText("")}
+                                                title="Clear"
+                                            >
+                                                <FontAwesomeIcon icon={faXmarkCircle} />
+                                            </button>
+                                        )}
+
+                                        {commentText.trim().length > 0 && (
+                                            <button
+                                                className={clsx(style.inputBtn, style.sendBtn)}
+                                                title="Submit"
+                                                onClick={() => setCommentText("")}
+                                            >
+                                                <FontAwesomeIcon icon={faPaperPlane} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -253,3 +286,80 @@ export default function TrackPage() {
         </div>
     );
 }
+
+const BlockComment = () => {
+    return (
+        <div className={style.thread}>
+            <MainComment />
+
+            <div className={style.repliesContainer}>
+                <RepliedComment />
+
+                <div className={style.repliesLevel2}>
+                    <RepliedComment />
+                    <RepliedComment />
+                </div>
+
+                <div className={style.expandWrapper}>
+                    <button className={style.expandBtn}>
+                        <FontAwesomeIcon icon={faChevronDown} className={style.iconBlue} />
+                        Ấn phản hồi
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const MainComment = ({ username, thumbnailUrl, timeline, content, likeCount }) => {
+    return (
+        <div className={style.parentComment}>
+            <img src={thumbnailUrl || DEFAULT_AVATAR} className={style.avatar} alt="user" />
+
+            <div className={style.commentBody}>
+                <div className={style.commentMeta}>
+                    <span className={style.username}>{username}</span>
+                    <span className={style.timestamp}>{timeline}</span>
+                    <button className={style.deleteBtn} title="Delete">
+                        <FontAwesomeIcon icon={faTrashCan} />
+                    </button>
+                </div>
+                <div className={style.commentText}>{content}</div>
+                <div className={style.toolbar}>
+                    <button className={style.toolbarBtn}>
+                        <FontAwesomeIcon icon={faThumbsUp} />
+                    </button>
+                    <span className={style.likeCount}>{likeCount}</span>
+                    <button className={style.replyTextBtn}>Phản hồi</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const RepliedComment = () => {
+    return (
+        <div className={style.replyRow}>
+            <img src="/default_avatar.png" className={style.avatarSmall} alt="user" />
+            <div className={style.commentBody}>
+                <div className={style.commentMeta}>
+                    <span className={style.username}>@Tuoutudong</span>
+                    <span className={style.timestamp}>6 tháng trước</span>
+                    <button className={style.deleteBtn} title="Delete">
+                        <FontAwesomeIcon icon={faTrashCan} />
+                    </button>
+                </div>
+                <div className={style.commentText}>
+                    <span className={style.mentionLink}>@huule5146</span> tục mà có duyên...
+                </div>
+                <div className={style.toolbar}>
+                    <button className={style.toolbarBtn}>
+                        <FontAwesomeIcon icon={faThumbsUp} />
+                    </button>
+                    <span className={style.likeCount}>3</span>
+                    <button className={style.replyTextBtn}>Phản hồi</button>
+                </div>
+            </div>
+        </div>
+    );
+};
