@@ -12,7 +12,25 @@ import { useImageColors } from "../hooks/useImageColors";
 import { usePathname } from 'next/navigation';
 
 const BottomBar = forwardRef((props, ref) => {
-    const { nowPlaying, playback, url, setUrl, recommendPlaylist, getTrack, playlistPlaying, setCurrTrack, shufflePlaylist, setShufflePlaylist, handlePlaylist, repeatMode, setRepeatMode, volume, setVolume, showQueue, setShowQueue } = useBottomBar();
+    const { 
+        nowPlaying, 
+        playback, 
+        url, 
+        setUrl, 
+        recommendPlaylist, 
+        getTrack, 
+        playlistPlaying, 
+        setCurrTrack, 
+        shufflePlaylist, 
+        setShufflePlaylist, 
+        handlePlaylist, 
+        repeatMode, 
+        setRepeatMode, 
+        volume, 
+        setVolume, 
+        showQueue, 
+        setShowQueue,
+    } = useBottomBar();
 
     const playerRef = useRef(null);
     const hlsRef = useRef(null);
@@ -445,7 +463,6 @@ const BottomBar = forwardRef((props, ref) => {
     const increasePlayCount = async () => {
         try {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${nowPlaying.current._id}/playCount`);
-            console.log(res.data.message);
         } catch(err) {
             console.error("Track has not gotten any playCount!", err);
         } 
@@ -731,7 +748,6 @@ const BottomBar = forwardRef((props, ref) => {
     }
 
     const shuffleTracks = async () => {
-        console.log(playlistPlaying)
         if (playlistPlaying) {
             const tracks = playlistPlaying.tracks;
             const idxPlaying = playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id);
@@ -1079,7 +1095,17 @@ const BottomBar = forwardRef((props, ref) => {
                             <div className={style["queuePlayingRow"]}>
                                 <img src={nowPlaying.current.thumbnailUrl || '/background.jpg'} className={style["queueThumb"]} alt="thumb" />
                                 <div className={style["queueMeta"]}>
-                                    <div className={style["queueTrackTitle"]} title={nowPlaying.current.title}>{nowPlaying.current.title}</div>
+                                    <Link 
+                                        href={nowPlaying.current._id ? `/track/${nowPlaying.current._id}` : "#"} 
+                                        className={style["queueTrackTitle"]} 
+                                        title={nowPlaying.current.title}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (!nowPlaying.current._id) e.preventDefault();
+                                        }}
+                                    >
+                                        {nowPlaying.current.title}
+                                    </Link>
                                     <Link 
                                         href={artistId ? `/artist/${artistId}` : "#"} 
                                         className={style["queueTrackArtist"]} 
@@ -1106,7 +1132,6 @@ const BottomBar = forwardRef((props, ref) => {
                             const base = list || [];
                             const currIdx = base.findIndex(t => t?._id === nowPlaying.current?._id);
                             const upNext = currIdx >= 0 ? base.slice(currIdx + 1) : base;
-                            // console.log(upNext)
                             return upNext.length > 0 ? (
                                 upNext.map((track, idx) => (
                                     <div key={track._id || idx} className={style["queueListItem"]} onClick={async () => {
@@ -1123,12 +1148,23 @@ const BottomBar = forwardRef((props, ref) => {
                                         {/* Thông tin nhạc */}
                                         <img src={track?.thumbnailUrl || '/background.jpg'} className={style["queueThumbSmall"]} alt="thumb" />
                                         <div className={style["queueMeta"]}>
-                                            <div className={style["queueTrackTitle"]} title={track?.title}>{track?.title}</div>
+                                            <Link 
+                                                href={track?._id ? `/track/${track._id}` : "#"} 
+                                                className={style["queueTrackTitle"]} 
+                                                title={track?.title}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (!track?._id) e.preventDefault();
+                                                }}
+                                            >
+                                                {track?.title}
+                                            </Link>
                                             <Link 
                                                 href={getOwnerId(track) ? `/artist/${getOwnerId(track)}` : "#"} 
                                                 className={style["queueTrackArtist"]} 
                                                 title={track?.artist}
                                                 onClick={(e) => {
+                                                    e.stopPropagation();
                                                     if (!getOwnerId(track)) e.preventDefault();
                                                 }}
                                             >
