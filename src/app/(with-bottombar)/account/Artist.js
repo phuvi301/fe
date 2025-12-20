@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { useBottomBar } from "~/context/BottombarContext";
 import styles from "./Account.module.css";
+import ConfirmModal from "~/app/components/ConfirmModal";
 import Image from "next/image";
 import axios from "axios";
 
@@ -11,6 +12,8 @@ import axios from "axios";
 function Artist() {
     const [uploadedSongs, setUploadedSongs] = useState([]);
     const [userInfo, setUserInfo] = useState(null);
+    const [deleteTrackId, setDeleteTrackId] = useState(null);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const { bottomBarRef } = useBottomBar();
 
     const toggleTrack = async (trackId) => {
@@ -28,7 +31,6 @@ function Artist() {
     };
 
     const handleDeleteTrack = async (trackId) => {
-        if(!confirm("Are you sure you want to delete this track?")) return;
         try {
             await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${trackId}`, {
                 headers: {
@@ -40,6 +42,9 @@ function Artist() {
             fetchTracks(userInfo);
         } catch (err) {
             console.error("Lỗi khi xóa bài hát:", err);
+        } finally {
+            setDeleteTrackId(null);
+            setIsConfirmOpen(false);
         }
     };
 
@@ -91,13 +96,30 @@ function Artist() {
                                 <button className={styles["personal-upload-item-play-btn"]}>
                                     <FontAwesomeIcon icon={faPlay} />
                                 </button>
-                                <button className={styles["personal-upload-item-delete-btn"] } onClick={(e) => { e.stopPropagation(); handleDeleteTrack(track._id); }}>
+                                <button
+                                    className={styles["personal-upload-item-delete-btn"]}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        // handleDeleteTrack(track._id);
+                                        setDeleteTrackId(track._id);
+                                        setIsConfirmOpen(true);
+                                    }}>
                                     <FontAwesomeIcon icon={faTrash} />
                                 </button>
                             </div>
                             <span className={styles["personal-upload-item-name"]}>{track.title}</span>
                         </div>
                     ))}
+                    <ConfirmModal
+                        isOpen={isConfirmOpen && !!deleteTrackId}
+                        onClose={() => { // Đóng khi bấm Hủy
+                            setDeleteTrackId(null);
+                            setIsConfirmOpen(false)}
+                        }                     
+                        onConfirm={() => handleDeleteTrack(deleteTrackId)}    // Chạy hàm xóa khi bấm Yes     
+                        title="Delete Track"
+                        message="Are you sure you want to delete this track? This action cannot be undone."
+                    />
                 </div>
             </div>
         </>
