@@ -1,5 +1,8 @@
 'use client';
-import { useState, useRef, useEffect, Suspense } from "react";
+
+export const dynamic = 'force-dynamic';
+
+import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useBottomBar } from "~/context/BottombarContext";
 import Image from "next/image";
@@ -64,7 +67,7 @@ export default function Search() {
             <Sidebar />
             
             <main className={clsx(layout.main)}>
-                <Suspense fallback={<div>Loading...</div>}>
+                <div>
                     <h1>Search results for: “{q}”</h1>
                     <div className={style.resultsContainer}>
                         {searchResults.map((song) => (
@@ -121,7 +124,7 @@ export default function Search() {
                             </div>
                         ))}
                     </div>
-                </Suspense>
+                </div>
             </main>
         </div>
     );
