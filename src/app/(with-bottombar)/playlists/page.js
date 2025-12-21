@@ -12,6 +12,7 @@ import { useBottomBar } from "~/context/BottombarContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsis, faL, faPencil, faXmark } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
+import ConfirmModal from "~/app/components/ConfirmModal";
 
 // --- Constants ---
 
@@ -37,6 +38,12 @@ function formatDuration(s) {
     return `${m}:${ss}`;
 }
 
+function getOwnerId(track) {
+    if (!track?.owner) return null;
+    // Nếu owner là object (đã populate), lấy _id. Nếu là chuỗi, lấy chính nó.
+    return typeof track.owner === 'object' ? track.owner._id : track.owner;
+}
+
 // --- Main Page Component ---
 
 export default function PlaylistsPage() {
@@ -51,6 +58,8 @@ export default function PlaylistsPage() {
     const [isEditPlaylistOpen, setIsEditPlaylistOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [pickerResults, setPickerResults] = useState([]);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [playlistToDelete, setPlaylistToDelete] = useState(null);
     const { bottomBarRef, shufflePlaylist } = useBottomBar();
 
     const current = useMemo(() => playlists.find((p) => p._id === selectedId) || null, [playlists, selectedId]);
@@ -138,7 +147,6 @@ export default function PlaylistsPage() {
     };
 
     const handleDeletePlaylist = async (id) => {
-        if (!confirm("Delete this playlist?")) return;
         try {
             await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${id}`, {
                 headers: {
@@ -150,6 +158,9 @@ export default function PlaylistsPage() {
             setToast({ type: "success", message: "Playlist deleted" });
         } catch {
             setToast({ type: "error", message: "Failed to delete playlist" });
+        } finally {
+            setPlaylistToDelete(null);
+            setIsConfirmOpen(false);
         }
     };
 
@@ -314,7 +325,9 @@ export default function PlaylistsPage() {
                                                     title="Delete playlist"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        handleDeletePlaylist(pl._id);
+                                                        setPlaylistToDelete(pl._id);
+                                                        setIsConfirmOpen(true);
+                                                        // handleDeletePlaylist(pl._id);
                                                     }}
                                                 >
                                                     Delete
@@ -380,7 +393,10 @@ export default function PlaylistsPage() {
                                         </button>
                                         <button
                                             className={styles.danger}
-                                            onClick={() => handleDeletePlaylist(current._id)}
+                                            onClick={() => { 
+                                                setPlaylistToDelete(current._id);
+                                                setIsConfirmOpen(true)
+                                            }}
                                         >
                                             Delete playlist
                                         </button>
@@ -413,7 +429,17 @@ export default function PlaylistsPage() {
                                                         <img src={t.thumbnailUrl} alt="" />
                                                         <span>{t.title}</span>
                                                     </td>
-                                                    <td>{t.artist}</td>
+                                                    <td>
+                                                        <Link 
+                                                            href={getOwnerId(t) ? `/artist/${getOwnerId(t)}` : "#"}
+                                                            onClick={(e) => {
+                                                                if (!getOwnerId(t)) e.preventDefault();
+                                                            }}
+                                                            className={styles.Artist}
+                                                        >
+                                                            {t.artist}
+                                                        </Link>
+                                                    </td>
                                                     <td>
                                                         {formatDuration(t.duration) === "0:0"
                                                             ? ""
@@ -442,6 +468,17 @@ export default function PlaylistsPage() {
                                 )}
                             </section>
                         )}
+                        {/* Confirm Delete Playlist Modal */}
+                        <ConfirmModal
+                            isOpen={isConfirmOpen && !!playlistToDelete}
+                            onClose={() => {  // Đóng khi bấm Hủy
+                                setPlaylistToDelete(null);
+                                setIsConfirmOpen(false);
+                            }}           
+                            onConfirm={() => handleDeletePlaylist(playlistToDelete)}    // Chạy hàm xóa khi bấm Yes
+                            title="Delete Playlist"
+                            message="Are you sure you want to delete this playlist? This action cannot be undone."
+                        />
                     </>
                 )}
             </main>
@@ -560,7 +597,16 @@ function AddSongModal({ onClose, onPick, searchTerm, setSearchTerm, results }) {
                                 <img src={t.thumbnailUrl} alt="" />
                                 <div>
                                     <div className={styles.songTitle}>{t.title}</div>
-                                    <div className={styles.songArtist}>{t.artist}</div>
+                                    <Link 
+                                        href={getOwnerId(t) ? `/artist/${getOwnerId(t)}` : "#"}
+                                        className={styles.songArtist}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (!getOwnerId(t)) e.preventDefault();
+                                        }}
+                                    >
+                                        {t.artist}
+                                    </Link>
                                 </div>
                                 {/* <span className={styles.duration}>{formatDuration(t.duration)}</span> */}
                             </button>

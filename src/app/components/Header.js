@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import style from "../homepage.module.scss";
 import axios from "axios";
-import MusicRecognitionModal from '../components/Recognition';
+import MusicRecognitionModal from '../(with-bottombar)/recognition/Recognition';
 
 export default function Header() {
 	const [searchInput, setSearchInput] = useState("");
@@ -109,6 +109,123 @@ export default function Header() {
 		}
 	};
 
+	const handleNotificationClick = async (notification) => {
+		try {
+			if (!notification || !notification._id) {
+				console.error("Invalid notification object:", notification);
+				alert("Invalid notification");
+				return;
+			}
+
+			const token = getAccessToken();
+			if (!token) {
+				console.error("No access token found");
+				alert("Please login to continue");
+				return;
+			}
+
+			const response = await axios.patch(
+				`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/${notification._id}/click`,
+				{}, 
+				{
+					headers: {
+						token: `Bearer ${token}`,
+					},
+					withCredentials: true,
+					timeout: 10000
+				}
+			);
+
+			setNotifications(prev => 
+				prev.map(notif => 
+					notif._id === notification._id 
+						? { ...notif, isRead: true }
+						: notif
+				)
+			);
+			setUnreadCount(prev => Math.max(0, prev - 1));
+
+			setShowNotifications(false);
+
+			if (response.data?.data?.redirectUrl) {
+				router.push(response.data.data.redirectUrl);
+			}
+		} catch (error) {
+			console.error("Error in handleNotificationClick:", error);
+			
+			if (notification && !notification.isRead) {
+				setNotifications(prev => 
+					prev.map(notif => 
+						notif._id === notification._id 
+							? { ...notif, isRead: true }
+							: notif
+					)
+				);
+				setUnreadCount(prev => Math.max(0, prev - 1));
+			}
+			
+			alert("Failed to open notification. Please try again.");
+		}
+	};
+
+	const deleteNotification = async (notificationId, event) => {
+		try {
+			event.preventDefault();
+			event.stopPropagation();
+
+			const token = getAccessToken();
+			if (!token) return;
+
+			await axios.delete(
+				`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/${notificationId}`,
+				{
+					headers: {
+						token: `Bearer ${token}`,
+					},
+					withCredentials: true
+				}
+			);
+
+			setNotifications(prev => prev.filter(notif => notif._id !== notificationId));
+			
+			const deletedNotification = notifications.find(notif => notif._id === notificationId);
+			if (deletedNotification && !deletedNotification.isRead) {
+				setUnreadCount(prev => Math.max(0, prev - 1));
+			}
+
+		} catch (error) {
+			console.error("Error deleting notification:", error);
+			alert("Failed to delete notification. Please try again.");
+		}
+	};
+
+	const markAllAsRead = async () => {
+		try {
+			const token = getAccessToken();
+			if (!token) return;
+
+			await axios.patch(
+				`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/mark-all-read`,
+				{},
+				{
+					headers: {
+						token: `Bearer ${token}`,
+					},
+					withCredentials: true
+				}
+			);
+
+			setNotifications(prev => 
+				prev.map(notif => ({ ...notif, isRead: true }))
+			);
+			setUnreadCount(0);
+
+		} catch (error) {
+			console.error("Error marking all as read:", error);
+			alert("Failed to mark all notifications as read. Please try again.");
+		}
+	};
+
 	const formatTimeAgo = (dateString) => {
 		const now = new Date();
 		const notificationDate = new Date(dateString);
@@ -137,7 +254,7 @@ export default function Header() {
 		}
 	}, []);
 
-	// Fetch notifications periodically
+	// Validate handleNotificationClick function
 	useEffect(() => {
 		if (loginStatus) {
 			const interval = setInterval(fetchNotifications, 30000); // Fetch every 30 seconds
@@ -223,6 +340,15 @@ export default function Header() {
 								<div className={style["notification-dropdown"]}>
 									<div className={style["notification-header"]}>
 										<h3>Notifications</h3>
+										{unreadCount > 0 && (
+											<button 
+												className={style["mark-all-read-btn"]}
+												onClick={markAllAsRead}
+												title="Mark all as read"
+											>
+												Mark all as read
+											</button>
+										)}
 									</div>
 									<div className={style["notification-list"]}>
 										{notifications.length > 0 ? (
@@ -230,12 +356,8 @@ export default function Header() {
 												<div 
 													key={notification._id} 
 													className={`${style["notification-item"]} ${!notification.isRead ? style["unread"] : ""}`}
-													onClick={() => {
-														if (!notification.isRead) {
-															markNotificationAsRead(notification._id);
-														}
-													}}
-													style={{ cursor: notification.isRead ? 'default' : 'pointer' }}
+													onClick={() => handleNotificationClick(notification)}
+													style={{ cursor: 'pointer' }}
 												>
 													<div className={style["notification-content"]}>
 														<h4 className={style["notification-title"]}>{notification.title}</h4>
@@ -244,14 +366,20 @@ export default function Header() {
 															{formatTimeAgo(notification.createdAt)}
 														</span>
 													</div>
-													{!notification.isRead && (
-														<div className={style["notification-dot"]}></div>
-													)}
+													<div className={style["notification-actions"]}>
+														<button 
+															className={style["delete-notification-btn"]}
+															onClick={(e) => deleteNotification(notification._id, e)}
+															title="Delete notification"
+														>
+															<img src="/close.png" alt="Delete" />
+														</button>
+													</div>
 												</div>
 											))
 										) : (
 											<div className={style["no-notifications"]}>
-												<p>Không có thông báo mới</p>
+												<p>Empty</p>
 											</div>
 										)}
 									</div>

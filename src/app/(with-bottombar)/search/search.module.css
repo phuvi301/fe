@@ -75,10 +75,24 @@
     transition: background-color 0.3s, box-shadow 0.3s;
 }
 
+.title {
+    color: white;
+    text-decoration: none;
+}
+
+.title h3 {
+    margin: 0;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
 .title:hover, .artist:hover {
-    text-decoration: underline;
+    text-decoration: underline !important;
     cursor: pointer;
 }
+
+
 
 
 

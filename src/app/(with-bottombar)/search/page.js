@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useBottomBar } from "~/context/BottombarContext";
 import Image from "next/image";
+import Link from "next/link";
 import layout from "~/app/homepage.module.scss"
 import style from "./search.module.css";
 import Header from "~/app/components/Header";
@@ -15,6 +16,12 @@ export default function Search() {
     const q = searchParams.get("q") || "";
     const { bottomBarRef } = useBottomBar();
     const [searchResults, setSearchResults] = useState([]);
+
+    const getOwnerId = (track) => {
+        if (!track?.owner) return null;
+        // Nếu owner là object (đã populate), lấy _id. Nếu là chuỗi, lấy chính nó.
+        return typeof track.owner === 'object' ? track.owner._id : track.owner;
+    };
 
     const toggleTrack = async (trackId) => {
         await bottomBarRef.current.play(trackId);
@@ -74,8 +81,22 @@ export default function Search() {
                                             <Image src="/play_black.png" alt="Play" width={24} height={24}/>
                                         </div>
                                         <div className={style.titleArtist}>
-                                            <h3 className={style.title}>{song.title}</h3>
-                                            <p className={style.artist}>{song.artist}</p>
+                                            <Link 
+                                                href={`/track/${song._id}`}
+                                                className={style.title}
+                                            >
+                                                <h3>{song.title}</h3>
+                                            </Link>
+                                            <Link 
+                                                /* Logic: Nếu có owner ID thì link tới đó, không thì link # */
+                                                href={getOwnerId(song) ? `/artist/${getOwnerId(song)}` : "#"} 
+                                                className={style.artist}
+                                                onClick={(e) => {
+                                                    if (!getOwnerId(song)) e.preventDefault(); 
+                                                }}
+                                            >
+                                                {song.artist}
+                                            </Link>
                                         </div>
                                     </div>
                                     <div className={style.resultItemDetails}>

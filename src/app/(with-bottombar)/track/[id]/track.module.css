@@ -1,0 +1,725 @@
+/* Track Detail Page Styles */
+.trackPageWrapper {
+    position: absolute;
+    top: var(--header-height, 9vh);
+    left: 250px;
+    right: 0;
+    bottom: var(--bottom-bar-height, 75px);
+    overflow: hidden;
+    background: transparent;
+    color: white;
+    padding: 0;
+}
+
+/* Page Layout */
+.pageLayout {
+    display: grid;
+    grid-template-columns: 1fr 0.45fr;
+    gap: 0;
+    height: 100%;
+    min-height: calc(100vh - 9vh - 75px);
+}
+
+/* LEFT SIDE */
+.leftMainSection {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background: linear-gradient(90deg, transparent 90%, rgba(255, 255, 255, 0.05) 95%, rgba(255, 255, 255, 0.1) 100%);
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+.leftMainSection::-webkit-scrollbar {
+    width: 8px;
+}
+.leftMainSection::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+.leftMainSection::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.3) 30%,
+        rgba(255, 255, 255, 0.3) 70%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+/* RIGHT SIDE */
+.rightMainSection {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0%, transparent 10%);
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Loading/Error */
+.trackLoading,
+.trackError {
+    margin-left: 250px;
+    margin-top: 80px;
+    padding: 40px;
+    color: white;
+    text-align: center;
+    font-size: 1.5rem;
+}
+.trackError {
+    color: #ff6b6b;
+}
+
+/* Header & Body */
+.trackHeaderSection {
+    height: 40vh;
+    min-height: 300px;
+    max-height: 380px;
+    background: linear-gradient(180deg, #9f9797ff 0%, #5e5e5e 50%, #3a3434ff 100%);
+    display: flex;
+    align-items: flex-end;
+    padding: 0 32px 24px;
+    position: relative;
+    width: 100%;
+    flex-shrink: 0;
+}
+.trackImageContainer {
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+    margin-right: 32px;
+}
+.trackImage {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    object-fit: cover;
+}
+.trackInfoContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 12px;
+    z-index: 10;
+    max-width: 100%;
+}
+.trackType {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #cbcbcb;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.9;
+}
+.trackTitle {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    margin: 0;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    color: white;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+    word-break: break-word;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+}
+.trackMeta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1rem;
+    color: #b3b3b3;
+    margin-top: 12px;
+    opacity: 0.85;
+}
+.artistContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.smallArtistAvatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+}
+.trackStats {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 1rem;
+    color: #b3b3b3;
+    margin-top: 8px;
+    opacity: 0.9;
+}
+.statItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.statNumber {
+    color: white;
+    font-weight: 600;
+}
+.artistLink {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+    cursor: pointer;
+}
+.artistLink:hover {
+    text-decoration: underline;
+}
+.metaDot {
+    color: #666;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+.trackYear,
+.trackDuration {
+    font-weight: 500;
+}
+
+.trackBodySection {
+    background: linear-gradient(180deg, rgb(46, 43, 43) 0%, #0e0e0e 50%);
+    padding: 24px 32px 40px;
+    flex: 1;
+}
+.artistInfoSection {
+    margin-bottom: 0;
+}
+.artistCard {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.artistCard:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+.artistAvatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.artistInfo {
+    flex: 1;
+}
+.artistLabel {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+.artistName {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    transition: text-decoration 0.2s ease;
+    cursor: pointer;
+}
+.artistName:hover {
+    text-decoration: underline;
+}
+
+.trackControlsSection {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-shrink: 0;
+    margin-bottom: 32px;
+}
+.controlsWrapper {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+.playButton {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0510e4 0%, #0465ed 100%);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(30, 36, 215, 0.3);
+}
+.playButton:hover {
+    transform: scale(1.08);
+    background: linear-gradient(135deg, #1f5cdf 0%, #2144e0 100%);
+    box-shadow: 0 12px 32px rgba(30, 49, 215, 0.4);
+}
+.playButton:active {
+    transform: scale(1.02);
+}
+.playButton.playing {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff7b7b 100%);
+    box-shadow: 0 8px 24px rgba(255, 107, 107, 0.3);
+}
+.playButton img {
+    width: 24px;
+    height: 24px;
+    filter: brightness(0);
+    margin-left: 2px;
+}
+.likeButton,
+.moreButton {
+    background: transparent;
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: bold;
+}
+.likeButton:hover,
+.moreButton:hover {
+    border-color: white;
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.05);
+}
+.likeButton img {
+    filter: brightness(0) invert(1);
+    transition: filter 0.2s ease;
+}
+.likeButton.liked {
+    border-color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
+}
+.likeButton.liked img {
+    filter: none;
+}
+
+/* COMMENTS SECTION */
+.commentsSection {
+    background: #181818;
+    border-radius: 0;
+    padding: 0;
+    border: none;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.commentsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px 30px 20px 30px;
+    flex-shrink: 0;
+}
+.commentsTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+.commentsCount {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+}
+
+/* Comment List */
+.commentListWrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 30px;
+    color: #fff;
+    font-family: Roboto, Arial, sans-serif;
+    min-height: 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+.commentListWrapper::-webkit-scrollbar {
+    width: 8px;
+}
+.commentListWrapper::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+/* COMMENT STYLES */
+.thread {
+    margin-bottom: 16px;
+}
+.parentComment {
+    display: flex;
+    flex-direction: row;
+}
+.commentBody {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.commentMeta {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    margin-bottom: 2px;
+}
+.username {
+    font-weight: 500;
+    margin-right: 4px;
+    color: #f1f1f1;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 13px;
+}
+.username:hover {
+    color: #aaa;
+}
+.timestamp {
+    color: #aaa;
+    font-weight: 400;
+    font-size: 12px;
+}
+.commentText {
+    font-size: 14px;
+    line-height: 20px;
+    margin-bottom: 4px;
+    white-space: pre-wrap;
+    color: #f1f1f1;
+}
+.mentionLink {
+    color: #3ea6ff;
+    cursor: pointer;
+    text-decoration: none;
+}
+.toolbar {
+    display: flex;
+    align-items: center;
+    color: #aaa;
+    font-size: 12px;
+    margin-top: 4px;
+}
+.toolbarBtn {
+    background: none;
+    border: none;
+    color: #f1f1f1;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+.toolbarBtn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+.toolbarIcon {
+    width: 20px;
+    height: 20px;
+    fill: #f1f1f1;
+}
+.likeCount {
+    margin-right: 8px;
+    font-size: 12px;
+    color: #aaa;
+}
+.replyTextBtn {
+    background: none;
+    border: none;
+    color: #f1f1f1;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 18px;
+    transition: background-color 0.2s;
+}
+.replyTextBtn:hover {
+    background-color: #272727;
+}
+
+.deleteBtn {
+    margin-left: 10px;
+    background: transparent;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.2s, color 0.2s;
+}
+.commentBody:hover .deleteBtn {
+    opacity: 1;
+}
+.deleteBtn:hover {
+    color: #ff6b6b;
+}
+.deleteIcon {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+}
+
+/* Avatars */
+.avatar,
+.avatarSmall {
+    border-radius: 50%;
+    margin-right: 16px;
+    object-fit: cover;
+    flex-shrink: 0;
+    display: block;
+    background-color: #2a2a2a;
+}
+.avatar {
+    width: 40px;
+    height: 40px;
+}
+.avatarSmall {
+    width: 24px;
+    height: 24px;
+}
+
+/* Indentation Classes */
+.repliesContainer {
+    margin-left: 56px;
+    margin-top: 8px;
+}
+.replyRow {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 8px;
+}
+
+/* NEW: LEVEL 2 INDENTATION */
+.repliesLevel2 {
+    margin-left: 48px; /* Extra indentation for nested replies */
+    margin-top: 8px;
+}
+
+/* Expand */
+.expandWrapper {
+    margin-top: 10px;
+}
+.expandBtn {
+    background: none;
+    border: none;
+    color: #3ea6ff;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 18px;
+    transition: background-color 0.2s;
+}
+.expandBtn:hover {
+    background-color: #263850;
+}
+.iconBlue {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+/* Bottom Input Bar */
+.bottomBar {
+    padding: 20px 30px;
+    background: #181818;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+}
+.inputAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #ab47bc;
+    object-fit: cover;
+    flex-shrink: 0;
+    margin-bottom: 4px;
+}
+.inputContainer {
+    flex: 1;
+    position: relative;
+    background: #272727;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    transition: background 0.2s;
+}
+.inputContainer:focus-within {
+    background: #3f3f3f;
+}
+.textInput {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 12px 16px;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+    padding-right: 80px;
+}
+.inputActions {
+    position: absolute;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.inputBtn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #aaa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.inputBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+.sendBtn {
+    background: #3ea6ff;
+    color: #0f0f0f;
+}
+.sendBtn:hover {
+    background: #65b8ff;
+}
+.sendBtn svg {
+    fill: currentColor;
+    width: 18px;
+    height: 18px;
+    margin-left: 2px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .trackPageWrapper,
+    .trackLoading,
+    .trackError {
+        left: 200px;
+    }
+    .trackHeaderSection {
+        padding: 0 30px 24px;
+        min-height: 320px;
+    }
+    .trackBodySection {
+        padding: 24px 30px 50px;
+    }
+    .trackImage {
+        width: 220px;
+        height: 220px;
+    }
+    .trackTitle {
+        font-size: clamp(2rem, 5vw, 3.5rem);
+    }
+}
+@media (max-width: 768px) {
+    .trackPageWrapper,
+    .trackLoading,
+    .trackError {
+        left: 0;
+    }
+    .trackHeaderSection {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 0 24px 24px;
+        min-height: 280px;
+    }
+    .trackImageContainer {
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+    .trackBodySection {
+        padding: 24px 24px 40px;
+        flex: 1;
+    }
+    .trackImage {
+        width: 200px;
+        height: 200px;
+    }
+    .trackTitle {
+        font-size: clamp(1.8rem, 6vw, 2.8rem);
+    }
+    .playButton {
+        width: 56px;
+        height: 56px;
+    }
+    .pageLayout {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    .leftMainSection {
+        height: auto;
+        overflow: visible;
+    }
+    .rightMainSection {
+        height: 100vh;
+        overflow: hidden;
+    }
+    .commentsSection {
+        height: 100%;
+        min-height: 0;
+    }
+}
+@media (max-width: 480px) {
+    .trackHeaderSection {
+        padding: 0 16px 20px;
+        min-height: 250px;
+    }
+    .trackBodySection {
+        padding: 20px 16px 30px;
+    }
+    .trackImage {
+        width: 180px;
+        height: 180px;
+    }
+    .trackTitle {
+        font-size: clamp(1.5rem, 7vw, 2.2rem);
+    }
+    .playButton {
+        width: 50px;
+        height: 50px;
+    }
+    .likeButton,
+    .moreButton {
+        width: 44px;
+        height: 44px;
+    }
+}

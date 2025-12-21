@@ -12,7 +12,7 @@ import { useImageColors } from "../hooks/useImageColors";
 import { usePathname } from 'next/navigation';
 
 const BottomBar = forwardRef((props, ref) => {
-    const { nowPlaying, playback, url, setUrl, getTrack, playlistPlaying, setCurrTrack, shufflePlaylist, setShufflePlaylist, handlePlaylist, repeatMode, setRepeatMode, volume, setVolume, showQueue, setShowQueue } = useBottomBar();
+    const { nowPlaying, playback, url, setUrl, recommendPlaylist, getTrack, playlistPlaying, setCurrTrack, shufflePlaylist, setShufflePlaylist, handlePlaylist, repeatMode, setRepeatMode, volume, setVolume, showQueue, setShowQueue } = useBottomBar();
 
     const playerRef = useRef(null);
     const hlsRef = useRef(null);
@@ -98,6 +98,8 @@ const BottomBar = forwardRef((props, ref) => {
                         token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
                     },
                 })
+                userData.likedTracks = userData.likedTracks.includes(nowPlaying.current?._id) ? userData.likedTracks.filter(trackId => trackId !== nowPlaying.current?._id) : [...userData.likedTracks, nowPlaying.current._id]
+                localStorage.setItem("userInfo", JSON.stringify(userData))
             } catch (error) {
                 console.log(error);
                 return;
@@ -129,6 +131,12 @@ const BottomBar = forwardRef((props, ref) => {
             }, 2500);
         }, 40); // 30-60ms is enough to force reflow/remount
     };
+
+    useEffect(() => {
+        const userData = JSON.parse(localStorage.getItem("userInfo"));
+        setIsLiked(userData.likedTracks.includes(nowPlaying.current?._id))
+    }, [nowPlaying.current?._id])
+
     //cleanup toast timeout on unmount
     useEffect(() => {
         return () => {
@@ -156,7 +164,6 @@ const BottomBar = forwardRef((props, ref) => {
             if (playerRef.current) playerRef.current.volume = 0;
         }
     };
-
 
     // Hàm fetch lyrics từ API hoặc file
     const fetchLyrics = async (songID) => {
@@ -526,6 +533,13 @@ const BottomBar = forwardRef((props, ref) => {
         setCurrTrack(res.track);
         handleTrack(res.url);
 
+        if (!playlistID && !tracks) {
+            // Tạo playlist ảo từ danh sách đề xuất
+            tracks = await recommendPlaylist(trackID);
+            playlistID = `recommend-${trackID}`;
+            index = 0;
+        }
+
         await handlePlaylist(playlistID, index, shufflePlaylist, tracks);
         // await handlePlaylist(playlistID, index, tracks);
         saveProgressToRedis(playlistID, index);
@@ -650,6 +664,8 @@ const BottomBar = forwardRef((props, ref) => {
     const togglePlay = () => {
         if (!nowPlaying.current) return;
         const player = playerRef.current;
+        const isRecording = player.isRecording;
+        if (isRecording) return;
         if (player.paused) {
             player.play();
             setIsPlaying(true);
@@ -657,6 +673,25 @@ const BottomBar = forwardRef((props, ref) => {
             saveProgress();
             player.pause();
             setIsPlaying(false);
+        }
+    };
+
+    const pause = () => {
+        if (!nowPlaying.current) return;
+        const player = playerRef.current;
+        if (!player.paused) {
+            saveProgress();
+            player.pause();
+            setIsPlaying(false);
+        }
+    };
+
+    const resume = () => {
+        if (!nowPlaying.current) return;
+        const player = playerRef.current;
+        if (player.paused) {
+            player.play();
+            setIsPlaying(true);
         }
     };
 
@@ -720,6 +755,7 @@ const BottomBar = forwardRef((props, ref) => {
     }
 
     const shuffleTracks = async () => {
+        console.log(playlistPlaying)
         if (playlistPlaying) {
             const tracks = playlistPlaying.tracks;
             const idxPlaying = playlistPlaying.tracks.findIndex((track) => track._id === nowPlaying.current._id);
@@ -745,8 +781,12 @@ const BottomBar = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         play,
+        pause,
+        resume,
         fetchLyrics,
-        shuffleTracks
+        shuffleTracks,
+        togglePlay,
+        playerRef
     }));
 
     return (
@@ -762,9 +802,12 @@ const BottomBar = forwardRef((props, ref) => {
                 </div> 
                 <div className={style["song-detail2"]}>
                     <div className={style["mini-song-name"]}>
-                        <div className={clsx(style["bold-text"], style["no-select"])}>
+                        <Link 
+                            href={`/track/${nowPlaying.current._id}`}
+                            className={clsx(style["bold-text"], style["no-select"])}
+                        >
                             {nowPlaying.current.title}
-                        </div>  
+                        </Link>  
                     </div>
                     <Link 
                         /* Logic: Nếu có owner ID thì link tới đó, không thì link # */
@@ -961,9 +1004,16 @@ const BottomBar = forwardRef((props, ref) => {
                             <h3 className={style["lyrics-song-title"]} style={{ color: colors.lightVibrant || '#ffffff' }}>
                                 {nowPlaying.current.title}
                             </h3>
-                            <h4 className={style["lyrics-song-artist"]}>
+                            <Link 
+                                /* Logic: Nếu có owner ID thì link tới đó, không thì link # */
+                                href={artistId ? `/artist/${artistId}` : "#"} 
+                                className={style["lyrics-song-artist"]}
+                                onClick={(e) => {
+                                    if (!artistId) e.preventDefault(); 
+                                }}
+                            >
                                 {nowPlaying.current.artist}
-                            </h4>
+                            </Link>
                         </div>
                     </div>
                 
@@ -1054,7 +1104,16 @@ const BottomBar = forwardRef((props, ref) => {
                                 <img src={nowPlaying.current.thumbnailUrl || '/background.jpg'} className={style["queueThumb"]} alt="thumb" />
                                 <div className={style["queueMeta"]}>
                                     <div className={style["queueTrackTitle"]} title={nowPlaying.current.title}>{nowPlaying.current.title}</div>
-                                    <div className={style["queueTrackArtist"]} title={nowPlaying.current.artist}>{nowPlaying.current.artist}</div>
+                                    <Link 
+                                        href={artistId ? `/artist/${artistId}` : "#"} 
+                                        className={style["queueTrackArtist"]} 
+                                        title={nowPlaying.current.artist}
+                                        onClick={(e) => {
+                                            if (!artistId) e.preventDefault(); 
+                                        }}
+                                    >
+                                        {nowPlaying.current.artist}
+                                    </Link>
                                 </div>
                             </div>
                         ) : (
@@ -1071,6 +1130,7 @@ const BottomBar = forwardRef((props, ref) => {
                             const base = list || [];
                             const currIdx = base.findIndex(t => t?._id === nowPlaying.current?._id);
                             const upNext = currIdx >= 0 ? base.slice(currIdx + 1) : base;
+                            // console.log(upNext)
                             return upNext.length > 0 ? (
                                 upNext.map((track, idx) => (
                                     <div key={track._id || idx} className={style["queueListItem"]} onClick={async () => {
@@ -1088,7 +1148,16 @@ const BottomBar = forwardRef((props, ref) => {
                                         <img src={track?.thumbnailUrl || '/background.jpg'} className={style["queueThumbSmall"]} alt="thumb" />
                                         <div className={style["queueMeta"]}>
                                             <div className={style["queueTrackTitle"]} title={track?.title}>{track?.title}</div>
-                                            <div className={style["queueTrackArtist"]} title={track?.artist}>{track?.artist}</div>
+                                            <Link 
+                                                href={getOwnerId(track) ? `/artist/${getOwnerId(track)}` : "#"} 
+                                                className={style["queueTrackArtist"]} 
+                                                title={track?.artist}
+                                                onClick={(e) => {
+                                                    if (!getOwnerId(track)) e.preventDefault();
+                                                }}
+                                            >
+                                                {track?.artist}
+                                            </Link>
                                         </div>
                                     </div>
                                 ))
