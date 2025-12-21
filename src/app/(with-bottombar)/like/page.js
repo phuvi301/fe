@@ -28,7 +28,11 @@ const Page = () => {
     };
 
     const handlePlayLikedTracks = async () => {
-        await bottomBarRef.current.play(userData?.likedTracks[0], null, 0, userData?.likedTracks);
+        const trackId = userData?.likedTracks[0]._id;
+        const likedTracks = userData?.likedTracks;
+        const playlistId = "liked-" + userData?._id;
+
+        await bottomBarRef.current.play(trackId, playlistId, 0, likedTracks);
     }
 
     useEffect(() => {
@@ -76,22 +80,22 @@ const Page = () => {
     };
 
     return (
-        <main className={clsx(layout.background)}>
+        <main className={layout.background}>
             <Header />
             <Sidebar />
-            <main>
+            <div className={styles.pageWrapper}>
                 <div className={clsx(styles["playlist-header"])}>
                     <div className={clsx(styles["playlist-cover"])}>
                         <FontAwesomeIcon className={clsx(styles["heart-icon"])} icon={faHeart} />
                     </div>
                     <div className={clsx(styles["playlist-details"])}>
                         <span className={clsx(styles["label"])}>Playlist</span>
-                        <h1>Liked Videos</h1>
+                        <h1>Liked Tracks</h1>
                         <div className={clsx(styles["meta"])}>
                             <span className={clsx(styles["username"])}>
                                 {userData?.nickname || userData?.username || "Loading"}
                             </span>{" "}
-                            • {userData?.likedTracks?.length || 0} videos
+                            • {userData?.likedTracks?.length || 0} tracks
                         </div>
                     </div>
                 </div>
@@ -124,7 +128,7 @@ const Page = () => {
                         <span className={clsx(styles["track-details"])}>Songs you like will appear here</span>
                     )}
                 </div>
-            </main>
+            </div>
         </main>
     );
 };

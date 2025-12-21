@@ -152,7 +152,7 @@ const BottomBar = forwardRef((props, ref) => {
 
     useEffect(() => {
         const userData = JSON.parse(localStorage.getItem("userInfo"));
-        setIsLiked(userData.likedTracks.includes(nowPlaying.current?._id))
+        setIsLiked(userData?.likedTracks.includes(nowPlaying.current?._id))
     }, [nowPlaying.current?._id])
 
     //cleanup toast timeout on unmount
