@@ -62,6 +62,8 @@ export function BottomBarProvider({ children }) {
                 },
                 withCredentials: true,
             });
+
+            console.log("Recommended playlist:", res.data.data);
             return [nowPlaying.current, ...res.data.data] || [];
         } catch (err) {
             console.error("Can't get recommended playlist", err);
@@ -166,7 +168,7 @@ export function BottomBarProvider({ children }) {
     const handlePlaylist = async (playlistID, index, shuffle, tracks = null) => {
         shuffleRef.current = shuffle    
 
-        if (!playlistID || playlistID.startsWith("single-track-")) {
+        if ((!playlistID && !tracks) || playlistID.startsWith("single-track-")) {
             setPlaylistPlaying(null);
             setShufflePlaylist(shuffle ? [nowPlaying.current] : null);
             playlistIDRef.current = null;
@@ -192,6 +194,17 @@ export function BottomBarProvider({ children }) {
                 setPlaylistPlaying({
                     _id: playlistID,
                     name: "Recommended tracks",
+                    tracks: tracks
+                });
+            }
+            else if (playlistID.startsWith("liked-")) {
+                if (!tracks) {
+                    const userData = JSON.parse(localStorage.getItem("userInfo"));
+                    tracks = userData?.likedTracks.map((track) => track._id)
+                }
+                setPlaylistPlaying({
+                    _id: playlistID,
+                    name: "Liked tracks",
                     tracks: tracks
                 });
             }

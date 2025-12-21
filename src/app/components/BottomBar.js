@@ -120,44 +120,23 @@ const BottomBar = forwardRef((props, ref) => {
                 toastTimeoutRef.current = null;
             }
 
-            // Force-remount the toast to restart CSS animation:
-            // hide immediately, then show again after a tiny delay.
-            setLikeToast({ show: false, message: "" });
-
-            setTimeout(() => {
+            // Optionally show a toast message if toggleLike returns one
+            if (result?.message) {
                 setLikeToast({ show: true, message: result.message });
-                // auto-hide after 2.5s
-                toastTimeoutRef.current = setTimeout(() => {
-                    setLikeToast({ show: false, message: "" });
-                    toastTimeoutRef.current = null;
-                }, 2500);
-            }, 40); // 30-60ms is enough to force reflow/remount
-        } catch (error) {
-            console.error("Failed to toggle like", error);
-            
-            // Show error toast for login requirement or other errors
-            const errorMessage = error.message === "Please log in to like tracks" 
-                ? "Please log in to like tracks" 
-                : "Failed to update like status";
-            
-            // Clear any existing timeout
-            if (toastTimeoutRef.current) {
-                clearTimeout(toastTimeoutRef.current);
-                toastTimeoutRef.current = null;
-            }
-
-            // Show error toast
-            setLikeToast({ show: false, message: "" });
-            
-            setTimeout(() => {
-                setLikeToast({ show: true, message: errorMessage });
                 toastTimeoutRef.current = setTimeout(() => {
                     setLikeToast({ show: false, message: "" });
                     toastTimeoutRef.current = null;
                 }, 3000);
-            }, 40);
+            }
+        } catch (error) {
+            console.error("Error toggling like:", error);
         }
     };
+
+    useEffect(() => {
+        const userData = JSON.parse(localStorage.getItem("userInfo"));
+        setIsLiked(userData?.likedTracks.includes(nowPlaying.current?._id))
+    }, [nowPlaying.current?._id])
 
     //cleanup toast timeout on unmount
     useEffect(() => {
