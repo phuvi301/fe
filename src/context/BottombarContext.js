@@ -18,6 +18,8 @@ export function BottomBarProvider({ children }) {
     const [repeatMode, setRepeatMode] = useState("off");
     const [volume, setVolume] = useState(0.5);
     const [showQueue, setShowQueue] = useState(false);
+    const [isLiked, setIsLiked] = useState(false);
+    const [trackLikeCount, setTrackLikeCount] = useState(0);
 
     useEffect(() => {
         if (!playlistPlaying) return;
@@ -81,6 +83,67 @@ export function BottomBarProvider({ children }) {
                 console.error("Error playing track:", error);
                 return "error"; 
             }
+        }
+    };
+
+    const toggleLike = async (trackId = null) => {
+        try {
+            const targetTrackId = trackId || nowPlaying.current?._id;
+            if (!targetTrackId) return;
+
+            const userData = JSON.parse(localStorage.getItem("userInfo") || "{}");
+            const accessToken = document.cookie.split('accessToken=')[1]?.split(';')[0];
+            
+            if (!userData._id || !accessToken) {
+                throw new Error("Please log in to like tracks");
+            }
+
+            const response = await axios.put(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/users/${userData._id}/liked-tracks/${targetTrackId}`,
+                {},
+                {
+                    headers: {
+                        token: `Bearer ${accessToken}`,
+                    },
+                    withCredentials: true,
+                }
+            );
+
+            const { isLiked: newIsLiked, likeCount } = response.data.data;
+            
+            const validLikeCount = Math.max(0, likeCount || 0);
+            
+            console.log("Toggle like response:", {
+                targetTrackId,
+                newIsLiked,
+                likeCount: validLikeCount,
+                rawLikeCount: likeCount
+            });
+            
+            if (newIsLiked) {
+                userData.likedTracks = [...(userData.likedTracks || []), targetTrackId];
+            } else {
+                userData.likedTracks = (userData.likedTracks || []).filter(id => id !== targetTrackId);
+            }
+            localStorage.setItem("userInfo", JSON.stringify(userData));
+
+            if (targetTrackId === nowPlaying.current?._id) {
+                setIsLiked(newIsLiked);
+                setTrackLikeCount(validLikeCount);
+                
+                if (nowPlaying.current) {
+                    nowPlaying.current.likeCount = validLikeCount;
+                }
+            }
+
+            return { 
+                isLiked: newIsLiked, 
+                likeCount: validLikeCount, 
+                message: newIsLiked ? "Added to Liked Tracks" : "Removed from Liked Tracks" 
+            };
+        } catch (error) {
+            console.error("Failed to toggle like", error);
+            throw error;
         }
     };
 
@@ -152,6 +215,24 @@ export function BottomBarProvider({ children }) {
     }
 
     useEffect(() => {
+        if (nowPlaying.current?._id) {
+            const userData = JSON.parse(localStorage.getItem("userInfo") || "{}");
+            const userLikedTracks = userData.likedTracks || [];
+            setIsLiked(userLikedTracks.includes(nowPlaying.current._id));
+            
+            const currentLikeCount = nowPlaying.current.likeCount || 0;
+            setTrackLikeCount(Math.max(0, currentLikeCount));
+            
+            console.log("Track changed:", {
+                trackId: nowPlaying.current._id,
+                title: nowPlaying.current.title,
+                likeCount: currentLikeCount,
+                isLiked: userLikedTracks.includes(nowPlaying.current._id)
+            });
+        }
+    }, [nowPlaying.current?._id]);
+
+    useEffect(() => {
         const loadPlayback = async () => {
             const pb = await getPlayback();
             setPlayback(pb);
@@ -189,6 +270,11 @@ export function BottomBarProvider({ children }) {
             setRepeatMode, 
             showQueue, 
             setShowQueue,
+            isLiked,
+            setIsLiked,
+            trackLikeCount,
+            setTrackLikeCount,
+            toggleLike,
         }}>
         {children}
         </BottomBarContext.Provider>

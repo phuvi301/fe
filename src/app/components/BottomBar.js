@@ -30,6 +30,10 @@ const BottomBar = forwardRef((props, ref) => {
         setVolume, 
         showQueue, 
         setShowQueue,
+        isLiked,
+        setIsLiked,
+        trackLikeCount,
+        toggleLike,
     } = useBottomBar();
 
     const playerRef = useRef(null);
@@ -67,8 +71,7 @@ const BottomBar = forwardRef((props, ref) => {
     //Volume state
     const previousVolumeRef = useRef(volume);
 
-    //Like button state
-    const [isLiked, setIsLiked] = useState(false);
+    //Like toast state
     const [likeToast, setLikeToast] = useState({show: false, message: ""});
     const toastTimeoutRef = useRef(null);
 
@@ -107,47 +110,27 @@ const BottomBar = forwardRef((props, ref) => {
     const artistId = getOwnerId(nowPlaying.current);
 
     //Toggle likes + show toast
-    const toggleLike = async () => {
-        const reqLikeTrack = async () => {
-            try {
-                const userData = JSON.parse(localStorage.getItem("userInfo"));
-                await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${userData._id}/liked-tracks/${nowPlaying.current?._id}`, {}, {
-                    headers: {
-                        token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
-                    },
-                })
-                userData.likedTracks = userData.likedTracks.includes(nowPlaying.current?._id) ? userData.likedTracks.filter(trackId => trackId !== nowPlaying.current?._id) : [...userData.likedTracks, nowPlaying.current._id]
-                localStorage.setItem("userInfo", JSON.stringify(userData))
-            } catch (error) {
-                console.log(error);
-                return;
-            }
-        }
+    const handleToggleLike = async () => {
+        try {
+            const result = await toggleLike();
 
-        await reqLikeTrack();
-
-        const newLiked = !isLiked;
-        setIsLiked(newLiked);
-
-        // Clear any existing hide timeout so we can restart the toast lifecycle
-        if (toastTimeoutRef.current) {
-            clearTimeout(toastTimeoutRef.current);
-            toastTimeoutRef.current = null;
-        }
-
-        // Force-remount the toast to restart CSS animation:
-        // hide immediately, then show again after a tiny delay.
-        setLikeToast({ show: false, message: "" });
-        const message = newLiked ? "Added to Liked Tracks" : "Removed from Liked Tracks";
-
-        setTimeout(() => {
-            setLikeToast({ show: true, message });
-            // auto-hide after 2.5s
-            toastTimeoutRef.current = setTimeout(() => {
-                setLikeToast({ show: false, message: "" });
+            // Clear any existing hide timeout so we can restart the toast lifecycle
+            if (toastTimeoutRef.current) {
+                clearTimeout(toastTimeoutRef.current);
                 toastTimeoutRef.current = null;
-            }, 2500);
-        }, 40); // 30-60ms is enough to force reflow/remount
+            }
+
+            // Optionally show a toast message if toggleLike returns one
+            if (result?.message) {
+                setLikeToast({ show: true, message: result.message });
+                toastTimeoutRef.current = setTimeout(() => {
+                    setLikeToast({ show: false, message: "" });
+                    toastTimeoutRef.current = null;
+                }, 3000);
+            }
+        } catch (error) {
+            console.error("Error toggling like:", error);
+        }
     };
 
     useEffect(() => {
@@ -837,7 +820,7 @@ const BottomBar = forwardRef((props, ref) => {
                     </Link>
                 </div>
                 <div className={style["like-btn-container"]}>
-                    <button className={style["like-btn"]} onClick={toggleLike}>
+                    <button className={style["like-btn"]} onClick={handleToggleLike}>
                         {isLiked ? (
                                 <Image
                                     src="/blue_heart.png"

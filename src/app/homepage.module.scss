@@ -483,6 +483,33 @@
     flex: 1;
     min-width: 0;
     padding-right: 10px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    margin-top: 2px;
+}
+
+.notification-icon img {
+    width: 18px;
+    height: 18px;
+    filter: brightness(0) invert(1);
+    opacity: 1;
+}
+
+.notification-text {
+    flex: 1;
+    min-width: 0;
 }
 
 .notification-actions {
