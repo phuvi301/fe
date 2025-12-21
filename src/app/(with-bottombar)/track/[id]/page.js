@@ -22,7 +22,8 @@ export default function TrackPage() {
     const [trackData, setTrackData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isLiked, setIsLiked] = useState(false);
-    const [commentText, setCommentText] = useState("");
+    const [inputValue, setInputValue] = useState("");
+    const [comments, setComments] = useState([]);
 
     useEffect(() => {
         const fetchTrackData = async () => {
@@ -91,6 +92,56 @@ export default function TrackPage() {
     // Format số
     const formatNumber = (num) => {
         return new Intl.NumberFormat("vi-VN").format(num);
+    };
+
+    const createBlockComment = async () => {
+        try {
+        // console.log(document.cookie.split("accessToken=")[1])
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/comments`, 
+            { 
+                id: id, 
+                type: "track"
+            }, 
+            {
+                headers: {
+                    token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
+                },
+            });
+        } catch(err) {
+            console.error("Error creating blockcomment", err);
+        }
+        return <BlockComment />
+    };
+
+    const handleSubmitComment = async () => {
+        const text = inputValue.trim();
+        console.log(text);
+        if (!text) return;
+
+        try {
+            const token = document.cookie.split("accessToken=")[1];
+
+            const res = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/comments`,
+                { 
+                    id: id,
+                    type: "track",
+                },
+                {
+                    headers: {
+                        token: `Bearer ${token}`
+                    }
+                }
+            );
+
+            // push comment mới vào state
+            res.comments = [text, res.comments];
+            setComments(res.comments);
+
+            setInputValue("");
+        } catch (err) {
+            console.error("Error creating comment", err);
+        }
     };
 
     if (loading) {
@@ -235,7 +286,9 @@ export default function TrackPage() {
 
                             {/* Scrollable Comment List */}
                             <div className={style.commentListWrapper}>
-                                <BlockComment />
+                                {comments.map(c => (
+                                    <BlockComment key={c._id} data={c} />
+                                ))}
                             </div>
 
                             {/* 3. Bottom Input Bar */}
@@ -246,32 +299,31 @@ export default function TrackPage() {
                                     <input
                                         type="text"
                                         placeholder="Add a comment..."
+                                        value={inputValue}
                                         className={style.textInput}
-                                        value={commentText}
-                                        onChange={(e) => setCommentText(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter" && commentText.trim()) {
-                                                console.log("Submitting:", commentText);
-                                                setCommentText("");
+                                        onChange={(e) => setInputValue(e.target.value)}
+                                        onKeyDown={async (e) => {
+                                            if (e.key === "Enter" && inputValue.trim()) {
+                                                await handleSubmitComment();
                                             }
                                         }}
                                     />
                                     <div className={style.inputActions}>
-                                        {commentText.length > 0 && (
+                                        {inputValue.length > 0 && (
                                             <button
                                                 className={style.inputBtn}
-                                                onClick={() => setCommentText("")}
+                                                onClick={() => setInputValue("")}
                                                 title="Clear"
                                             >
                                                 <FontAwesomeIcon icon={faXmarkCircle} />
                                             </button>
                                         )}
 
-                                        {commentText.trim().length > 0 && (
+                                        {inputValue.trim().length > 0 && (
                                             <button
                                                 className={clsx(style.inputBtn, style.sendBtn)}
                                                 title="Submit"
-                                                onClick={() => setCommentText("")}
+                                                onClick={() => setInputValue("")}
                                             >
                                                 <FontAwesomeIcon icon={faPaperPlane} />
                                             </button>
@@ -287,7 +339,7 @@ export default function TrackPage() {
     );
 }
 
-const BlockComment = () => {
+const BlockComment = () => {   
     return (
         <div className={style.thread}>
             <MainComment />

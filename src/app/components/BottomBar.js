@@ -457,6 +457,7 @@ const BottomBar = forwardRef((props, ref) => {
             hls.on(Hls.Events.ERROR, (event, data) => {
                 console.log('HLS error:', data);
                 if (data.details === "bufferSeekOverHole") {
+                    hls.startLoad(playerRef.current.currentTime);
                 }
                 if (data.details === "bufferStalledError") {
                     hls.startLoad(playerRef.current.currentTime);
