@@ -72,11 +72,7 @@ export function BottomBarProvider({ children }) {
             try{
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${songID}`)
                 const url = `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${response.data.data.audioUrl}`;
-                if (!url) throw "Audio URL not found";
-                            
-                console.log("Playing track:", response.data.data.title);
-                console.log("Audio URL:", url);
-                console.log("Id song:", response.data.data._id);
+                if (!url) throw "Audio URL not found";                            
                 return { url: url, track: response.data.data};
             }
             catch(error) {
@@ -107,7 +103,7 @@ export function BottomBarProvider({ children }) {
     const handlePlaylist = async (playlistID, index, shuffle, tracks = null) => {
         shuffleRef.current = shuffle    
 
-        if (!playlistID) {
+        if (!playlistID || playlistID.startsWith("single-track-")) {
             setPlaylistPlaying(null);
             setShufflePlaylist(shuffle ? [nowPlaying.current] : null);
             playlistIDRef.current = null;
@@ -161,7 +157,26 @@ export function BottomBarProvider({ children }) {
 
 
     return (
-        <BottomBarContext.Provider value={{ bottomBarRef, nowPlaying, playback, url, setUrl, recommendPlaylist, getTrack, playlistPlaying, setCurrTrack, handlePlaylist, shufflePlaylist, setShufflePlaylist, volume, setVolume, repeatMode, setRepeatMode, showQueue, setShowQueue }}>
+        <BottomBarContext.Provider value={{ 
+            bottomBarRef, 
+            nowPlaying, 
+            playback, 
+            url, 
+            setUrl, 
+            recommendPlaylist, 
+            getTrack, 
+            playlistPlaying, 
+            setCurrTrack, 
+            handlePlaylist, 
+            shufflePlaylist, 
+            setShufflePlaylist, 
+            volume, 
+            setVolume, 
+            repeatMode, 
+            setRepeatMode, 
+            showQueue, 
+            setShowQueue,
+        }}>
         {children}
         </BottomBarContext.Provider>
     );

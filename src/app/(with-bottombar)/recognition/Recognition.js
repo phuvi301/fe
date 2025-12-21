@@ -114,7 +114,6 @@ const MusicRecognitionModal = ({ onClose }) => {
     };
 
     const toggleTrack = async (_id) => {
-        console.log(foundSongs)
         await bottomBarRef.current.play(_id);
     };
 
