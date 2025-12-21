@@ -152,6 +152,7 @@ const BottomBar = forwardRef((props, ref) => {
 
     useEffect(() => {
         const userData = JSON.parse(localStorage.getItem("userInfo"));
+        if (!userData) return;
         setIsLiked(userData.likedTracks.includes(nowPlaying.current?._id))
     }, [nowPlaying.current?._id])
 
