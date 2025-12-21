@@ -109,15 +109,6 @@ export default function ArtistPage() {
                     ...prev,
                     followerCount: Math.max((prev.followerCount || 0) - 1, 0)
                 }));
-                
-                const followCounts = JSON.parse(localStorage.getItem("artistFollowerCounts") || "{}");
-                const currentCount = followCounts[id] || 1;
-                followCounts[id] = Math.max(currentCount - 1, 0);
-                localStorage.setItem("artistFollowerCounts", JSON.stringify(followCounts));
-                
-                const followAdjustments = JSON.parse(localStorage.getItem("followAdjustments") || "{}");
-                delete followAdjustments[id];
-                localStorage.setItem("followAdjustments", JSON.stringify(followAdjustments));
 
                 localStorage.setItem("userInfo", JSON.stringify({
                     ...userData,
@@ -140,15 +131,6 @@ export default function ArtistPage() {
                     ...prev,
                     followerCount: (prev.followerCount || 0) + 1
                 }));
-                
-                const followCounts = JSON.parse(localStorage.getItem("artistFollowerCounts") || "{}");
-                const currentCount = followCounts[id] || 1;
-                followCounts[id] = currentCount + 1;
-                localStorage.setItem("artistFollowerCounts", JSON.stringify(followCounts));
-                
-                const followAdjustments = JSON.parse(localStorage.getItem("followAdjustments") || "{}");
-                delete followAdjustments[id];
-                localStorage.setItem("followAdjustments", JSON.stringify(followAdjustments));
 
                 localStorage.setItem("userInfo", JSON.stringify({
                     ...userData,
@@ -190,27 +172,36 @@ export default function ArtistPage() {
 
         const fetchArtistData = async () => {
             try {
-                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}/artist-profile`);
+                const userRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}`);
                 if (!active) return;
-                                
-                const followCounts = JSON.parse(localStorage.getItem("artistFollowerCounts") || "{}");
-                const baseFollowerCount = followCounts[id] ?? 1; // Default to 1 if first time
                 
-                const followAdjustments = JSON.parse(localStorage.getItem("followAdjustments") || "{}");
-                const localAdjustment = followAdjustments[id] || 0;
+                let artistInfo = userRes.data.data;
                 
-                const finalFollowerCount = Math.max(baseFollowerCount + localAdjustment, 0);
+                try {
+                    const tracksRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}?tracks=true`);
+                    if (tracksRes.data.data.tracks) {
+                        const enriched = await enrichTrackDurations(tracksRes.data.data.tracks);
+                        if (!active) return;
+                        setTracks(enriched);
+                        
+                        const totalPlays = enriched.reduce((sum, track) => sum + (track.playCount || 0), 0);
+                        artistInfo = {
+                            ...artistInfo,
+                            totalPlays: totalPlays,
+                            name: artistInfo.nickname || artistInfo.username
+                        };
+                    }
+                } catch (tracksError) {
+                    console.error("Failed to fetch tracks:", tracksError);
+                    setTracks([]);
+                    artistInfo = {
+                        ...artistInfo,
+                        totalPlays: 0,
+                        name: artistInfo.nickname || artistInfo.username
+                    };
+                }
                 
-                const adjustedArtistData = {
-                    ...res.data.artist,
-                    followerCount: finalFollowerCount
-                };
-                                
-                setArtistData(adjustedArtistData);
-                const enriched = await enrichTrackDurations(res.data.tracks || []);
-                if (!active) return;
-                setTracks(enriched);
-                
+                setArtistData(artistInfo);
                 await checkFollowStatus();
             } catch (error) {
                 console.error("Failed to fetch artist profile", error);

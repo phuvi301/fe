@@ -360,11 +360,30 @@ export default function Header() {
 													style={{ cursor: 'pointer' }}
 												>
 													<div className={style["notification-content"]}>
-														<h4 className={style["notification-title"]}>{notification.title}</h4>
-														<p className={style["notification-message"]}>{notification.message}</p>
-														<span className={style["notification-time"]}>
-															{formatTimeAgo(notification.createdAt)}
-														</span>
+														<div className={style["notification-icon"]}>
+															{notification.type === 'new_follow' && (
+																<img src="/account.png" alt="Follow" />
+															)}
+															{notification.type === 'track_liked' && (
+																<img src="/like.png" alt="Like" />
+															)}
+															{notification.type === 'new_track' && (
+																<img src="/songs.png" alt="Track" />
+															)}
+															{notification.type === 'new_playlist' && (
+																<img src="/playlists.png" alt="Playlist" />
+															)}
+															{!['new_follow', 'track_liked', 'new_track', 'new_playlist'].includes(notification.type) && (
+																<img src="/notification.png" alt="Notification" />
+															)}
+														</div>
+														<div className={style["notification-text"]}>
+															<h4 className={style["notification-title"]}>{notification.title}</h4>
+															<p className={style["notification-message"]}>{notification.message}</p>
+															<span className={style["notification-time"]}>
+																{formatTimeAgo(notification.createdAt)}
+															</span>
+														</div>
 													</div>
 													<div className={style["notification-actions"]}>
 														<button 

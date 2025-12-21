@@ -30,6 +30,25 @@ function Artist() {
         }
     };
 
+    const fetchUserInfo = async () => {
+        try {
+            const storedUserInfo = JSON.parse(localStorage.getItem("userInfo"));
+            if (!storedUserInfo) return;
+
+            const userRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${storedUserInfo._id}`);
+            const updatedUserInfo = userRes.data.data;
+            
+            localStorage.removeItem("artistFollowerCounts");
+            localStorage.removeItem("followAdjustments");
+            
+            localStorage.setItem("userInfo", JSON.stringify(updatedUserInfo));
+            setUserInfo(updatedUserInfo);
+        } catch (err) {
+            console.error("Lỗi khi tải thông tin user:", err);
+            setUserInfo(JSON.parse(localStorage.getItem("userInfo")));
+        }
+    };
+
     const handleDeleteTrack = async (trackId) => {
         try {
             await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${trackId}`, {
@@ -49,8 +68,8 @@ function Artist() {
     };
 
     useEffect(() => {
-        // Fetch bài hát và playlist khi component được mount
-        setUserInfo(JSON.parse(localStorage.getItem("userInfo"))); // Lấy thông tin user từ localStorage
+        // Fetch thông tin user mới nhất khi component được mount
+        fetchUserInfo();
     }, []);
 
     useEffect(() => {
