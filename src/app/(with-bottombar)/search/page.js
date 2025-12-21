@@ -1,8 +1,5 @@
 'use client';
-
-export const dynamic = 'force-dynamic';
-
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useBottomBar } from "~/context/BottombarContext";
 import Image from "next/image";
@@ -14,7 +11,7 @@ import Sidebar from "~/app/components/Sidebar";
 import axios from "axios";
 import clsx from "clsx";
 
-export default function Search() {
+function SearchContent() {
     const searchParams = useSearchParams();
     const q = searchParams.get("q") || "";
     const { bottomBarRef } = useBottomBar();
@@ -130,5 +127,11 @@ export default function Search() {
     );
 }
 
-
+export default function Search() {
+    return(
+        <Suspense fallback={<div>Loading...</div>}>
+            <SearchContent />;
+        </Suspense>
+    )
+}
 
