@@ -111,7 +111,7 @@
     height: 180px;
     object-fit: cover;
     margin: 0 15px;
-    border: 1px solid skyblue;
+    border: 3px solid rgb(255, 255, 255);
 }
 
 .personal-name-group {
