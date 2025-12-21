@@ -18,19 +18,58 @@ const DEFAULT_AVATAR = "/avatar-default.svg"
 export default function TrackPage() {
     const { id } = useParams();
     const router = useRouter();
-    const { bottomBarRef, nowPlaying, isPlaying, setIsPlaying, addToPlaylistView } = useBottomBar();
+    const { bottomBarRef, nowPlaying, isPlaying, setIsPlaying, addToPlaylistView, isLiked, setIsLiked, trackLikeCount, setTrackLikeCount, toggleLike } = useBottomBar();
     const [trackData, setTrackData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [isLiked, setIsLiked] = useState(false);
     const [commentText, setCommentText] = useState("");
+    const [likeLoading, setLikeLoading] = useState(false);
+    const [showLikeToast, setShowLikeToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+
+    const isCurrentTrack = nowPlaying.current?._id === id;
 
     useEffect(() => {
         const fetchTrackData = async () => {
             try {
                 const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${id}`);
-                setTrackData(res.data.data);
+                const trackData = res.data.data;
+                
+                if (trackData) {
+                    trackData.likeCount = Math.max(0, trackData.likeCount || 0);
+                }
+                
+                setTrackData(trackData);
 
-                // TODO: Fetch like status từ API khi có API like
+                if (nowPlaying.current?._id === id) {
+                    setTrackLikeCount(res.data.data.likeCount || 0);
+                }
+
+                const userData = JSON.parse(localStorage.getItem("userInfo") || "{}");
+                const accessToken = document.cookie.split('accessToken=')[1]?.split(';')[0];
+                
+                if (userData._id && accessToken) {
+                    try {
+                        const userRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${userData._id}`, {
+                            headers: {
+                                token: `Bearer ${accessToken}`,
+                            },
+                        });
+                        
+                        const userLikedTracks = userRes.data.data.likedTracks || [];
+                        
+                        if (nowPlaying.current?._id === id) {
+                            setIsLiked(userLikedTracks.includes(id));
+                        }
+                        
+                        const updatedUserData = { ...userData, likedTracks: userLikedTracks };
+                        localStorage.setItem("userInfo", JSON.stringify(updatedUserData));
+                    } catch (userError) {
+                        console.error("Failed to fetch user like status", userError);
+                        if (userData?.likedTracks && nowPlaying.current?._id === id) {
+                            setIsLiked(userData.likedTracks.includes(id));
+                        }
+                    }
+                }
             } catch (error) {
                 console.error("Failed to fetch track data", error);
             } finally {
@@ -41,9 +80,17 @@ export default function TrackPage() {
         if (id) {
             fetchTrackData();
         }
-    }, [id]);
+    }, [id, nowPlaying.current?._id, setIsLiked, setTrackLikeCount]);
 
-    // Xử lý play/pause bài hát
+    useEffect(() => {
+        if (isCurrentTrack && trackLikeCount !== undefined) {
+            setTrackData(prev => prev ? { 
+                ...prev, 
+                likeCount: Math.max(0, trackLikeCount) 
+            } : prev);
+        }
+    }, [trackLikeCount, isCurrentTrack]);
+
     const handlePlayPause = async () => {
         if (nowPlaying.current?._id === id) {
             if (isPlaying) {
@@ -56,30 +103,44 @@ export default function TrackPage() {
         }
     };
 
-    // Xử lý like/unlike bài hát
     const handleLikeToggle = async () => {
+        if (likeLoading) return;
+        
         try {
-            // TODO: Implement API call để like/unlike khi có API
+            setLikeLoading(true);
 
-            // Temporary toggle for UI demonstration
-            setIsLiked(!isLiked);
+            const result = await toggleLike(id);
+            
             setTrackData((prev) => ({
                 ...prev,
-                likeCount: isLiked ? (prev.likeCount || 1) - 1 : (prev.likeCount || 0) + 1,
+                likeCount: Math.max(0, result.likeCount || 0),
             }));
+            
+            setToastMessage(result.message);
+            setShowLikeToast(true);
+            setTimeout(() => setShowLikeToast(false), 3000);
+
         } catch (error) {
             console.error("Failed to toggle like", error);
+            
+            const errorMessage = error.message === "Please log in to like tracks" 
+                ? "Please log in to like tracks" 
+                : "Failed to update like status. Please try again.";
+                
+            setToastMessage(errorMessage);
+            setShowLikeToast(true);
+            setTimeout(() => setShowLikeToast(false), 3000);
+        } finally {
+            setLikeLoading(false);
         }
     };
 
-    // Chuyển đến trang nghệ sĩ
     const goToArtist = () => {
         if (trackData?.owner?._id) {
             router.push(`/artist/${trackData.owner._id}`);
         }
     };
 
-    // Format thời gian
     const formatDuration = (seconds) => {
         const total = Number(seconds);
         if (!Number.isFinite(total) || total <= 0) return "--:--";
@@ -88,7 +149,6 @@ export default function TrackPage() {
         return `${min}:${sec < 10 ? "0" + sec : sec}`;
     };
 
-    // Format số
     const formatNumber = (num) => {
         return new Intl.NumberFormat("vi-VN").format(num);
     };
@@ -117,7 +177,10 @@ export default function TrackPage() {
         );
     }
 
-    const isCurrentTrack = nowPlaying.current?._id === id;
+    const currentIsLiked = isCurrentTrack ? isLiked : (() => {
+        const userData = JSON.parse(localStorage.getItem("userInfo") || "{}");
+        return (userData.likedTracks || []).includes(id);
+    })();
 
     return (
         <div className={layout.background}>
@@ -191,11 +254,13 @@ export default function TrackPage() {
                                     </button>
 
                                     <button
-                                        className={clsx(style.likeButton, isLiked && style.liked)}
+                                        className={clsx(style.likeButton, currentIsLiked && style.liked)}
                                         onClick={handleLikeToggle}
+                                        disabled={likeLoading}
+                                        style={{ opacity: likeLoading ? 0.6 : 1 }}
                                     >
                                         <img
-                                            src={isLiked ? "/like_colored.png" : "/like.png"}
+                                            src={currentIsLiked ? "/like_colored.png" : "/like.png"}
                                             alt="Like"
                                             width={20}
                                             height={20}
@@ -283,6 +348,13 @@ export default function TrackPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Like Toast Notification */}
+            {showLikeToast && (
+                <div className={style.likeToast}>
+                    {toastMessage}
+                </div>
+            )}
         </div>
     );
 }

@@ -440,6 +440,46 @@
     color: #ff6b6b;
 }
 
+.followToast {
+    position: fixed;
+    bottom: calc(var(--bottom-bar-height, 75px) + 16px);
+    background: rgba(6, 98, 226, 0.85);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(3, 7, 239, 0.33);
+    font-weight: 600;
+    z-index: 2000;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(6px);
+    animation: followToastInOut 2.5s ease forwards;
+    white-space: nowrap;
+    right: 16px;
+}
+
+@keyframes followToastInOut {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    8% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    88% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
     .artistNameLarge {
