@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
@@ -70,6 +70,7 @@ export default function ArtistPage() {
             const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/follow/${id}/follow-status`, {
                 headers: { token: `Bearer ${token}` }
             });
+
             setIsFollowing(response.data.data.isFollowing);
         } catch (error) {
             console.error("Error checking follow status:", error.response?.status, error.response?.data || error.message);
@@ -86,6 +87,8 @@ export default function ArtistPage() {
                 return;
             }
             
+            const userInfo = localStorage.getItem("userInfo");
+
             if (isFollowing) {
                 // Unfollow
                 await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/follow/${id}/follow`, {
@@ -96,6 +99,12 @@ export default function ArtistPage() {
                 setArtistData(prev => ({
                     ...prev,
                     followerCount: Math.max((prev.followerCount || 0) - 1, 0)
+                }));
+
+                // Giảm followingCount trong localStorage
+                userInfo && localStorage.setItem("userInfo", JSON.stringify({
+                    ...JSON.parse(userInfo),
+                    followingCount: Math.max((JSON.parse(userInfo).followingCount || 0) - 1, 0)
                 }));
 
                 setTimeout(async () => {
@@ -120,6 +129,12 @@ export default function ArtistPage() {
                 setArtistData(prev => ({
                     ...prev,
                     followerCount: (prev.followerCount || 0) + 1
+                }));
+
+                // Tăng followingCount trong localStorage
+                userInfo && localStorage.setItem("userInfo", JSON.stringify({
+                    ...JSON.parse(userInfo),
+                    followingCount: (JSON.parse(userInfo).followingCount || 0) + 1
                 }));
 
                 setTimeout(async () => {

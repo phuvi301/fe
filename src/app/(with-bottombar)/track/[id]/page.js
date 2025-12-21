@@ -47,7 +47,7 @@ export default function TrackPage() {
                 bottomBarRef.current?.resume();
             }
         } else {
-            await bottomBarRef.current?.play(id, `single-track-${id}`, 0, [trackData]);
+            await bottomBarRef.current?.play(id, `single-track-${id}`);
         }
     };
 
