@@ -11,7 +11,7 @@ import clsx from "clsx";
 import layout from "~/app/homepage.module.scss";
 import style from "./track.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faPaperPlane, faThumbsUp, faTrashCan, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faPaperPlane, faThumbsUp, faTrashCan, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
 
 const DEFAULT_AVATAR = "/avatar-default.svg";
 
@@ -554,8 +554,18 @@ const BlockComment = ({ data, blockId, isSubmitted, handleDeleteComment, handleR
                             className={style.expandBtn}
                             onClick={() => (showReplies ? handleCloseReply() : handleShowReply())}
                         >
-                            <FontAwesomeIcon icon={faChevronDown} className={style.iconBlue} />
-                            {showReplies ? "Hide replies" : "Show replies"}
+                        {showReplies ?
+                        (
+                            <>
+                                <FontAwesomeIcon icon={faChevronUp} className={style.iconBlue} />
+                                Hide replies
+                            </>
+                        ) : (
+                            <>
+                                <FontAwesomeIcon icon={faChevronDown} className={style.iconBlue} />
+                                Show replies
+                            </>
+                        )}
                         </button>
                     </div>
                 </div>
