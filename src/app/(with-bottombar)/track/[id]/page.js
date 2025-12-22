@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
@@ -13,7 +13,7 @@ import style from "./track.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faPaperPlane, faThumbsUp, faTrashCan, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
 
-const DEFAULT_AVATAR = "/avatar-default.svg"
+const DEFAULT_AVATAR = "/avatar-default.svg";
 
 export default function TrackPage() {
     const { id } = useParams();
@@ -22,15 +22,24 @@ export default function TrackPage() {
     const [trackData, setTrackData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isLiked, setIsLiked] = useState(false);
-    const [inputValue, setInputValue] = useState("");
-    const [comments, setComments] = useState([]);
+    const [commentText, setCommentText] = useState("");
+    const [commentList, setCommentList] = useState(null);
+    const [isSubmitted, setIsSubmitted] = useState(true);
+    const [typeSubmit, setTypeSubmit] = useState("track");
+    const [isNeedCreateBlock, setIsNeedCreateBlock] = useState(true);
+    const [placeCreateBlock, setPlaceCreateBlock] = useState(null);
+    const [blockSubmit, setBlockSubmit] = useState();
+    const commentInputRef = useRef();
 
     useEffect(() => {
         const fetchTrackData = async () => {
             try {
                 const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/${id}`);
                 setTrackData(res.data.data);
-
+                setIsNeedCreateBlock(!res.data.data.comments);
+                setPlaceCreateBlock(res.data.data._id);
+                setTypeSubmit("track");
+                setBlockSubmit(res.data.data.comments);
                 // TODO: Fetch like status từ API khi có API like
             } catch (error) {
                 console.error("Failed to fetch track data", error);
@@ -43,6 +52,104 @@ export default function TrackPage() {
             fetchTrackData();
         }
     }, [id]);
+
+    useEffect(() => {
+        const fetchCommentData = async () => {
+            try {
+                if (!trackData.comments) return;
+                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/comments/${trackData.comments}`);
+                setCommentList(res.data.data);
+                setIsSubmitted(false);
+            } catch (error) {
+                console.error("Failed to fetch track comments data", error);
+            }
+        };
+
+        if (id && trackData && isSubmitted) fetchCommentData();
+    }, [id, trackData, isSubmitted]);
+
+    const handleCreateBlock = async () => {
+        if (!isNeedCreateBlock) return blockSubmit;
+        try {
+            const res = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/comments/`,
+                {
+                    id: placeCreateBlock,
+                    type: typeSubmit,
+                },
+                {
+                    headers: {
+                        token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
+                    },
+                }
+            );
+            if (typeSubmit === "track") setTrackData((prev) => ({ ...prev, comments: res.data.data._id }));
+            setBlockSubmit(res.data.data._id);
+            return res.data.data._id;
+        } catch (error) {
+            console.error("Failed to create comment block", error);
+            return;
+        }
+    };
+
+    const handleSubmitComment = async () => {
+        const blockId = await handleCreateBlock();
+        try {
+            const res = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/comments/comment`,
+                {
+                    id: blockId,
+                    content: commentText,
+                    timeline: 0,
+                },
+                {
+                    headers: {
+                        token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
+                    },
+                }
+            );
+        } catch (error) {
+            console.error("Failed to add comment", error);
+            return;
+        }
+        setIsSubmitted(true);
+        setCommentText("");
+    };
+
+    const handleDeleteComment = async (blockId, cmtId) => {
+        try {
+            const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/comments/${blockId}/${cmtId}`, {
+                headers: {
+                    token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
+                },
+            });
+            setIsSubmitted(true);
+        } catch (error) {
+            console.log(error);
+            return;
+        }
+    };
+
+    const handleReplyButton = (displayName, cmtId, replyId) => {
+        setCommentText(`@${displayName} `);
+        setBlockSubmit(replyId);
+        setIsNeedCreateBlock(!replyId);
+        setPlaceCreateBlock(cmtId);
+        setTypeSubmit("comments");
+        commentInputRef.current.focus();
+    };
+
+    useEffect(() => {
+        if (!trackData) return;
+        if (commentText.includes("@") && typeSubmit === "comments") return;
+
+        setBlockSubmit(trackData.comments);
+        setIsNeedCreateBlock(!trackData.comments);
+        setPlaceCreateBlock(trackData._id);
+        setTypeSubmit("track");
+    }, [commentText]);
+
+    // console.log(commentList);
 
     // Xử lý play/pause bài hát
     const handlePlayPause = async () => {
@@ -92,56 +199,6 @@ export default function TrackPage() {
     // Format số
     const formatNumber = (num) => {
         return new Intl.NumberFormat("vi-VN").format(num);
-    };
-
-    const createBlockComment = async () => {
-        try {
-        // console.log(document.cookie.split("accessToken=")[1])
-        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/comments`, 
-            { 
-                id: id, 
-                type: "track"
-            }, 
-            {
-                headers: {
-                    token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
-                },
-            });
-        } catch(err) {
-            console.error("Error creating blockcomment", err);
-        }
-        return <BlockComment />
-    };
-
-    const handleSubmitComment = async () => {
-        const text = inputValue.trim();
-        console.log(text);
-        if (!text) return;
-
-        try {
-            const token = document.cookie.split("accessToken=")[1];
-
-            const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/comments`,
-                { 
-                    id: id,
-                    type: "track",
-                },
-                {
-                    headers: {
-                        token: `Bearer ${token}`
-                    }
-                }
-            );
-
-            // push comment mới vào state
-            res.comments = [text, res.comments];
-            setComments(res.comments);
-
-            setInputValue("");
-        } catch (err) {
-            console.error("Error creating comment", err);
-        }
     };
 
     if (loading) {
@@ -281,49 +338,61 @@ export default function TrackPage() {
                         <div className={style.commentsSection}>
                             <div className={style.commentsHeader}>
                                 <h3 className={style.commentsTitle}>Comments</h3>
-                                <span className={style.commentsCount}>73 comments</span>
+                                <span className={style.commentsCount}>{commentList?.comments?.length ?? 0} comments</span>
                             </div>
 
                             {/* Scrollable Comment List */}
                             <div className={style.commentListWrapper}>
-                                {comments.map(c => (
-                                    <BlockComment key={c._id} data={c} />
+                                {commentList?.comments?.map((cmt) => (
+                                    <BlockComment
+                                        key={cmt._id}
+                                        blockId={commentList?._id}
+                                        handleDeleteComment={handleDeleteComment}
+                                        handleReplyButton={handleReplyButton}
+                                        data={cmt.message}
+                                        isSubmitted={isSubmitted}
+                                    />
                                 ))}
                             </div>
 
                             {/* 3. Bottom Input Bar */}
                             <div className={style.bottomBar}>
-                                <img src="/default_avatar.png" className={style.inputAvatar} alt="me" />
+                                <img
+                                    src={JSON.parse(localStorage.getItem("userInfo"))?.thumbnailUrl || DEFAULT_AVATAR}
+                                    className={style.inputAvatar}
+                                    alt="me"
+                                />
 
                                 <div className={style.inputContainer}>
                                     <input
                                         type="text"
                                         placeholder="Add a comment..."
-                                        value={inputValue}
                                         className={style.textInput}
-                                        onChange={(e) => setInputValue(e.target.value)}
-                                        onKeyDown={async (e) => {
-                                            if (e.key === "Enter" && inputValue.trim()) {
-                                                await handleSubmitComment();
+                                        value={commentText}
+                                        ref={commentInputRef}
+                                        onChange={(e) => setCommentText(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter" && commentText.trim()) {
+                                                handleSubmitComment();
                                             }
                                         }}
                                     />
                                     <div className={style.inputActions}>
-                                        {inputValue.length > 0 && (
+                                        {commentText.length > 0 && (
                                             <button
                                                 className={style.inputBtn}
-                                                onClick={() => setInputValue("")}
+                                                onClick={() => setCommentText("")}
                                                 title="Clear"
                                             >
                                                 <FontAwesomeIcon icon={faXmarkCircle} />
                                             </button>
                                         )}
 
-                                        {inputValue.trim().length > 0 && (
+                                        {commentText.trim().length > 0 && (
                                             <button
                                                 className={clsx(style.inputBtn, style.sendBtn)}
                                                 title="Submit"
-                                                onClick={() => setInputValue("")}
+                                                onClick={handleSubmitComment}
                                             >
                                                 <FontAwesomeIcon icon={faPaperPlane} />
                                             </button>
@@ -339,77 +408,149 @@ export default function TrackPage() {
     );
 }
 
-const BlockComment = () => {   
+const BlockComment = ({ data, blockId, isSubmitted, handleDeleteComment, handleReplyButton }) => {
+    const [showReplies, setShowReplies] = useState(false);
+    const [replyData, setReplyData] = useState(null);
+
+    useEffect(() => {
+        handleShowReply(true);
+    }, [isSubmitted]);
+
+    const handleShowReply = async (bypass = false) => {
+        if (bypass && !showReplies) return;
+        setShowReplies(true);
+        if (!bypass && replyData) return;
+        try {
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/comments/${data.replies}`);
+            setReplyData(res.data.data);
+        } catch (error) {
+            console.log(error);
+            setShowReplies(false);
+            return;
+        }
+    };
+
+    const handleCloseReply = () => setShowReplies(false);
+
     return (
         <div className={style.thread}>
-            <MainComment />
+            <Comment
+                typeComment={"main"}
+                username={data.owner.displayName}
+                thumbnailUrl={data.owner.thumbnailUrl}
+                timeline={data.timeline}
+                content={data.content}
+                likeCount={data.likeCount}
+                isOwner={data.owner._id === JSON.parse(localStorage.getItem("userInfo"))?._id}
+                cmtId={data._id}
+                blockId={blockId}
+                replyId={data.replies}
+                isLiked={data.isLiked}
+                handleDeleteComment={handleDeleteComment}
+                handleReplyButton={handleReplyButton}
+            />
 
-            <div className={style.repliesContainer}>
-                <RepliedComment />
+            {data.replies && (
+                <div className={style.repliesContainer}>
+                    {showReplies &&
+                        replyData?.comments?.map((cmt) => (
+                            <Comment
+                                key={cmt._id}
+                                typeComment={"reply"}
+                                username={cmt.message.owner.displayName}
+                                thumbnailUrl={cmt.message.owner.thumbnailUrl}
+                                timeline={cmt.message.timeline}
+                                content={cmt.message.content}
+                                likeCount={cmt.message.likeCount}
+                                isOwner={cmt.message.owner._id === JSON.parse(localStorage.getItem("userInfo"))?._id}
+                                cmtId={cmt.message._id}
+                                blockId={data.replies}
+                                replyId={cmt.message.replies}
+                                isLiked={cmt.message.isLiked}
+                                handleDeleteComment={handleDeleteComment}
+                                handleReplyButton={handleReplyButton}
+                            />
+                        ))}
 
-                <div className={style.repliesLevel2}>
-                    <RepliedComment />
-                    <RepliedComment />
+                    {/* <div className={style.repliesLevel2}>
+                    <Comment typeComment={"reply"} />
+
+                    <Comment typeComment={"reply"} />
+                </div> */}
+
+                    <div className={style.expandWrapper}>
+                        <button
+                            className={style.expandBtn}
+                            onClick={() => (showReplies ? handleCloseReply() : handleShowReply())}
+                        >
+                            <FontAwesomeIcon icon={faChevronDown} className={style.iconBlue} />
+                            {showReplies ? "Hide replies" : "Show replies"}
+                        </button>
+                    </div>
                 </div>
-
-                <div className={style.expandWrapper}>
-                    <button className={style.expandBtn}>
-                        <FontAwesomeIcon icon={faChevronDown} className={style.iconBlue} />
-                        Ấn phản hồi
-                    </button>
-                </div>
-            </div>
+            )}
         </div>
     );
 };
 
-const MainComment = ({ username, thumbnailUrl, timeline, content, likeCount }) => {
+const Comment = ({
+    username,
+    thumbnailUrl,
+    timeline,
+    content,
+    likeCount,
+    isOwner,
+    blockId,
+    cmtId,
+    replyId,
+    isLiked,
+    handleDeleteComment,
+    handleReplyButton,
+    typeComment = "main",
+}) => {
     return (
-        <div className={style.parentComment}>
-            <img src={thumbnailUrl || DEFAULT_AVATAR} className={style.avatar} alt="user" />
+        <div
+            className={clsx({
+                [style.parentComment]: typeComment === "main",
+                [style.replyRow]: typeComment === "reply",
+            })}
+        >
+            <img
+                src={thumbnailUrl || DEFAULT_AVATAR}
+                className={clsx({
+                    [style.avatar]: typeComment === "main",
+                    [style.avatarSmall]: typeComment === "reply",
+                })}
+                alt="user"
+            />
 
             <div className={style.commentBody}>
                 <div className={style.commentMeta}>
                     <span className={style.username}>{username}</span>
-                    <span className={style.timestamp}>{timeline}</span>
-                    <button className={style.deleteBtn} title="Delete">
-                        <FontAwesomeIcon icon={faTrashCan} />
-                    </button>
+                    {/* <span className={style.timestamp}>{timeline}</span> */}
+                    {isOwner && (
+                        <button
+                            className={style.deleteBtn}
+                            title="Delete"
+                            onClick={() => handleDeleteComment(blockId, cmtId)}
+                        >
+                            <FontAwesomeIcon icon={faTrashCan} />
+                        </button>
+                    )}
                 </div>
                 <div className={style.commentText}>{content}</div>
                 <div className={style.toolbar}>
-                    <button className={style.toolbarBtn}>
+                    <button
+                        className={clsx(style.toolbarBtn, {
+                            [style.liked]: isLiked,
+                        })}
+                    >
                         <FontAwesomeIcon icon={faThumbsUp} />
                     </button>
                     <span className={style.likeCount}>{likeCount}</span>
-                    <button className={style.replyTextBtn}>Phản hồi</button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const RepliedComment = () => {
-    return (
-        <div className={style.replyRow}>
-            <img src="/default_avatar.png" className={style.avatarSmall} alt="user" />
-            <div className={style.commentBody}>
-                <div className={style.commentMeta}>
-                    <span className={style.username}>@Tuoutudong</span>
-                    <span className={style.timestamp}>6 tháng trước</span>
-                    <button className={style.deleteBtn} title="Delete">
-                        <FontAwesomeIcon icon={faTrashCan} />
+                    <button className={style.replyTextBtn} onClick={() => handleReplyButton(username, cmtId, replyId)}>
+                        Reply
                     </button>
-                </div>
-                <div className={style.commentText}>
-                    <span className={style.mentionLink}>@huule5146</span> tục mà có duyên...
-                </div>
-                <div className={style.toolbar}>
-                    <button className={style.toolbarBtn}>
-                        <FontAwesomeIcon icon={faThumbsUp} />
-                    </button>
-                    <span className={style.likeCount}>3</span>
-                    <button className={style.replyTextBtn}>Phản hồi</button>
                 </div>
             </div>
         </div>
