@@ -182,7 +182,6 @@ const BottomBar = forwardRef((props, ref) => {
 
     const parseLyrics = (lyricsText) => {
         if (!lyricsText || typeof lyricsText !== 'string') {
-            console.log("Invalid lyrics data");
             setLyrics([]);
             return;
         }
@@ -369,8 +368,6 @@ const BottomBar = forwardRef((props, ref) => {
             setIsLyricsSynced(true);
             updateCurrentLyric(time);
         }, 100);
-        
-        console.log(`⏭️ Jumped to: ${Math.floor(time / 60)}:${String(Math.floor(time % 60)).padStart(2, '0')}`);
     };
 
     const handleTrack = (audioUrl) => {
@@ -438,7 +435,6 @@ const BottomBar = forwardRef((props, ref) => {
             });
 
             hls.on(Hls.Events.ERROR, (event, data) => {
-                console.log('HLS error:', data);
                 if (data.details === "bufferSeekOverHole") {
                     hls.startLoad(playerRef.current.currentTime);
                 }
@@ -786,7 +782,7 @@ const BottomBar = forwardRef((props, ref) => {
         fetchLyrics,
         shuffleTracks,
         togglePlay,
-        playerRef
+        playerRef,
     }));
 
     return (
@@ -1140,6 +1136,7 @@ const BottomBar = forwardRef((props, ref) => {
                             const base = list || [];
                             const currIdx = base.findIndex(t => t?._id === nowPlaying.current?._id);
                             const upNext = currIdx >= 0 ? base.slice(currIdx + 1) : base;
+                            console.log(upNext)
                             return upNext.length > 0 ? (
                                 upNext.map((track, idx) => (
                                     <div key={track._id || idx} className={style["queueListItem"]} onClick={async () => {

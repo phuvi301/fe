@@ -182,9 +182,7 @@ export default function PlaylistsPage() {
                     },
                 }
             );
-            console.log(res.data);
             setPlaylists((prev) => {
-                console.log(prev);
                 return [res.data.data, ...prev.filter((pl) => pl._id !== current._id)];
             });
             setToast({ type: "success", message: "Song added" });
@@ -675,8 +673,6 @@ function EditPlaylistInfoPopup({
             if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
         };
     }, [thumbnailPreview]);
-
-    console.log(thumbnailPreview);
 
     return (
         <div className={clsx(styles["edit-popup"])} onClick={closeAction}>

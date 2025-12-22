@@ -21,18 +21,16 @@ const processDuration = (seconds) => {
 
 const Page = () => {
     const [userData, setUserData] = useState(null);
-    const { bottomBarRef } = useBottomBar();
+    const { bottomBarRef, shufflePlaylist } = useBottomBar();
 
     const handlePlayTrack = async (songId) => {
-        await bottomBarRef.current.play(songId);
+        const index = userData.likedTracks.findIndex((track) => track._id === songId);
+        await bottomBarRef.current.play(songId, "liked-" + userData?._id, index);
     };
 
     const handlePlayLikedTracks = async () => {
-        const trackId = userData?.likedTracks[0]._id;
-        const likedTracks = userData?.likedTracks;
-        const playlistId = "liked-" + userData?._id;
-
-        await bottomBarRef.current.play(trackId, playlistId, 0, likedTracks);
+        const idx = shufflePlaylist ? Math.floor(Math.random() * (userData?.likedTracks.length)) : 0;
+        await bottomBarRef.current.play(userData?.likedTracks[idx]._id, "liked-" + userData?._id, idx);
     }
 
     useEffect(() => {
@@ -73,7 +71,6 @@ const Page = () => {
                     </div>
                 </div>
                 <div className={clsx(styles["col-album"])}>{track.artist}</div>
-                <div className={clsx(styles["col-date"])}>2 days ago</div>
                 <div className={clsx(styles["col-duration"])}>{processDuration(track.duration)}</div>
             </div>
         ));
@@ -114,8 +111,7 @@ const Page = () => {
                         <span className={clsx(styles["number"])}>#</span>
                     </div>
                     <div className={clsx(styles["col-title"])}>Title</div>
-                    <div className={clsx(styles["col-album"])}>Channel/Artist</div>
-                    <div className={clsx(styles["col-date"])}>Date Added</div>
+                    <div className={clsx(styles["col-album"])}>Artist</div>
                     <div className={clsx(styles["col-duration"], styles["col-header-duration"])}>
                         <FontAwesomeIcon icon={faClock} />
                     </div>

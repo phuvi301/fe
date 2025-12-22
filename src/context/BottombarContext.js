@@ -63,7 +63,6 @@ export function BottomBarProvider({ children }) {
                 withCredentials: true,
             });
 
-            console.log("Recommended playlist:", res.data.data);
             return [nowPlaying.current, ...res.data.data] || [];
         } catch (err) {
             console.error("Can't get recommended playlist", err);
@@ -113,13 +112,6 @@ export function BottomBarProvider({ children }) {
             
             const validLikeCount = Math.max(0, likeCount || 0);
             
-            console.log("Toggle like response:", {
-                targetTrackId,
-                newIsLiked,
-                likeCount: validLikeCount,
-                rawLikeCount: likeCount
-            });
-            
             if (newIsLiked) {
                 userData.likedTracks = [...(userData.likedTracks || []), targetTrackId];
             } else {
@@ -165,6 +157,23 @@ export function BottomBarProvider({ children }) {
         }
     }
 
+    const getLikedTracks = async () => {
+        try {
+            const userData = JSON.parse(localStorage.getItem("userInfo"));
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${userData._id}`, {
+                params: {
+                    likes: true,
+                },
+                headers: {
+                    token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
+                },
+            });
+            return res.data.data.likedTracks;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     const handlePlaylist = async (playlistID, index, shuffle, tracks = null) => {
         shuffleRef.current = shuffle    
 
@@ -199,8 +208,7 @@ export function BottomBarProvider({ children }) {
             }
             else if (playlistID.startsWith("liked-")) {
                 if (!tracks) {
-                    const userData = JSON.parse(localStorage.getItem("userInfo"));
-                    tracks = userData?.likedTracks.map((track) => track._id)
+                    tracks = await getLikedTracks();
                 }
                 setPlaylistPlaying({
                     _id: playlistID,
@@ -222,13 +230,6 @@ export function BottomBarProvider({ children }) {
             
             const currentLikeCount = nowPlaying.current.likeCount || 0;
             setTrackLikeCount(Math.max(0, currentLikeCount));
-            
-            console.log("Track changed:", {
-                trackId: nowPlaying.current._id,
-                title: nowPlaying.current.title,
-                likeCount: currentLikeCount,
-                isLiked: userLikedTracks.includes(nowPlaying.current._id)
-            });
         }
     }, [nowPlaying.current?._id]);
 
