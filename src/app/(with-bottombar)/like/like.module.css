@@ -1,3 +1,13 @@
+.pageWrapper {
+    position: absolute;
+    top: var(--header-height, 9vh);
+    left: 250px;
+    right: 0;
+    bottom: 60px; /* Adjust for bottom bar height */
+    overflow-y: auto;
+    font-family: 'Montserrat', sans-serif;
+}
+
 .playlist-header {
     display: flex;
     align-items: flex-end;
@@ -5,7 +15,6 @@
     margin-bottom: 24px;
     background: linear-gradient(180deg, #1e3a8a 0%, #121212 350px);
     padding: 30px;
-	border-radius: 4px;
     font-family: var(--font-geist-sans);
 }
 
@@ -62,7 +71,7 @@
     border-radius: 50%;
     background-color: #3b82f6;
     border: none;
-    color: #b3b3b3;
+    color: #eeeeee;
     font-size: 24px;
     cursor: pointer;
     transition: transform 0.2s;
@@ -92,7 +101,7 @@
 .track-list {
 	overflow-y: overlay;
     overflow-x: hidden;
-	max-height: 240px;
+	max-height: 300px;
 }
 
 .track-list::-webkit-scrollbar {
@@ -101,7 +110,7 @@
 
 .track-list-header,
 .track-row {
-    font-family: var(--font-geist-sans);
+    font-family: inherit;
     display: grid;
     /* Columns: Index | Title+Img | Album | Date | Duration */
     grid-template-columns: 50px 4fr 2fr 1fr 60px;

@@ -18,6 +18,8 @@ export default function ArtistPage() {
     const [loading, setLoading] = useState(true);
     const [isFollowing, setIsFollowing] = useState(false);
     const [followLoading, setFollowLoading] = useState(false);
+    const [showFollowToast, setShowFollowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
 
     const enrichTrackDurations = async (items) => {
         const fetchDuration = (track) => {
@@ -58,11 +60,14 @@ export default function ArtistPage() {
         return enriched;
     };
 
-    // Check follow status
     const checkFollowStatus = async () => {
         try {
             const token = document.cookie.split('accessToken=')[1]?.split(';')[0];
-            if (!token) {
+            const userInfo = localStorage.getItem("userInfo");
+            const userData = userInfo ? JSON.parse(userInfo) : null;
+            
+            if (!token || !userData?._id) {
+                setIsFollowing(false);
                 return;
             }
 
@@ -73,26 +78,31 @@ export default function ArtistPage() {
             setIsFollowing(response.data.data.isFollowing);
         } catch (error) {
             console.error("Error checking follow status:", error.response?.status, error.response?.data || error.message);
+            setIsFollowing(false);
         }
     };
 
-    // Handle follow/unfollow
     const handleFollowToggle = async () => {
         try {
             setFollowLoading(true);
+            
             const token = document.cookie.split('accessToken=')[1]?.split(';')[0];
-            if (!token) {
-                alert("Please login to follow artists");
+            const userInfo = localStorage.getItem("userInfo");
+            const userData = userInfo ? JSON.parse(userInfo) : null;
+            
+            if (!token || !userData?._id) {
+                setToastMessage("Please log in to follow artists");
+                setShowFollowToast(true);
+                setTimeout(() => setShowFollowToast(false), 3000);
                 return;
             }
-            
-            const userInfo = localStorage.getItem("userInfo");
 
             if (isFollowing) {
                 // Unfollow
-                await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/follow/${id}/follow`, {
+                const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/follow/${id}/follow`, {
                     headers: { token: `Bearer ${token}` }
                 });
+                
                 setIsFollowing(false);
                 
                 setArtistData(prev => ({
@@ -100,29 +110,21 @@ export default function ArtistPage() {
                     followerCount: Math.max((prev.followerCount || 0) - 1, 0)
                 }));
 
-                // Giảm followingCount trong localStorage
-                userInfo && localStorage.setItem("userInfo", JSON.stringify({
-                    ...JSON.parse(userInfo),
-                    followingCount: Math.max((JSON.parse(userInfo).followingCount || 0) - 1, 0)
+                localStorage.setItem("userInfo", JSON.stringify({
+                    ...userData,
+                    followingCount: Math.max((userData.followingCount || 0) - 1, 0)
                 }));
 
-                setTimeout(async () => {
-                    try {
-                        const refreshRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}/artist-profile`);
-                        setArtistData(prev => ({
-                            ...prev,
-                            followerCount: refreshRes.data.artist.followerCount || 0
-                        }));
-                    } catch (error) {
-                        console.error("Failed to refresh artist data:", error);
-                    }
-                }, 500);
+                setToastMessage("Unfollowed artist");
+                setShowFollowToast(true);
+                setTimeout(() => setShowFollowToast(false), 3000);
 
             } else {
                 // Follow
-                await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/follow/${id}/follow`, {}, {
+                const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/follow/${id}/follow`, {}, {
                     headers: { token: `Bearer ${token}` }
                 });
+                                
                 setIsFollowing(true);
                 
                 setArtistData(prev => ({
@@ -130,27 +132,21 @@ export default function ArtistPage() {
                     followerCount: (prev.followerCount || 0) + 1
                 }));
 
-                // Tăng followingCount trong localStorage
-                userInfo && localStorage.setItem("userInfo", JSON.stringify({
-                    ...JSON.parse(userInfo),
-                    followingCount: (JSON.parse(userInfo).followingCount || 0) + 1
+                localStorage.setItem("userInfo", JSON.stringify({
+                    ...userData,
+                    followingCount: (userData.followingCount || 0) + 1
                 }));
 
-                setTimeout(async () => {
-                    try {
-                        const refreshRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}/artist-profile`);
-                        setArtistData(prev => ({
-                            ...prev,
-                            followerCount: refreshRes.data.artist.followerCount || 0
-                        }));
-                    } catch (error) {
-                        console.error("Failed to refresh artist data:", error);
-                    }
-                }, 500);
+                setToastMessage("Followed artist");
+                setShowFollowToast(true);
+                setTimeout(() => setShowFollowToast(false), 3000);
             }
         } catch (error) {
             console.error("Error toggling follow:", error.response?.data || error.message);
-            alert("Failed to update follow status");
+            
+            setToastMessage("Failed to update follow status. Please try again.");
+            setShowFollowToast(true);
+            setTimeout(() => setShowFollowToast(false), 3000);
         } finally {
             setFollowLoading(false);
         }
@@ -176,14 +172,36 @@ export default function ArtistPage() {
 
         const fetchArtistData = async () => {
             try {
-                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}/artist-profile`);
+                const userRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}`);
                 if (!active) return;
-                setArtistData(res.data.artist);
-                const enriched = await enrichTrackDurations(res.data.tracks || []);
-                if (!active) return;
-                setTracks(enriched);
                 
-                // Check follow status after fetching artist data
+                let artistInfo = userRes.data.data;
+                
+                try {
+                    const tracksRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}?tracks=true`);
+                    if (tracksRes.data.data.tracks) {
+                        const enriched = await enrichTrackDurations(tracksRes.data.data.tracks);
+                        if (!active) return;
+                        setTracks(enriched);
+                        
+                        const totalPlays = enriched.reduce((sum, track) => sum + (track.playCount || 0), 0);
+                        artistInfo = {
+                            ...artistInfo,
+                            totalPlays: totalPlays,
+                            name: artistInfo.nickname || artistInfo.username
+                        };
+                    }
+                } catch (tracksError) {
+                    console.error("Failed to fetch tracks:", tracksError);
+                    setTracks([]);
+                    artistInfo = {
+                        ...artistInfo,
+                        totalPlays: 0,
+                        name: artistInfo.nickname || artistInfo.username
+                    };
+                }
+                
+                setArtistData(artistInfo);
                 await checkFollowStatus();
             } catch (error) {
                 console.error("Failed to fetch artist profile", error);
@@ -292,6 +310,13 @@ export default function ArtistPage() {
                     </div>
                 </div>
             </div >
+
+            {/* Follow Toast Notification */}
+            {showFollowToast && (
+                <div className={style.followToast}>
+                    {toastMessage}
+                </div>
+            )}
         </div>
     );
 }
