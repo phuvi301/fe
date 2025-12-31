@@ -14,76 +14,100 @@ import { faChevronDown, faChevronUp, faPaperPlane, faThumbsUp, faTrashCan, faXma
 
 const DEFAULT_AVATAR = "/avatar-default.svg";
 
-// Component chính nhận dữ liệu từ Server Component truyền xuống
 export default function TrackDetail({ initialTrackData, id }) {
     const router = useRouter();
     const { bottomBarRef, nowPlaying, isPlaying, isLiked, setIsLiked, trackLikeCount, setTrackLikeCount, toggleLike } = useBottomBar();
     
-    // Khởi tạo state trực tiếp từ props server truyền xuống -> Không cần Loading
+    // State dữ liệu bài hát
     const [trackData, setTrackData] = useState(initialTrackData);
+
+    // State xử lý Hydration (Avatar & Like status)
+    const [userAvatar, setUserAvatar] = useState(DEFAULT_AVATAR);
+    const [savedIsLiked, setSavedIsLiked] = useState(false);
     
+    // State UI & Logic khác
     const [commentText, setCommentText] = useState("");
     const [likeLoading, setLikeLoading] = useState(false);
     const [showLikeToast, setShowLikeToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
-
-    const isCurrentTrack = nowPlaying.current?._id === id;
+    
     const [commentList, setCommentList] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(true);
     const [typeSubmit, setTypeSubmit] = useState("track");
     
-    // Khởi tạo các state logic comment dựa trên data có sẵn
     const [isNeedCreateBlock, setIsNeedCreateBlock] = useState(!initialTrackData.comments);
     const [placeCreateBlock, setPlaceCreateBlock] = useState(initialTrackData._id);
     const [blockSubmit, setBlockSubmit] = useState(initialTrackData.comments);
     
+    const isCurrentTrack = nowPlaying.current?._id === id;
     const commentInputRef = useRef();
 
-    // 1. Logic check User Like & Update Like Count (Chạy client side)
+    // 1. Fix lỗi Hydration Avatar: Lấy avatar thật từ localStorage sau khi mount
     useEffect(() => {
-        const initUserData = async () => {
-             // Cập nhật like count từ context nếu bài đang hát trùng với bài đang xem
-            if (nowPlaying.current?._id === id) {
-                setTrackLikeCount(trackData.likeCount || 0);
-            }
-
+        if (typeof window !== "undefined") {
             const userData = JSON.parse(localStorage.getItem("userInfo") || "{}");
-            // Lấy token an toàn từ cookie
+            if (userData?.thumbnailUrl) {
+                setUserAvatar(userData.thumbnailUrl);
+            }
+        }
+    }, []);
+
+    // 2. Fix lỗi Hydration Like Button: Lấy trạng thái like từ localStorage sau khi mount
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const userData = JSON.parse(localStorage.getItem("userInfo") || "{}");
+            if ((userData.likedTracks || []).includes(id)) {
+                setSavedIsLiked(true);
+            } else {
+                setSavedIsLiked(false);
+            }
+        }
+    }, [id]);
+
+    // 3. Sync dữ liệu ban đầu vào Context (Fix lỗi Loop: Bỏ trackData.likeCount khỏi dependency)
+    useEffect(() => {
+        if (nowPlaying.current?._id === id) {
+            setTrackLikeCount(trackData.likeCount || 0);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id, nowPlaying.current?._id, setTrackLikeCount]); 
+
+    // 4. Logic check User Like Status từ API để đảm bảo đồng bộ mới nhất
+    useEffect(() => {
+        const checkUserLike = async () => {
+            const userData = JSON.parse(localStorage.getItem("userInfo") || "{}");
             const tokenPart = document.cookie.split('accessToken=')[1];
             const accessToken = tokenPart ? tokenPart.split(';')[0] : null;
 
             if (userData._id && accessToken) {
                 try {
-                    // Logic cũ: Gọi API user để lấy likedTracks mới nhất
                     const userRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${userData._id}`, {
                         headers: { token: `Bearer ${accessToken}` },
                     });
                     
                     const userLikedTracks = userRes.data.data.likedTracks || [];
                     
-                    // Update state hiển thị trái tim
+                    // Cập nhật context nếu đang nghe bài này
                     if (nowPlaying.current?._id === id) {
                         setIsLiked(userLikedTracks.includes(id));
                     }
                     
-                    // Update localStorage
+                    // Cập nhật localStorage
                     const updatedUserData = { ...userData, likedTracks: userLikedTracks };
                     localStorage.setItem("userInfo", JSON.stringify(updatedUserData));
 
+                    // Cập nhật state nội bộ
+                    setSavedIsLiked(userLikedTracks.includes(id));
+
                 } catch (userError) {
                     console.error("Failed to fetch user like status", userError);
-                    // Fallback về localStorage cũ
-                    if (userData?.likedTracks && nowPlaying.current?._id === id) {
-                        setIsLiked(userData.likedTracks.includes(id));
-                    }
                 }
             }
         };
+        checkUserLike();
+    }, [id, nowPlaying.current?._id, setIsLiked]);
 
-        initUserData();
-    }, [id, nowPlaying.current?._id, setIsLiked, setTrackLikeCount, trackData.likeCount]);
-
-    // 2. Fetch Comments (Chạy client side)
+    // 5. Fetch Comments
     useEffect(() => {
         const fetchCommentData = async () => {
             try {
@@ -92,16 +116,24 @@ export default function TrackDetail({ initialTrackData, id }) {
                 setCommentList(res.data.data);
                 setIsSubmitted(false);
             } catch (error) {
-                console.error("Failed to fetch track comments data", error);
+                console.error("Failed to fetch comments", error);
             }
         };
 
-        // Chỉ fetch khi có ID comment block và trạng thái submit
         if (id && trackData.comments && isSubmitted) fetchCommentData();
     }, [id, trackData.comments, isSubmitted]);
 
+    // 6. Sync like count từ Context về Local State (khi người dùng like ở bottom bar)
+    useEffect(() => {
+        if (isCurrentTrack && trackLikeCount !== undefined) {
+            setTrackData(prev => prev ? { 
+                ...prev, 
+                likeCount: Math.max(0, trackLikeCount) 
+            } : prev);
+        }
+    }, [trackLikeCount, isCurrentTrack]);
 
-    // --- CÁC HÀM XỬ LÝ (GIỮ NGUYÊN TỪ CODE CŨ) ---
+    // --- CÁC HÀM XỬ LÝ ---
 
     const handleCreateBlock = async () => {
         if (!isNeedCreateBlock) return blockSubmit;
@@ -111,13 +143,8 @@ export default function TrackDetail({ initialTrackData, id }) {
             
             const res = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/api/comments/`,
-                {
-                    id: placeCreateBlock,
-                    type: typeSubmit,
-                },
-                {
-                    headers: { token: `Bearer ${token}` },
-                }
+                { id: placeCreateBlock, type: typeSubmit },
+                { headers: { token: `Bearer ${token}` } }
             );
             if (typeSubmit === "track") setTrackData((prev) => ({ ...prev, comments: res.data.data._id }));
             setBlockSubmit(res.data.data._id);
@@ -134,16 +161,10 @@ export default function TrackDetail({ initialTrackData, id }) {
             const tokenPart = document.cookie.split("accessToken=")[1];
             const token = tokenPart ? tokenPart.split(";")[0] : "";
 
-            const res = await axios.post(
+            await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/api/comments/comment`,
-                {
-                    id: blockId,
-                    content: commentText,
-                    timeline: 0,
-                },
-                {
-                    headers: { token: `Bearer ${token}` },
-                }
+                { id: blockId, content: commentText, timeline: 0 },
+                { headers: { token: `Bearer ${token}` } }
             );
         } catch (error) {
             console.error("Failed to add comment", error);
@@ -157,14 +178,12 @@ export default function TrackDetail({ initialTrackData, id }) {
         try {
             const tokenPart = document.cookie.split("accessToken=")[1];
             const token = tokenPart ? tokenPart.split(";")[0] : "";
-
-            const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/comments/${blockId}/${cmtId}`, {
+            await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/comments/${blockId}/${cmtId}`, {
                 headers: { token: `Bearer ${token}` },
             });
             setIsSubmitted(true);
         } catch (error) {
             console.log(error);
-            return;
         }
     };
 
@@ -180,30 +199,16 @@ export default function TrackDetail({ initialTrackData, id }) {
     useEffect(() => {
         if (!trackData) return;
         if (commentText.includes("@") && typeSubmit === "comments") return;
-
         setBlockSubmit(trackData.comments);
         setIsNeedCreateBlock(!trackData.comments);
         setPlaceCreateBlock(trackData._id);
         setTypeSubmit("track");
     }, [commentText, trackData]);
 
-    // Sync like count từ context về local state
-    useEffect(() => {
-        if (isCurrentTrack && trackLikeCount !== undefined) {
-            setTrackData(prev => prev ? { 
-                ...prev, 
-                likeCount: Math.max(0, trackLikeCount) 
-            } : prev);
-        }
-    }, [trackLikeCount, isCurrentTrack]);
-
     const handlePlayPause = async () => {
         if (nowPlaying.current?._id === id) {
-            if (isPlaying) {
-                bottomBarRef.current?.pause();
-            } else {
-                bottomBarRef.current?.resume();
-            }
+            if (isPlaying) bottomBarRef.current?.pause();
+            else bottomBarRef.current?.resume();
         } else {
             await bottomBarRef.current?.play(id, `single-track-${id}`);
         }
@@ -211,20 +216,27 @@ export default function TrackDetail({ initialTrackData, id }) {
 
     const handleLikeToggle = async () => {
         if (likeLoading) return;
-        
         try {
             setLikeLoading(true);
             const result = await toggleLike(id);
             
+            // Cập nhật Optimistic UI
             setTrackData((prev) => ({
                 ...prev,
                 likeCount: Math.max(0, result.likeCount || 0),
             }));
             
+            // Cập nhật savedIsLiked để UI đổi màu ngay lập tức
+            const userData = JSON.parse(localStorage.getItem("userInfo") || "{}");
+            if ((userData.likedTracks || []).includes(id)) {
+                setSavedIsLiked(true);
+            } else {
+                setSavedIsLiked(false);
+            }
+
             setToastMessage(result.message);
             setShowLikeToast(true);
             setTimeout(() => setShowLikeToast(false), 3000);
-
         } catch (error) {
             console.error("Failed to toggle like", error);
             const errorMessage = error.message === "Please log in to like tracks" 
@@ -239,9 +251,7 @@ export default function TrackDetail({ initialTrackData, id }) {
     };
 
     const goToArtist = () => {
-        if (trackData?.owner?._id) {
-            router.push(`/artist/${trackData.owner._id}`);
-        }
+        if (trackData?.owner?._id) router.push(`/artist/${trackData.owner._id}`);
     };
 
     const formatDuration = (seconds) => {
@@ -252,19 +262,12 @@ export default function TrackDetail({ initialTrackData, id }) {
         return `${min}:${sec < 10 ? "0" + sec : sec}`;
     };
 
-    const formatNumber = (num) => {
-        return new Intl.NumberFormat("vi-VN").format(num);
-    };
+    const formatNumber = (num) => new Intl.NumberFormat("vi-VN").format(num);
 
-    // Logic hiển thị nút like cho UI (kết hợp state local và global)
-    const currentIsLiked = isCurrentTrack ? isLiked : (() => {
-        if (typeof window === "undefined") return false;
-        const userData = JSON.parse(localStorage.getItem("userInfo") || "{}");
-        return (userData.likedTracks || []).includes(id);
-    })();
+    // Tính toán trạng thái Like an toàn cho Hydration
+    const currentIsLiked = isCurrentTrack ? isLiked : savedIsLiked;
 
     // --- RENDER UI ---
-
     return (
         <div className={layout.background}>
             <Header />
@@ -286,7 +289,7 @@ export default function TrackDetail({ initialTrackData, id }) {
                                     <div className={style.artistContainer}>
                                         <img
                                             src={trackData.owner?.thumbnailUrl || trackData.thumbnailUrl}
-                                            alt={trackData.owner?.nickname || trackData.owner?.username || "Artist"}
+                                            alt={trackData.owner?.nickname || "Artist"}
                                             className={style.smallArtistAvatar}
                                         />
                                         <span className={style.artistLink} onClick={goToArtist}>
@@ -300,28 +303,21 @@ export default function TrackDetail({ initialTrackData, id }) {
                                     <span className={style.metaDot}>•</span>
                                     <span className={style.trackDuration}>{formatDuration(trackData.duration)}</span>
                                 </div>
-                                {/* Track Stats */}
                                 <div className={style.trackStats}>
                                     <div className={style.statItem}>
-                                        <span className={style.statNumber}>
-                                            {formatNumber(trackData.playCount || 0)}
-                                        </span>
+                                        <span className={style.statNumber}>{formatNumber(trackData.playCount || 0)}</span>
                                         <span>plays</span>
                                     </div>
                                     <span className={style.metaDot}>•</span>
                                     <div className={style.statItem}>
-                                        <span className={style.statNumber}>
-                                            {formatNumber(trackData.likeCount || 0)}
-                                        </span>
+                                        <span className={style.statNumber}>{formatNumber(trackData.likeCount || 0)}</span>
                                         <span>likes</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Track Body Section */}
                         <div className={style.trackBodySection}>
-                            {/* Track Controls */}
                             <div className={style.trackControlsSection}>
                                 <div className={style.controlsWrapper}>
                                     <button
@@ -347,17 +343,15 @@ export default function TrackDetail({ initialTrackData, id }) {
                                             height={20}
                                         />
                                     </button>
-
                                     <button className={style.moreButton}>•••</button>
                                 </div>
                             </div>
 
-                            {/* Artist Info */}
                             <div className={style.artistInfoSection}>
                                 <div className={style.artistCard} onClick={goToArtist}>
                                     <img
                                         src={trackData.owner?.thumbnailUrl || trackData.thumbnailUrl}
-                                        alt={trackData.owner?.nickname || trackData.owner?.username || "Artist"}
+                                        alt="Artist"
                                         className={style.artistAvatar}
                                     />
                                     <div className={style.artistInfo}>
@@ -379,7 +373,6 @@ export default function TrackDetail({ initialTrackData, id }) {
                                 <span className={style.commentsCount}>{commentList?.comments?.length ?? 0} comments</span>
                             </div>
 
-                            {/* Scrollable Comment List */}
                             <div className={style.commentListWrapper}>
                                 {commentList?.comments?.map((cmt) => (
                                     <BlockComment
@@ -393,13 +386,9 @@ export default function TrackDetail({ initialTrackData, id }) {
                                 ))}
                             </div>
 
-                            {/* Bottom Input Bar */}
                             <div className={style.bottomBar}>
                                 <img
-                                    src={
-                                        (typeof window !== "undefined" && JSON.parse(localStorage.getItem("userInfo"))?.thumbnailUrl) ||
-                                        DEFAULT_AVATAR
-                                    }
+                                    src={userAvatar}
                                     className={style.inputAvatar}
                                     alt="me"
                                 />
@@ -413,28 +402,17 @@ export default function TrackDetail({ initialTrackData, id }) {
                                         ref={commentInputRef}
                                         onChange={(e) => setCommentText(e.target.value)}
                                         onKeyDown={(e) => {
-                                            if (e.key === "Enter" && commentText.trim()) {
-                                                handleSubmitComment();
-                                            }
+                                            if (e.key === "Enter" && commentText.trim()) handleSubmitComment();
                                         }}
                                     />
                                     <div className={style.inputActions}>
                                         {commentText.length > 0 && (
-                                            <button
-                                                className={style.inputBtn}
-                                                onClick={() => setCommentText("")}
-                                                title="Clear"
-                                            >
+                                            <button className={style.inputBtn} onClick={() => setCommentText("")} title="Clear">
                                                 <FontAwesomeIcon icon={faXmarkCircle} />
                                             </button>
                                         )}
-
                                         {commentText.trim().length > 0 && (
-                                            <button
-                                                className={clsx(style.inputBtn, style.sendBtn)}
-                                                title="Submit"
-                                                onClick={handleSubmitComment}
-                                            >
+                                            <button className={clsx(style.inputBtn, style.sendBtn)} title="Submit" onClick={handleSubmitComment}>
                                                 <FontAwesomeIcon icon={faPaperPlane} />
                                             </button>
                                         )}
@@ -445,18 +423,12 @@ export default function TrackDetail({ initialTrackData, id }) {
                     </div>
                 </div>
             </div>
-
-            {/* Like Toast Notification */}
-            {showLikeToast && (
-                <div className={style.likeToast}>
-                    {toastMessage}
-                </div>
-            )}
+            {showLikeToast && <div className={style.likeToast}>{toastMessage}</div>}
         </div>
     );
 }
 
-// --- CÁC COMPONENT PHỤ (BLOCK COMMENT & COMMENT) ---
+// --- COMPONENTS PHỤ ---
 
 const BlockComment = ({ data, blockId, isSubmitted, handleDeleteComment, handleReplyButton }) => {
     const [showReplies, setShowReplies] = useState(false);
@@ -491,7 +463,7 @@ const BlockComment = ({ data, blockId, isSubmitted, handleDeleteComment, handleR
                 timeline={data.timeline}
                 content={data.content}
                 likeCount={data.likeCount}
-                isOwner={typeof window !== "undefined" && data.owner._id === JSON.parse(localStorage.getItem("userInfo"))?._id}
+                isOwner={typeof window !== "undefined" && data.owner._id === JSON.parse(localStorage.getItem("userInfo") || "{}")?._id}
                 cmtId={data._id}
                 blockId={blockId}
                 replyId={data.replies}
@@ -512,7 +484,7 @@ const BlockComment = ({ data, blockId, isSubmitted, handleDeleteComment, handleR
                                 timeline={cmt.message.timeline}
                                 content={cmt.message.content}
                                 likeCount={cmt.message.likeCount}
-                                isOwner={typeof window !== "undefined" && cmt.message.owner._id === JSON.parse(localStorage.getItem("userInfo"))?._id}
+                                isOwner={typeof window !== "undefined" && cmt.message.owner._id === JSON.parse(localStorage.getItem("userInfo") || "{}")?._id}
                                 cmtId={cmt.message._id}
                                 blockId={data.replies}
                                 replyId={cmt.message.replies}
@@ -580,7 +552,6 @@ const Comment = ({
             <div className={style.commentBody}>
                 <div className={style.commentMeta}>
                     <span className={style.username}>{username}</span>
-                    {/* <span className={style.timestamp}>{timeline}</span> */}
                     {isOwner && (
                         <button
                             className={style.deleteBtn}
