@@ -1,47 +1,57 @@
 "use client";
 
-import { use, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image"; // Dùng Image của Next.js cho ảnh tĩnh
 import clsx from "clsx";
+import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPencil, faXmark } from "@fortawesome/free-solid-svg-icons";
+
 import layout from "~/app/homepage.module.scss";
 import styles from "./playlists.module.css";
 import Header from "~/app/components/Header";
 import Sidebar from "~/app/components/Sidebar";
-import axios from "axios";
-import { useBottomBar } from "~/context/BottombarContext";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsis, faL, faPencil, faXmark } from "@fortawesome/free-solid-svg-icons";
-import Image from "next/image";
 import ConfirmModal from "~/app/components/ConfirmModal";
+import { useBottomBar } from "~/context/BottombarContext";
 
 // --- Constants ---
-
 const DEFAULT_PLAYLIST_COVER = "/playlist-default.png";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // --- Helper Functions ---
+
+// Lấy Access Token an toàn từ Cookie
+function getAccessToken() {
+    if (typeof document === "undefined") return null;
+    const match = document.cookie.match(new RegExp("(^| )accessToken=([^;]+)"));
+    return match ? match[2] : null;
+}
+
+// Tạo config header cho axios
+function getAuthHeader() {
+    const token = getAccessToken();
+    return token ? { headers: { token: `Bearer ${token}` } } : {};
+}
 
 function nextUnnamedName(list) {
     for (let i = 1; ; i++) {
         const candidate = `Unnamed Playlist #${i}`;
-        const taken = list.some((p) => (p.name || "").trim().toLowerCase() === candidate.toLowerCase());
+        const taken = list.some((p) => (p.title || "").trim().toLowerCase() === candidate.toLowerCase());
         if (!taken) return candidate;
     }
 }
 
-function delay(ms) {
-    return new Promise((res) => setTimeout(res, ms));
-}
-
 function formatDuration(s) {
+    if (!s) return "0:00";
     const m = Math.floor(s / 60);
     const ss = Math.floor(s % 60);
-    return `${m}:${ss}`;
+    return `${m}:${ss < 10 ? "0" + ss : ss}`;
 }
 
 function getOwnerId(track) {
     if (!track?.owner) return null;
-    // Nếu owner là object (đã populate), lấy _id. Nếu là chuỗi, lấy chính nó.
-    return typeof track.owner === 'object' ? track.owner._id : track.owner;
+    return typeof track.owner === "object" ? track.owner._id : track.owner;
 }
 
 // --- Main Page Component ---
@@ -53,108 +63,133 @@ export default function PlaylistsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [toast, setToast] = useState(null);
+    
+    // Modal States
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [isEditPlaylistOpen, setIsEditPlaylistOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [pickerResults, setPickerResults] = useState([]);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [playlistToDelete, setPlaylistToDelete] = useState(null);
+
+    // Search States
+    const [searchTerm, setSearchTerm] = useState("");
+    const [pickerResults, setPickerResults] = useState([]);
+
     const { bottomBarRef, shufflePlaylist } = useBottomBar();
 
     const current = useMemo(() => playlists.find((p) => p._id === selectedId) || null, [playlists, selectedId]);
 
     // --- Effects ---
-    useEffect(() => {
-        (async () => {
-            try {
-                const userData = JSON.parse(localStorage.getItem("userInfo"));
-                const dataFetch = [];
-                for (const playlistId of userData.playlists) {
-                    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${playlistId}`);
-                    dataFetch.push(res.data.data);
-                }
-                setPlaylists(dataFetch);
-            } catch {
-                setError("Unable to load playlist");
-            } finally {
-                setLoading(false);
-            }
-        })();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
+    // 1. Fetch Playlists (Optimized with Promise.all)
     useEffect(() => {
         let active = true;
-        const fetchApi = async () => {
-            const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/api/search`);
-            url.searchParams.set("q", searchTerm);
-            const results = await axios.get(url.href, {
-                headers: {
-                    token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
-                },
-            });
-            if (active) {
-                setPickerResults(results.data.data);
-            }
-        };
+        (async () => {
+            try {
+                const storedInfo = localStorage.getItem("userInfo");
+                if (!storedInfo) throw new Error("User info not found");
+                
+                const userData = JSON.parse(storedInfo);
+                if (!userData.playlists || userData.playlists.length === 0) {
+                    setPlaylists([]);
+                    setLoading(false);
+                    return;
+                }
 
-        if (searchTerm) fetchApi();
-        return () => {
-            active = false;
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+                // Gọi song song tất cả request thay vì tuần tự
+                const promises = userData.playlists.map((id) => 
+                    axios.get(`${API_URL}/api/playlists/${id}`).catch(() => null) // Nếu 1 cái lỗi, trả về null để không crash cả trang
+                );
+
+                const responses = await Promise.all(promises);
+                
+                if (active) {
+                    // Lọc bỏ những request bị lỗi (null)
+                    const validPlaylists = responses
+                        .filter(res => res && res.data && res.data.data)
+                        .map(res => res.data.data);
+                    
+                    setPlaylists(validPlaylists);
+                }
+            } catch (err) {
+                console.error(err);
+                if (active) setError("Unable to load playlists");
+            } finally {
+                if (active) setLoading(false);
+            }
+        })();
+        return () => { active = false; };
+    }, []);
+
+    // 2. Debounced Search
+    useEffect(() => {
+        if (!searchTerm) {
+            setPickerResults([]);
+            return;
+        }
+
+        const delayDebounceFn = setTimeout(async () => {
+            try {
+                const res = await axios.get(`${API_URL}/api/search`, {
+                    params: { q: searchTerm },
+                    ...getAuthHeader(),
+                });
+                setPickerResults(res.data.data);
+            } catch (error) {
+                console.error("Search error", error);
+            }
+        }, 500); // Đợi 500ms sau khi ngừng gõ mới gọi API
+
+        return () => clearTimeout(delayDebounceFn);
     }, [searchTerm]);
 
+    // 3. Sync LocalStorage (Safe Mode)
     useEffect(() => {
-        localStorage.setItem(
-            "userInfo",
-            JSON.stringify({
-                ...JSON.parse(localStorage.getItem("userInfo")),
-                playlists: playlists.map((pl) => pl._id),
-            })
-        );
-    }, [playlists]);
+        // Chỉ sync khi đã load xong và không có lỗi nghiêm trọng
+        if (!loading && !error) {
+            try {
+                const oldInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
+                const newInfo = {
+                    ...oldInfo,
+                    playlists: playlists.map((pl) => pl._id),
+                };
+                localStorage.setItem("userInfo", JSON.stringify(newInfo));
+            } catch (e) {
+                console.error("Failed to sync localStorage", e);
+            }
+        }
+    }, [playlists, loading, error]);
 
     // --- Event Handlers ---
-    const handleEditPlaylist = () => setIsEditPlaylistOpen((prev) => !prev);
 
     const handleCreate = async (nameRaw) => {
-        const name = nameRaw?.trim();
-        const finalName = name || nextUnnamedName(playlists);
+        const title = (nameRaw || "").trim() || nextUnnamedName(playlists);
+        const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+
         try {
             const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/playlists`,
-                {
-                    title: finalName,
-                    userId: JSON.parse(localStorage.getItem("userInfo"))._id,
-                },
-                {
-                    headers: {
-                        token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
-                    },
-                }
+                `${API_URL}/api/playlists`,
+                { title, userId: userInfo._id },
+                getAuthHeader()
             );
-            setPlaylists((prev) => [res.data.data, ...prev]);
-            setSelectedId(res.data.data._id);
-            setToast({ type: "success", message: "New playlist created successfully" });
+            
+            const newPlaylist = res.data.data;
+            setPlaylists((prev) => [newPlaylist, ...prev]);
+            setSelectedId(newPlaylist._id);
+            setToast({ type: "success", message: "Playlist created successfully" });
         } catch (e) {
             setToast({
                 type: "error",
-                message: e?.code === "DUPLICATE" ? "Playlist name already exists" : "Unable to create new playlist",
+                message: e?.response?.data?.code === "DUPLICATE" ? "Playlist name already exists" : "Unable to create playlist",
             });
         }
     };
 
     const handleDeletePlaylist = async (id) => {
         try {
-            await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${id}`, {
-                headers: {
-                    token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
-                },
-            });
+            await axios.delete(`${API_URL}/api/playlists/${id}`, getAuthHeader());
             setPlaylists((prev) => prev.filter((p) => p._id !== id));
-            setSelectedId((cur) => (cur === id ? null : cur));
+            if (selectedId === id) setSelectedId(null);
             setToast({ type: "success", message: "Playlist deleted" });
         } catch {
             setToast({ type: "error", message: "Failed to delete playlist" });
@@ -172,19 +207,12 @@ export default function PlaylistsPage() {
         }
         try {
             const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${current._id}/add`,
-                {
-                    trackId: track._id,
-                },
-                {
-                    headers: {
-                        token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
-                    },
-                }
+                `${API_URL}/api/playlists/${current._id}/add`,
+                { trackId: track._id },
+                getAuthHeader()
             );
-            setPlaylists((prev) => {
-                return [res.data.data, ...prev.filter((pl) => pl._id !== current._id)];
-            });
+            // Cập nhật lại playlist hiện tại trong danh sách
+            setPlaylists((prev) => prev.map(pl => pl._id === current._id ? res.data.data : pl));
             setToast({ type: "success", message: "Song added" });
         } catch {
             setToast({ type: "error", message: "Failed to add song" });
@@ -192,302 +220,132 @@ export default function PlaylistsPage() {
     };
 
     const handleRemoveSong = async (trackId) => {
-        if (!current) return;
-        if (!confirm("Remove this song from the playlist?")) return;
+        if (!current || !confirm("Remove this song from the playlist?")) return;
         try {
-            const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${current._id}/remove`, {
-                data: {
-                    trackId,
-                },
-                headers: {
-                    token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
-                },
+            const res = await axios.delete(`${API_URL}/api/playlists/${current._id}/remove`, {
+                data: { trackId },
+                ...getAuthHeader(),
             });
-            setPlaylists((prev) => [res.data.data, ...prev.filter((pl) => pl._id !== current._id)]);
-            setToast({ type: "success", message: "Song removed from playlist" });
+            setPlaylists((prev) => prev.map(pl => pl._id === current._id ? res.data.data : pl));
+            setToast({ type: "success", message: "Song removed" });
         } catch {
-            setToast({ type: "error", message: "Failed to remove song from playlist" });
+            setToast({ type: "error", message: "Failed to remove song" });
         }
-    };
-
-    const toggleTrack = async (trackID) => {
-        const index = current.tracks.findIndex((track) => track._id === trackID);
-        await bottomBarRef.current.play(trackID, current._id, index);
     };
 
     const handleSubmitUpdatePlaylist = async ({ title, description, thumbnailFile }) => {
         if (!current) return;
 
-        const updateInfo = async () => {
-            try {
-                const res = await axios.put(
-                    `${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${current._id}`,
-                    {
-                        title,
-                        description,
-                    },
-                    {
-                        headers: {
-                            token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
-                        },
-                    }
-                );
-                setPlaylists((prev) => [res.data.data, ...prev.filter((pl) => pl._id !== current._id)]);
-                setToast({ type: "success", message: "Modify success" });
-            } catch (error) {
-                setToast({ type: "error", message: "Failed to modify playlist info" });
-            }
-        };
+        try {
+            let updatedData = null;
 
-        const updateThumbnail = async () => {
-            try {
+            // 1. Update Info
+            if (title !== undefined || description !== undefined) {
+                const res = await axios.put(
+                    `${API_URL}/api/playlists/${current._id}`,
+                    { title, description },
+                    getAuthHeader()
+                );
+                updatedData = res.data.data;
+            }
+
+            // 2. Update Thumbnail (if provided)
+            if (thumbnailFile) {
                 const formData = new FormData();
-                if (thumbnailFile) formData.append("thumbnail", thumbnailFile);
-
+                formData.append("thumbnail", thumbnailFile);
                 const res = await axios.put(
-                    `${process.env.NEXT_PUBLIC_API_URL}/api/playlists/${current._id}/thumbnail`,
+                    `${API_URL}/api/playlists/${current._id}/thumbnail`,
                     formData,
-                    {
-                        headers: {
-                            token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
-                        },
-                    }
+                    getAuthHeader()
                 );
-                setPlaylists((prev) => [res.data.data, ...prev.filter((pl) => pl._id !== current._id)]);
-                setToast({ type: "success", message: "Modify success" });
-            } catch (error) {
-                setToast({ type: "error", message: "Failed to modify playlist thumbnail" });
+                updatedData = res.data.data;
+            } else if (thumbnailFile === null) { 
+                // Xử lý trường hợp nếu bạn có API xóa thumbnail (optional logic)
             }
-        };
 
-        if (title || description || description === "") await updateInfo();
-        await updateThumbnail();
-
-        handleEditPlaylist();
+            if (updatedData) {
+                setPlaylists((prev) => prev.map(pl => pl._id === current._id ? updatedData : pl));
+                setToast({ type: "success", message: "Playlist updated" });
+            }
+            setIsEditPlaylistOpen(false);
+        } catch (error) {
+            setToast({ type: "error", message: "Update failed" });
+        }
     };
 
     const playPlaylist = async () => {
-        const idx = shufflePlaylist ? Math.floor(Math.random() * (current.tracks.length)) : 0;
+        if (!current?.tracks?.length) return;
+        const idx = shufflePlaylist ? Math.floor(Math.random() * current.tracks.length) : 0;
         await bottomBarRef.current.play(current.tracks[idx]._id, current._id, idx);
     };
 
     // --- Render ---
     return (
         <div className={layout.background}>
-            {/* Header */}
             <Header />
-            {/* Sidebar */}
             <Sidebar />
 
-            <main className={clsx(styles.main)}>
+            <main className={styles.main}>
                 {loading ? (
-                    <div className={styles.centerMsg}>Loading...</div>
+                    <div className={styles.centerMsg}>
+                        <div className={styles.loader}></div> Loading your library...
+                    </div>
                 ) : error ? (
-                    <div className={styles.errorBox}>{error}</div>
+                    <div className={styles.errorBox}>
+                        <p>{error}</p>
+                        <button className={styles.secondary} onClick={() => window.location.reload()}>Retry</button>
+                    </div>
                 ) : (
                     <>
                         {!current ? (
-                            <div className={clsx(styles.grid, styles.gridSingle)}>
-                                <section className={styles.leftCol} aria-labelledby="my-playlists-heading">
-                                    <div className={styles.sectionHeader}>
-                                        <div>
-                                            <h1 id="my-playlists-heading">My Playlists</h1>
-                                        </div>
-                                        <button className={styles.primary} onClick={() => setIsCreateOpen(true)}>
-                                            + Create new playlist
-                                        </button>
-                                    </div>
-
-                                    <ul className={styles.playlistGrid}>
-                                        {playlists.map((pl) => (
-                                            <li key={pl._id} className={styles.plItem}>
-                                                <button
-                                                    className={clsx(
-                                                        styles.playlistCard,
-                                                        pl._id === selectedId && styles.active
-                                                    )}
-                                                    onClick={() => setSelectedId(pl._id)}
-                                                    aria-pressed={pl._id === selectedId}
-                                                >
-                                                    <img
-                                                        src={pl?.thumbnailUrl || DEFAULT_PLAYLIST_COVER}
-                                                        alt="Cover"
-                                                        className={styles.cover}
-                                                    />
-                                                    <span className={styles.plName}>{pl.title}</span>
-                                                    <span className={styles.plMeta}>{pl.tracks.length} songs</span>
-                                                </button>
-
-                                                <button
-                                                    className={styles.hoverDelete}
-                                                    title="Delete playlist"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setPlaylistToDelete(pl._id);
-                                                        setIsConfirmOpen(true);
-                                                        // handleDeletePlaylist(pl._id);
-                                                    }}
-                                                >
-                                                    Delete
-                                                </button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </section>
-                            </div>
+                            <PlaylistListView 
+                                playlists={playlists}
+                                selectedId={selectedId}
+                                onSelect={setSelectedId}
+                                onCreate={() => setIsCreateOpen(true)}
+                                onDeleteRequest={(id) => {
+                                    setPlaylistToDelete(id);
+                                    setIsConfirmOpen(true);
+                                }}
+                            />
                         ) : (
-                            <section
-                                className={clsx(styles.rightCol, styles.detailFull)}
-                                aria-labelledby="playlist-detail-heading"
-                            >
-                                <div className={styles.detailTopBar}>
-                                    <button className={styles.backBtn} onClick={() => setSelectedId(null)}>
-                                        &#8592; Return
-                                    </button>
-                                </div>
-
-                                <div className={styles.sectionHeader}>
-                                    <div className={styles.detailHeader}>
-                                        <button className={styles.detailCover}>
-                                            <img
-                                                src={
-                                                    !!current.thumbnailUrl
-                                                        ? current.thumbnailUrl
-                                                        : DEFAULT_PLAYLIST_COVER
-                                                }
-                                                alt=""
-                                                className={styles.detailCover}
-                                                onClick={handleEditPlaylist}
-                                            />
-                                            <FontAwesomeIcon icon={faPencil} className={styles.detailIcon}/>
-                                        </button>
-                                        <div className={styles.detailText}>
-                                            <h1
-                                                id="playlist-detail-heading"
-                                                className={styles.detailTitle}
-                                                onClick={handleEditPlaylist}
-                                            >
-                                                {current.title}
-                                            </h1>
-                                            {current.description && (
-                                                <p className={styles.detailDesc}>{current.description}</p>
-                                            )}
-                                            <p className={styles.detailMeta}>{current.tracks.length} tracks</p>
-                                        </div>
-                                    </div>
-
-                                    <div className={styles.rowGap}>
-                                        <button className={styles.secondary} onClick={() => setIsAddOpen(true)}>
-                                            Add track
-                                        </button>
-                                        <button className={styles.ghost} onClick={playPlaylist}>
-                                            Play
-                                        </button>
-                                        <button
-                                            className={styles.ghost}
-                                            onClick={() => navigator.clipboard.writeText(location.href)}
-                                        >
-                                            Share
-                                        </button>
-                                        <button
-                                            className={styles.danger}
-                                            onClick={() => { 
-                                                setPlaylistToDelete(current._id);
-                                                setIsConfirmOpen(true)
-                                            }}
-                                        >
-                                            Delete playlist
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {current.tracks.length === 0 ? (
-                                    <div className={styles.emptyState}>
-                                        <p>No tracks found in this playlist.</p>
-                                        <button className={styles.primary} onClick={() => setIsAddOpen(true)}>
-                                            + Add track
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <table className={styles.table}>
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Track</th>
-                                                <th>Artist</th>
-                                                <th>Duration</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {current.tracks.map((t, idx) => (
-                                                <tr key={t._id}>
-                                                    <td>{idx + 1}</td>
-                                                    <td className={styles.songCell}>
-                                                        <img src={t.thumbnailUrl} alt="" />
-                                                        <span>{t.title}</span>
-                                                    </td>
-                                                    <td>
-                                                        <Link 
-                                                            href={getOwnerId(t) ? `/artist/${getOwnerId(t)}` : "#"}
-                                                            onClick={(e) => {
-                                                                if (!getOwnerId(t)) e.preventDefault();
-                                                            }}
-                                                            className={styles.Artist}
-                                                        >
-                                                            {t.artist}
-                                                        </Link>
-                                                    </td>
-                                                    <td>
-                                                        {formatDuration(t.duration) === "0:0"
-                                                            ? ""
-                                                            : formatDuration(t.duration)}
-                                                    </td>
-                                                    <td className={styles.rowActions}>
-                                                        <button
-                                                            className={styles.iconBtn}
-                                                            title="Play"
-                                                            onClick={async () => await toggleTrack(t._id)}
-                                                        >
-                                                            ▶
-                                                        </button>
-                                                        <button
-                                                            className={styles.iconBtn}
-                                                            title="Remove"
-                                                            onClick={() => handleRemoveSong(t._id)}
-                                                        >
-                                                            ✕
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                )}
-                            </section>
+                            <PlaylistDetailView 
+                                current={current}
+                                onBack={() => setSelectedId(null)}
+                                onEdit={() => setIsEditPlaylistOpen(true)}
+                                onAdd={() => setIsAddOpen(true)}
+                                onPlay={playPlaylist}
+                                onDeleteRequest={() => {
+                                    setPlaylistToDelete(current._id);
+                                    setIsConfirmOpen(true);
+                                }}
+                                onToggleTrack={async (tid) => {
+                                    const idx = current.tracks.findIndex(t => t._id === tid);
+                                    await bottomBarRef.current.play(tid, current._id, idx);
+                                }}
+                                onRemoveSong={handleRemoveSong}
+                            />
                         )}
-                        {/* Confirm Delete Playlist Modal */}
+
                         <ConfirmModal
                             isOpen={isConfirmOpen && !!playlistToDelete}
-                            onClose={() => {  // Đóng khi bấm Hủy
+                            onClose={() => {
                                 setPlaylistToDelete(null);
                                 setIsConfirmOpen(false);
-                            }}           
-                            onConfirm={() => handleDeletePlaylist(playlistToDelete)}    // Chạy hàm xóa khi bấm Yes
+                            }}
+                            onConfirm={() => handleDeletePlaylist(playlistToDelete)}
                             title="Delete Playlist"
-                            message="Are you sure you want to delete this playlist? This action cannot be undone."
+                            message="Are you sure? This action cannot be undone."
                         />
                     </>
                 )}
             </main>
 
+            {/* --- Modals --- */}
             {isCreateOpen && (
                 <CreatePlaylistModal
                     onClose={() => setIsCreateOpen(false)}
-                    onSubmit={(name) => {
-                        setIsCreateOpen(false);
-                        handleCreate(name);
-                    }}
+                    onSubmit={handleCreate}
                     existingNames={playlists.map((p) => p.title.toLowerCase())}
                 />
             )}
@@ -495,10 +353,7 @@ export default function PlaylistsPage() {
             {isAddOpen && (
                 <AddSongModal
                     onClose={() => setIsAddOpen(false)}
-                    onPick={(track) => {
-                        // setIsAddOpen(false);
-                        handleAddSong(track);
-                    }}
+                    onPick={handleAddSong}
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
                     results={pickerResults}
@@ -509,8 +364,8 @@ export default function PlaylistsPage() {
                 <EditPlaylistInfoPopup
                     playlistTitle={current?.title}
                     playlistDesc={current?.description}
-                    playlistThumbnail={!!current?.thumbnailUrl ? current?.thumbnailUrl : undefined}
-                    closeAction={handleEditPlaylist}
+                    playlistThumbnail={current?.thumbnailUrl}
+                    closeAction={() => setIsEditPlaylistOpen(false)}
                     submitAction={handleSubmitUpdatePlaylist}
                 />
             )}
@@ -520,50 +375,165 @@ export default function PlaylistsPage() {
     );
 }
 
-// --- Subcomponents ---
+// --- Separated Sub-components for Cleaner Code ---
+
+function PlaylistListView({ playlists, selectedId, onSelect, onCreate, onDeleteRequest }) {
+    return (
+        <div className={clsx(styles.grid, styles.gridSingle)}>
+            <section className={styles.leftCol}>
+                <div className={styles.sectionHeader}>
+                    <h1>My Playlists</h1>
+                    <button className={styles.primary} onClick={onCreate}>+ Create new playlist</button>
+                </div>
+                <ul className={styles.playlistGrid}>
+                    {playlists.map((pl) => (
+                        <li key={pl._id} className={styles.plItem}>
+                            <button
+                                className={clsx(styles.playlistCard, pl._id === selectedId && styles.active)}
+                                onClick={() => onSelect(pl._id)}
+                            >
+                                <img
+                                    src={pl?.thumbnailUrl || DEFAULT_PLAYLIST_COVER}
+                                    alt={pl.title}
+                                    className={styles.cover}
+                                    loading="lazy"
+                                />
+                                <span className={styles.plName}>{pl.title}</span>
+                                <span className={styles.plMeta}>{pl.tracks?.length || 0} songs</span>
+                            </button>
+                            <button
+                                className={styles.hoverDelete}
+                                title="Delete playlist"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDeleteRequest(pl._id);
+                                }}
+                            >
+                                Delete
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </section>
+        </div>
+    );
+}
+
+function PlaylistDetailView({ current, onBack, onEdit, onAdd, onPlay, onDeleteRequest, onToggleTrack, onRemoveSong }) {
+    return (
+        <section className={clsx(styles.rightCol, styles.detailFull)}>
+            <div className={styles.detailTopBar}>
+                <button className={styles.backBtn} onClick={onBack}>&#8592; Return</button>
+            </div>
+
+            <div className={styles.sectionHeader}>
+                <div className={styles.detailHeader}>
+                    <button className={styles.detailCover} onClick={onEdit}>
+                        <img 
+                            src={current.thumbnailUrl || DEFAULT_PLAYLIST_COVER} 
+                            alt={current.title} 
+                            className={styles.detailCover} 
+                        />
+                        <FontAwesomeIcon icon={faPencil} className={styles.detailIcon} />
+                    </button>
+                    <div className={styles.detailText}>
+                        <h1 className={styles.detailTitle} onClick={onEdit}>{current.title}</h1>
+                        {current.description && <p className={styles.detailDesc}>{current.description}</p>}
+                        <p className={styles.detailMeta}>{current.tracks.length} tracks</p>
+                    </div>
+                </div>
+
+                <div className={styles.rowGap}>
+                    <button className={styles.secondary} onClick={onAdd}>Add track</button>
+                    <button className={styles.ghost} onClick={onPlay}>Play</button>
+                    <button className={styles.ghost} onClick={() => navigator.clipboard.writeText(location.href)}>Share</button>
+                    <button className={styles.danger} onClick={onDeleteRequest}>Delete playlist</button>
+                </div>
+            </div>
+
+            {current.tracks.length === 0 ? (
+                <div className={styles.emptyState}>
+                    <p>No tracks found in this playlist.</p>
+                    <button className={styles.primary} onClick={onAdd}>+ Add track</button>
+                </div>
+            ) : (
+                <table className={styles.table}>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Track</th>
+                            <th>Artist</th>
+                            <th>Duration</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {current.tracks.map((t, idx) => (
+                            <tr key={t._id}>
+                                <td>{idx + 1}</td>
+                                <td className={styles.songCell}>
+                                    <img src={t.thumbnailUrl} alt="" loading="lazy"/>
+                                    <span>{t.title}</span>
+                                </td>
+                                <td>
+                                    <Link 
+                                        href={getOwnerId(t) ? `/artist/${getOwnerId(t)}` : "#"}
+                                        className={styles.Artist}
+                                        onClick={(e) => !getOwnerId(t) && e.preventDefault()}
+                                    >
+                                        {t.artist}
+                                    </Link>
+                                </td>
+                                <td>{formatDuration(t.duration)}</td>
+                                <td className={styles.rowActions}>
+                                    <button className={styles.iconBtn} onClick={() => onToggleTrack(t._id)} title="Play">▶</button>
+                                    <button className={styles.iconBtn} onClick={() => onRemoveSong(t._id)} title="Remove">✕</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            )}
+        </section>
+    );
+}
+
+// --- Other Modal Components (Minimal Changes, mostly cleanup) ---
 
 function CreatePlaylistModal({ onClose, onSubmit, existingNames }) {
     const [name, setName] = useState("");
-    const [error, setError] = useState("");
+    const [err, setErr] = useState("");
     const inputRef = useRef(null);
 
-    useEffect(() => {
-        inputRef.current?.focus();
-    }, []);
+    useEffect(() => inputRef.current?.focus(), []);
 
     const handleConfirm = () => {
         const trimmed = name.trim();
         if (trimmed && existingNames.includes(trimmed.toLowerCase())) {
-            setError("Playlist name already exists");
+            setErr("Playlist name already exists");
             return;
         }
         onSubmit(trimmed);
+        onClose(); // Đóng ngay lập tức để trải nghiệm mượt hơn
     };
 
     return (
-        <div className={styles.modalBackdrop} role="dialog" aria-modal="true" aria-label="Create new playlist">
+        <div className={styles.modalBackdrop}>
             <div className={styles.modal}>
                 <h2>Create new playlist</h2>
-                <p className={styles.muted}>Can be left blank, system will set "Unnamed Playlist".</p>
+                <p className={styles.muted}>System will set "Unnamed Playlist" if left blank.</p>
                 <input
                     ref={inputRef}
                     className={styles.input}
                     placeholder="Enter playlist name"
                     value={name}
-                    onChange={(e) => {
-                        setName(e.target.value);
-                        setError("");
-                    }}
+                    onChange={(e) => { setName(e.target.value); setErr(""); }}
                     onKeyDown={(e) => e.key === "Enter" && handleConfirm()}
                 />
-                {error && <div className={styles.inlineError}>{error}</div>}
+                {err && <div className={styles.inlineError}>{err}</div>}
                 <div className={styles.modalActions}>
-                    <button className={styles.secondary} onClick={onClose}>
-                        Cancel
-                    </button>
-                    <button className={styles.primary} onClick={handleConfirm}>
-                        Create
-                    </button>
+                    <button className={styles.secondary} onClick={onClose}>Cancel</button>
+                    <button className={styles.primary} onClick={handleConfirm}>Create</button>
                 </div>
             </div>
         </div>
@@ -572,19 +542,16 @@ function CreatePlaylistModal({ onClose, onSubmit, existingNames }) {
 
 function AddSongModal({ onClose, onPick, searchTerm, setSearchTerm, results }) {
     const inputRef = useRef(null);
-
-    useEffect(() => {
-        inputRef.current?.focus();
-    }, []);
+    useEffect(() => inputRef.current?.focus(), []);
 
     return (
-        <div className={styles.modalBackdrop} role="dialog" aria-modal="true" aria-label="Add song">
+        <div className={styles.modalBackdrop}>
             <div className={styles.modal}>
                 <h2>Add song</h2>
                 <input
                     ref={inputRef}
                     className={styles.input}
-                    placeholder="Search songs by title, artist..."
+                    placeholder="Search songs..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -592,30 +559,78 @@ function AddSongModal({ onClose, onPick, searchTerm, setSearchTerm, results }) {
                     {results.map((t) => (
                         <li key={t._id}>
                             <button className={styles.resultRow} onClick={() => onPick(t)}>
-                                <img src={t.thumbnailUrl} alt="" />
+                                <img src={t.thumbnailUrl} alt="" loading="lazy"/>
                                 <div>
                                     <div className={styles.songTitle}>{t.title}</div>
-                                    <Link 
-                                        href={getOwnerId(t) ? `/artist/${getOwnerId(t)}` : "#"}
-                                        className={styles.songArtist}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (!getOwnerId(t)) e.preventDefault();
-                                        }}
-                                    >
-                                        {t.artist}
-                                    </Link>
+                                    <div className={styles.songArtist}>{t.artist}</div>
                                 </div>
-                                {/* <span className={styles.duration}>{formatDuration(t.duration)}</span> */}
                             </button>
                         </li>
                     ))}
                 </ul>
                 <div className={styles.modalActions}>
-                    <button className={styles.secondary} onClick={onClose}>
-                        Close
-                    </button>
+                    <button className={styles.secondary} onClick={onClose}>Close</button>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+function EditPlaylistInfoPopup({ playlistTitle, playlistDesc, playlistThumbnail, closeAction, submitAction }) {
+    const [title, setTitle] = useState(playlistTitle || "");
+    const [description, setDescription] = useState(playlistDesc || "");
+    const [thumbnailPreview, setThumbnailPreview] = useState(playlistThumbnail || DEFAULT_PLAYLIST_COVER);
+    const [thumbnailFile, setThumbnailFile] = useState(null);
+
+    const handleUpload = (e) => {
+        if (e.target.files?.[0]) {
+            setThumbnailFile(e.target.files[0]);
+            setThumbnailPreview(URL.createObjectURL(e.target.files[0]));
+        }
+    };
+
+    const handleRemove = () => {
+        setThumbnailPreview(DEFAULT_PLAYLIST_COVER);
+        setThumbnailFile(null); // null để báo hiệu có thể cần xóa ảnh cũ (nếu logic backend hỗ trợ)
+    };
+
+    return (
+        <div className={styles["edit-popup"]} onClick={closeAction}>
+            <div className={styles["edit-wrapper"]} onClick={(e) => e.stopPropagation()}>
+                <div className={styles["edit-header-wrapper"]}>
+                    <h2 className={styles["edit-header-title"]}>Edit details</h2>
+                    <button className={styles["edit-header-close"]} onClick={closeAction}><FontAwesomeIcon icon={faXmark} /></button>
+                </div>
+                <div className={styles["edit-main-wrapper"]}>
+                    <div className={styles["edit-image-wrapper"]}>
+                         {/* Dùng Image của Next.js ở đây nếu muốn tối ưu ảnh tĩnh, nhưng cần config domain.
+                             Ở đây giữ img để tránh lỗi config */}
+                        <img className={styles["edit-image"]} src={thumbnailPreview} alt="Preview" />
+                        <div className={styles["edit-image-placeholder"]}>
+                            <input type="file" className={styles["edit-image-placeholder-input"]} onChange={handleUpload} accept="image/*" />
+                            <FontAwesomeIcon icon={faPencil} />
+                            <span>Choose image</span>
+                            {thumbnailPreview !== DEFAULT_PLAYLIST_COVER && (
+                                <button className={styles["edit-image-options"]} onClick={(e) => { e.preventDefault(); handleRemove(); }}>
+                                    <FontAwesomeIcon icon={faXmark} />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                    <div className={styles["edit-info-wrapper"]}>
+                        <div className={styles["edit-title-group"]}>
+                            <input className={styles["edit-title-input"]} placeholder="Name" value={title} onChange={(e) => setTitle(e.target.value)} />
+                            <label className={styles["edit-title"]}>Title</label>
+                        </div>
+                        <div className={styles["edit-desc-group"]}>
+                            <textarea className={styles["edit-desc-input"]} placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+                            <label className={styles["edit-desc"]}>Description</label>
+                        </div>
+                    </div>
+                </div>
+                <button className={styles["edit-action-button"]} onClick={() => submitAction({ title, description, thumbnailFile })}>
+                    Save
+                </button>
             </div>
         </div>
     );
@@ -624,135 +639,10 @@ function AddSongModal({ onClose, onPick, searchTerm, setSearchTerm, results }) {
 function Toast({ toast, onDismiss }) {
     useEffect(() => {
         if (!toast) return;
-        const t = setTimeout(onDismiss, 2400);
+        const t = setTimeout(onDismiss, 2500);
         return () => clearTimeout(t);
     }, [toast, onDismiss]);
 
     if (!toast) return null;
-
-    return (
-        <div className={clsx(styles.toast, styles[toast.type])} role="status" aria-live="polite">
-            {toast.message}
-        </div>
-    );
-}
-
-function EditPlaylistInfoPopup({
-    playlistTitle = "",
-    playlistDesc = "",
-    playlistThumbnail = DEFAULT_PLAYLIST_COVER,
-    closeAction = () => {},
-    submitAction = () => {},
-}) {
-    const [title, setTitle] = useState(playlistTitle);
-    const [description, setDescription] = useState(playlistDesc);
-    const [thumbnailPreview, setThumbnailPreview] = useState();
-    const [thumbnailFile, setThumbnailFile] = useState();
-
-    const handleInput = (setState) => (e) => setState(e.target.value);
-    const handleUploadThumbnail = (e) => {
-        setThumbnailPreview(e.target.files.length ? URL.createObjectURL(e.target.files[0]) : undefined);
-        setThumbnailFile(e.target.files.length ? e.target.files[0] : undefined);
-    };
-    const handleRemoveThumbnail = (e) => {
-        setThumbnailPreview(DEFAULT_PLAYLIST_COVER);
-        if (thumbnailFile) setThumbnailFile(undefined);
-    };
-
-    const handleSubmit = () => {
-        if (title === "") return;
-        const data = {};
-        if (title !== playlistTitle) data.title = title;
-        if (description !== playlistDesc) data.description = description;
-        data.thumbnailFile = thumbnailFile;
-        submitAction(data);
-    };
-
-    useEffect(() => {
-        return () => {
-            if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
-        };
-    }, [thumbnailPreview]);
-
-    return (
-        <div className={clsx(styles["edit-popup"])} onClick={closeAction}>
-            <div className={clsx(styles["edit-wrapper"])} onClick={(e) => e.stopPropagation()}>
-                <div className={clsx(styles["edit-header-wrapper"])}>
-                    <h2 className={clsx(styles["edit-header-title"])}>Edit playlist details</h2>
-                    <button className={clsx(styles["edit-header-close"])} onClick={closeAction}>
-                        <FontAwesomeIcon icon={faXmark} />
-                    </button>
-                </div>
-                <div className={clsx(styles["edit-main-wrapper"])}>
-                    <div className={clsx(styles["edit-image-wrapper"])}>
-                        <Image
-                            className={clsx(styles["edit-image"])}
-                            src={thumbnailPreview || playlistThumbnail}
-                            width={100}
-                            height={100}
-                            alt=""
-                        />
-                        <div className={clsx(styles["edit-image-placeholder"])}>
-                            <input
-                                type="file"
-                                className={clsx(styles["edit-image-placeholder-input"])}
-                                name="thumbnail"
-                                onChange={handleUploadThumbnail}
-                                accept="image/*"
-                            />
-                            <FontAwesomeIcon icon={faPencil} className={clsx(styles["edit-image-placeholder-icon"])} />
-                            <span className={clsx(styles["edit-image-placeholder-text"])}>Choosing image</span>
-                            <button className={clsx(styles["edit-image-options"])} onClick={handleRemoveThumbnail}>
-                                <FontAwesomeIcon icon={faXmark} />
-                            </button>
-                        </div>
-                    </div>
-                    <div className={clsx(styles["edit-info-wrapper"])}>
-                        <div className={clsx(styles["edit-title-group"])}>
-                            <input
-                                className={clsx(styles["edit-title-input"], {
-                                    [styles["error"]]: title === "",
-                                    [styles["active"]]: title,
-                                })}
-                                placeholder="Name"
-                                name="title"
-                                value={title}
-                                onChange={handleInput(setTitle)}
-                            />
-                            <label className={clsx(styles["edit-title"])} htmlFor="title">
-                                Title
-                            </label>
-                        </div>
-                        <div className={clsx(styles["edit-desc-group"])}>
-                            <textarea
-                                className={clsx(styles["edit-desc-input"], {
-                                    [styles["active"]]: description,
-                                })}
-                                placeholder="Description (optional)"
-                                name="desc"
-                                value={description}
-                                onChange={handleInput(setDescription)}
-                            />
-                            <label className={clsx(styles["edit-desc"])} htmlFor="desc">
-                                Description
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <button
-                    className={clsx(styles["edit-action-button"], {
-                        [styles["active"]]:
-                            title && (title !== playlistTitle || description !== playlistDesc || thumbnailPreview),
-                    })}
-                    onClick={handleSubmit}
-                >
-                    <span>Save</span>
-                </button>
-                <strong className={clsx(styles["edit-details"])}>
-                    By continuing, you agree to allow MusicHub to access the images you have selected to upload. Please
-                    ensure you have permission to upload the images.
-                </strong>
-            </div>
-        </div>
-    );
+    return <div className={clsx(styles.toast, styles[toast.type])}>{toast.message}</div>;
 }

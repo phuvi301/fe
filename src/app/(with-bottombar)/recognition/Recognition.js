@@ -3,7 +3,6 @@ import styles from './recognition.module.css';
 import Image from 'next/image';
 import axios from 'axios';
 import { useBottomBar } from '~/context/BottombarContext';
-import { Key } from 'lucide-react';
 
 const MusicRecognitionModal = ({ onClose }) => {
     const [isRecording, setIsRecording] = useState(false);
