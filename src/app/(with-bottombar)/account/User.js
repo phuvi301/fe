@@ -2,109 +2,142 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styles from "./Account.module.css";
 import clsx from "clsx";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { faPencil, faXmark } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
+// Helper lấy token an toàn
+const getAccessToken = () => {
+    if (typeof document === 'undefined') return null;
+    const match = document.cookie.match(new RegExp('(^| )accessToken=([^;]+)'));
+    return match ? match[2] : null;
+};
+
 function User() {
-    const initState = useMemo(
-        () => ({
-            nickname: JSON.parse(localStorage.getItem("userInfo")).nickname || "",
-            email: JSON.parse(localStorage.getItem("userInfo")).email || "",
-            bio: JSON.parse(localStorage.getItem("userInfo")).bio || "",
-            thumbnailUrl: JSON.parse(localStorage.getItem("userInfo")).thumbnailUrl || "",
-            file: null,
-        }),
-        []
-    );
-    const [information, setInformation] = useState(initState);
     const router = useRouter();
+    const [loading, setLoading] = useState(true);
+    
+    // State khởi tạo rỗng để tránh Hydration Error
+    const [initialInfo, setInitialInfo] = useState({
+        nickname: "", email: "", bio: "", thumbnailUrl: "", username: "", _id: ""
+    });
+    const [information, setInformation] = useState({
+        nickname: "", email: "", bio: "", thumbnailUrl: "", file: null
+    });
 
-    function compare(obj1, obj2) {
-        const currentKeys = Object.keys(obj1);
+    // Load data từ LocalStorage khi component mount
+    useEffect(() => {
+        try {
+            const stored = JSON.parse(localStorage.getItem("userInfo") || "{}");
+            const data = {
+                _id: stored._id || "",
+                username: stored.username || "",
+                nickname: stored.nickname || "",
+                email: stored.email || "",
+                bio: stored.bio || "",
+                thumbnailUrl: stored.thumbnailUrl || "",
+            };
+            setInitialInfo(data);
+            setInformation({ ...data, file: null });
+        } catch (e) {
+            console.error("Error loading user info", e);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    // Cleanup object URL khi unmount hoặc đổi ảnh
+    useEffect(() => {
+        return () => {
+            if (information.file && information.thumbnailUrl) {
+                URL.revokeObjectURL(information.thumbnailUrl);
+            }
+        };
+    }, [information.file]); // Chỉ cleanup khi file thay đổi
+
+    // So sánh xem dữ liệu có thay đổi không
+    const hasChanged = useMemo(() => {
+        if (loading) return false;
         return (
-            currentKeys.length === Object.keys(obj2).length &&
-            currentKeys.every((key) => obj2.hasOwnProperty(key) && obj1[key] === obj2[key])
+            information.nickname !== initialInfo.nickname ||
+            information.bio !== initialInfo.bio ||
+            information.file !== null // Có file mới nghĩa là đã đổi
         );
-    }
+    }, [information, initialInfo, loading]);
 
-    const handleInputChange = (key) => (e) => setInformation((prev) => ({ ...prev, [key]: e.target.value }));
+    const handleInputChange = (key) => (e) => 
+        setInformation((prev) => ({ ...prev, [key]: e.target.value }));
 
-    const handleUploadThumbnail = (e) =>
-        setInformation((prev) => ({
+    const handleUploadThumbnail = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setInformation((prev) => ({
+                ...prev,
+                thumbnailUrl: URL.createObjectURL(file),
+                file: file,
+            }));
+        }
+    };
+
+    const handleResetThumbnail = () => {
+        setInformation(prev => ({
             ...prev,
-            thumbnailUrl: e.target.files.length ? URL.createObjectURL(e.target.files[0]) : "",
-            file: e.target.files.length ? e.target.files[0] : null,
+            thumbnailUrl: initialInfo.thumbnailUrl,
+            file: null
         }));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (compare(information, initState)) return;
+        if (!hasChanged) return;
 
-        const updateInfo = async () => {
-            try {
-                if (compare({nickname: information.nickname, bio: information.bio}, {nickname: initState.nickname, bio: initState.bio})) return null;
+        const token = getAccessToken();
+        const headers = { token: `Bearer ${token}` };
+        const userId = initialInfo._id;
+
+        try {
+            let updatedData = {};
+
+            // 1. Update Text Info
+            if (information.nickname !== initialInfo.nickname || information.bio !== initialInfo.bio) {
                 const res = await axios.put(
-                    `${process.env.NEXT_PUBLIC_API_URL}/api/users/${JSON.parse(localStorage.getItem("userInfo"))._id}`,
-                    {
-                        nickname: information.nickname,
-                        bio: information.bio,
-                    },
-                    {
-                        headers: {
-                            token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
-                        },
-                    }
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/users/${userId}`,
+                    { nickname: information.nickname, bio: information.bio },
+                    { headers }
                 );
-                return res.data.data;
-            } catch (error) {
-                console.log(error);
+                updatedData = { ...updatedData, ...res.data.data };
             }
-        };
 
-        const updateThumbnail = async () => {
-            try {
-                if (compare({thumbnailUrl: information.thumbnailUrl, file: information.file}, {thumbnailUrl: initState.thumbnailUrl, file: initState.file})) return null;
+            // 2. Update Thumbnail
+            if (information.file) {
                 const formData = new FormData();
-                if (information.thumbnailUrl) formData.append("thumbnail", information.file);
+                formData.append("thumbnail", information.file);
                 const res = await axios.put(
-                    `${process.env.NEXT_PUBLIC_API_URL}/api/users/${
-                        JSON.parse(localStorage.getItem("userInfo"))._id
-                    }/thumbnail`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/users/${userId}/thumbnail`,
                     formData,
-                    {
-                        headers: {
-                            token: `Bearer ${document.cookie.split("accessToken=")[1]}`,
-                        },
-                    }
+                    { headers }
                 );
-                return res.data.data;
-            } catch (error) {
-                console.log(error);
+                updatedData = { ...updatedData, ...res.data.data };
             }
-        };
 
-        const oldInfo = JSON.parse(localStorage.getItem("userInfo"));
-
-        const updatedInfo = await updateInfo();
-        const updatedThumb = await updateThumbnail();
-
-        const newInfo = {
-            ...oldInfo,
-            ...(updatedInfo || {}),
-            ...(updatedThumb || {}),
-        };
-
-        localStorage.setItem("userInfo", JSON.stringify(newInfo));
-        router.push("/");
+            // Sync lại LocalStorage & State
+            const newLocalStorage = { ...JSON.parse(localStorage.getItem("userInfo") || "{}"), ...updatedData };
+            localStorage.setItem("userInfo", JSON.stringify(newLocalStorage));
+            
+            // Cập nhật lại state gốc để nút Save disable lại
+            setInitialInfo(prev => ({ ...prev, ...updatedData }));
+            setInformation(prev => ({ ...prev, file: null, ...updatedData }));
+            
+            alert("Information updated successfully!");
+            // router.push("/"); // Có thể giữ lại trang này thay vì đẩy về Home để user thấy thay đổi
+        } catch (error) {
+            console.error("Update failed", error);
+            alert("Failed to update information.");
+        }
     };
 
-    useEffect(() => {
-        return () => {
-            if (information.thumbnailUrl) URL.revokeObjectURL(information.thumbnailUrl);
-        };
-    }, [information.thumbnailUrl]);
+    if (loading) return <div>Loading info...</div>;
 
     return (
         <>
@@ -117,27 +150,23 @@ function User() {
                         </label>
                         <input
                             className={clsx(styles["user-form-input"], styles["deactivate"])}
-                            value={JSON.parse(localStorage.getItem("userInfo")).username}
+                            value={initialInfo.username}
                             id="username"
                             readOnly
                         />
                     </div>
                     <div className={clsx(styles["user-form-group"])}>
-                        <label className={clsx(styles["user-form-label"])} htmlFor="email">
-                            Email
-                        </label>
+                        <label className={clsx(styles["user-form-label"])} htmlFor="email">Email</label>
                         <input
-                            className={clsx(styles["user-form-input"])}
+                            className={clsx(styles["user-form-input"], styles["deactivate"])} // Email thường không cho sửa trực tiếp
                             id="email"
                             type="email"
                             value={information.email}
-                            onChange={handleInputChange("email")}
+                            readOnly // Tạm thời để readOnly nếu API không hỗ trợ đổi email
                         />
                     </div>
                     <div className={clsx(styles["user-form-group"])}>
-                        <label className={clsx(styles["user-form-label"])} htmlFor="nickname">
-                            Nickname
-                        </label>
+                        <label className={clsx(styles["user-form-label"])} htmlFor="nickname">Nickname</label>
                         <input
                             className={clsx(styles["user-form-input"])}
                             id="nickname"
@@ -146,36 +175,35 @@ function User() {
                         />
                     </div>
                     <div className={clsx(styles["user-form-group"])}>
-                        <label className={clsx(styles["user-form-label"])} htmlFor="bio">
-                            Bio
-                        </label>
+                        <label className={clsx(styles["user-form-label"])} htmlFor="bio">Bio</label>
                         <div className={clsx(styles["user-form-text"])}>
                             <textarea
                                 value={information.bio}
                                 onChange={handleInputChange("bio")}
                                 id="bio"
                                 className={clsx(styles["user-form-textarea"])}
-                                placeholder="Tell the world a little bit about yourself. The shorter the better."
+                                placeholder="Tell the world a little bit about yourself."
                             ></textarea>
                         </div>
                     </div>
                     <div className={clsx(styles["user-form-group"])}>
                         <button
-                            className={clsx(styles["user-form-submit"], {
-                                [styles["changed"]]: !compare(information, initState),
-                            })}
+                            className={clsx(styles["user-form-submit"], { [styles["changed"]]: hasChanged })}
+                            disabled={!hasChanged}
                         >
                             Save changes
                         </button>
                     </div>
                 </form>
+
                 <div className={clsx(styles["user-image-wrapper"])}>
                     <img
                         src={information.thumbnailUrl || "/avatar-default.svg"}
                         width={100}
                         height={100}
-                        alt=""
+                        alt="Avatar"
                         className={clsx(styles["user-image"])}
+                        style={{ objectFit: "cover" }}
                     />
                     <div className={clsx(styles["user-image-placeholder"])}>
                         <input
@@ -187,9 +215,11 @@ function User() {
                         />
                         <FontAwesomeIcon icon={faPencil} className={clsx(styles["user-image-placeholder-icon"])} />
                         <span className={clsx(styles["user-image-placeholder-text"])}>Choosing image</span>
-                        <button className={clsx(styles["user-image-options"])}>
-                            <FontAwesomeIcon icon={faXmark} />
-                        </button>
+                        {information.file && (
+                            <button className={clsx(styles["user-image-options"])} onClick={(e) => { e.preventDefault(); handleResetThumbnail(); }}>
+                                <FontAwesomeIcon icon={faXmark} />
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

@@ -10,24 +10,13 @@ import style from "~/app/homepage.module.scss";
 import Sidebar from "../../components/Sidebar";
 
 const sidebarList = [
-    {
-        icon: './account.png',
-        tab: "Account",
-    },
-    {
-        icon: './info.png',
-        tab: "Personal Information",
-    },
-    {
-        icon: './security.png',
-        tab: "Security Methods",
-    },
+    { icon: '/account.png', tab: "Account" }, // Đã sửa ./ thành / để đường dẫn ảnh chuẩn hơn
+    { icon: '/info.png', tab: "Personal Information" },
+    { icon: '/security.png', tab: "Security Methods" },
 ];
 
 const AccountManager = () => {
     const [tabChoosing, setTabChoosing] = useState(0);
-
-    const handleTabChoosing = (index) => setTabChoosing(index);
 
     return (
         <div className={style.background}>
@@ -35,11 +24,14 @@ const AccountManager = () => {
             <Sidebar/>
             <div className={clsx(styles["overview"])}>
                 <div className={clsx(styles["main"])}>
-                    {/* Main wrapper nằm bên trái */}
+                    {/* Left Panel: Content */}
                     <div className={clsx(styles["main-wrapper"])}>
-                        {tabChoosing === 0 ? <Artist /> : tabChoosing === 1 ? <User /> : <Security />}
+                        {tabChoosing === 0 && <Artist />}
+                        {tabChoosing === 1 && <User />}
+                        {tabChoosing === 2 && <Security />}
                     </div>
-                    {/* Sidebar nằm bên phải */}
+                    
+                    {/* Right Panel: Navigation */}
                     <div className={clsx(styles["sidebar-list"])}>
                         {sidebarList.map((item, index) => (
                             <button 
@@ -47,7 +39,7 @@ const AccountManager = () => {
                                 className={clsx(styles["sidebar-item"], {
                                     [styles["active"]]: index === tabChoosing
                                 })} 
-                                onClick={() => handleTabChoosing(index)}
+                                onClick={() => setTabChoosing(index)}
                             >
                                 <img 
                                     src={item.icon} 
