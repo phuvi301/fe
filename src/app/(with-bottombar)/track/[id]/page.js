@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
-import Image from "next/image";
 import { useBottomBar } from "~/context/BottombarContext";
 import Sidebar from "../../../components/Sidebar";
 import Header from "../../../components/Header";

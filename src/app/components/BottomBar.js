@@ -7,7 +7,6 @@ import Link from "next/link";
 import Image from "next/image";
 import clsx from "clsx";
 import { useBottomBar } from "~/context/BottombarContext";
-import { resolve } from "styled-jsx/css";
 import { useImageColors } from "../hooks/useImageColors";
 import { usePathname } from 'next/navigation';
 

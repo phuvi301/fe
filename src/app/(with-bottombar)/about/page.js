@@ -1,14 +1,10 @@
-"use client";
-
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import layout from "~/app/homepage.module.scss";
 import styles from "./about.module.css";
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
 
 export default function AboutPage() {
-	const router = useRouter();
-
 	return (
 		<div className={layout.background}>
 			<Header />
@@ -24,8 +20,8 @@ export default function AboutPage() {
 						bottom bar player.
 					</p>
 					<div className={styles.actions}>
-						<button className={styles.primaryBtn} onClick={() => router.push("/")}>Start Listening</button>
-						<button className={styles.secondaryBtn} onClick={() => router.push("/upload")}>Upload a Track</button>
+						<Link href="/" className={styles.primaryBtn}>Start Listening</Link>
+						<Link href="/upload" className={styles.secondaryBtn}>Upload a Track</Link>
 					</div>
 				</section>
 
@@ -95,8 +91,8 @@ export default function AboutPage() {
 					<h2 className={styles.ctaTitle}>Ready to dive in?</h2>
 					<p className={styles.ctaSubtitle}>Start listening now or share your first track.</p>
 					<div className={styles.actions}>
-						<button className={styles.primaryBtn} onClick={() => router.push("/")}>Explore Music</button>
-						<button className={styles.secondaryBtn} onClick={() => router.push("/upload")}>Share a Track</button>
+						<Link href="/" className={styles.primaryBtn}>Explore Music</Link>
+						<Link href="/upload" className={styles.secondaryBtn}>Share a Track</Link>
 					</div>
 				</section>
 			</div>
