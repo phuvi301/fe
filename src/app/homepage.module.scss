@@ -248,59 +248,76 @@
 
 /* Song items */
 .featured-container {
-    display: flex;
+    display: flex;             /* Xếp hàng ngang */
     flex-direction: row;
-    gap: 20px;
-    overflow-x: overlay;
-    overflow-y: hidden;
-    height: 280px;
-}
-
-.featured-container::-webkit-scrollbar {
-    height: 0;
+    overflow-x: auto;          /* Cho phép cuộn ngang */
+    scroll-behavior: smooth;   /* Cuộn mượt */
+    
+    /* QUAN TRỌNG: Điều chỉnh khoảng cách ở đây */
+    gap: 20px;                 /* Khoảng cách giữa các bài hát (nếu thấy xa quá thì giảm xuống 16px hoặc 12px) */
+    
+    /* QUAN TRỌNG: Đảm bảo các bài hát nằm sát nhau từ bên trái */
+    justify-content: flex-start; 
+    
+    padding-bottom: 10px;      /* Để tránh thanh scrollbar dính vào nội dung */
+    
+    /* Ẩn thanh scrollbar (tùy chọn) */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    scrollbar-width: none;
 }
 
 .featured-item {
+    /* Ngăn không cho bài hát bị co lại khi màn hình nhỏ */
+    flex: 0 0 auto; 
+    
+    /* Đặt chiều rộng cố định hoặc tối đa cho mỗi khối bài hát */
+    /* Nên để bằng hoặc lớn hơn width của ảnh một chút */
+    width: 200px;           
+    padding: 10px;   
+    
     cursor: pointer;
-    --item-size: 260;
-    width: var(--item-size);
-    height: var(--item-size);
-}
+    transition: transform 0.2s ease;
 
-.featured-item:hover {
-    transform: scale(1.05);
-    transition: transform 0.3s;
+    &:hover {
+        transform: scale(1.05); /* Hiệu ứng phóng to nhẹ khi hover */
+    }
 }
 
 .track-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 300px;
-    padding-left: 6%;
+    flex-direction: column;    /* Ảnh ở trên, tên ở dưới */
+    gap: 8px;
 }
 
-.track-container span {
+// .track-container span {
+//     overflow: hidden;
+//     text-overflow: ellipsis;
+//     display: -webkit-box;
+//     -webkit-line-clamp: 2;
+//     line-clamp: 2;
+//     -webkit-box-orient: vertical;
+// }
+
+.track-image {
+    border-radius: 8px;        /* Bo tròn góc ảnh cho đẹp */
+    object-fit: cover;         /* Đảm bảo ảnh không bị méo */
+    width: 100%;               /* Ảnh chiếm hết chiều rộng của .featured-item */
+    height: auto;              /* Chiều cao tự động theo tỉ lệ */
+    aspect-ratio: 1/1;         /* Ép ảnh thành hình vuông */
+}
+
+.track-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+  
+    /* Xử lý khi tên bài hát quá dài: cắt bớt và thêm dấu ... */
+    white-space: nowrap; 
     overflow: hidden;
     text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-}
-
-.featured-container img {
-    background-color: white;
-    --item-size: 170px;
-    width: var(--item-size);
-    height: var(--item-size);
-    border-radius: 5px;
-    margin: 20px;
-    object-fit: cover;
-}
-
-.featured-container span {
-    width: 220px;
+    text-align: center;          /* Canh lề trái cho tên bài */
 }
 
 .scroll-btn {

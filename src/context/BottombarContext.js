@@ -36,9 +36,13 @@ export function BottomBarProvider({ children }) {
         playlistIDRef.current = playlistPlaying._id;
     }, [playlistPlaying]);
 
+    // --- SỬA LỖI Ở ĐÂY ---
     const getPlayback = async () => {
-        const {_id} = JSON.parse(localStorage.getItem("userInfo")); 
-        if (!_id) return; // Mỗi user mỗi tiến trình
+        // Thêm || "{}" để nếu localStorage null thì parse ra object rỗng {}, tránh lỗi crash
+        const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+        const { _id } = userInfo;
+        
+        if (!_id) return; // Nếu không có _id (chưa login) thì return luôn
 
         try {
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/progress/${_id}`);
@@ -157,9 +161,13 @@ export function BottomBarProvider({ children }) {
         }
     }
 
+    // --- CŨNG CẦN SỬA LỖI TƯƠNG TỰ Ở ĐÂY ---
     const getLikedTracks = async () => {
         try {
-            const userData = JSON.parse(localStorage.getItem("userInfo"));
+            // Thêm || "{}" để tránh crash nếu chưa login
+            const userData = JSON.parse(localStorage.getItem("userInfo") || "{}");
+            if (!userData._id) return []; // Nếu không có user ID thì return mảng rỗng
+
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${userData._id}`, {
                 params: {
                     likes: true,
@@ -236,15 +244,18 @@ export function BottomBarProvider({ children }) {
     useEffect(() => {
         const loadPlayback = async () => {
             const pb = await getPlayback();
-            setPlayback(pb);
-            if (Object.keys(pb).length !== 0 && !nowPlaying.current) {
-                setRepeatMode(pb.repeat);
-                setVolume(pb.volume)
-                const trackInfo = await getTrack(pb.trackID);
-                await bottomBarRef.current.fetchLyrics(pb.trackID);
-                nowPlaying.current = trackInfo.track;
-                setUrl(trackInfo.url);
-                handlePlaylist(pb.playlistID, pb.index, JSON.parse(pb.shuffle));
+            // Cần check pb tồn tại trước khi set state để tránh lỗi nếu getPlayback return undefined
+            if (pb) {
+                setPlayback(pb);
+                if (Object.keys(pb).length !== 0 && !nowPlaying.current) {
+                    setRepeatMode(pb.repeat);
+                    setVolume(pb.volume)
+                    const trackInfo = await getTrack(pb.trackID);
+                    await bottomBarRef.current.fetchLyrics(pb.trackID);
+                    nowPlaying.current = trackInfo.track;
+                    setUrl(trackInfo.url);
+                    handlePlaylist(pb.playlistID, pb.index, JSON.parse(pb.shuffle));
+                }
             }
         }
         loadPlayback();
@@ -271,9 +282,9 @@ export function BottomBarProvider({ children }) {
             setRepeatMode, 
             showQueue, 
             setShowQueue,
-            isLiked,
+            isLiked, 
             setIsLiked,
-            trackLikeCount,
+            trackLikeCount, 
             setTrackLikeCount,
             toggleLike,
         }}>

@@ -1,181 +1,83 @@
-'use client'
-import style from "../homepage.module.scss"
-import Image from "next/image";
+import { cookies } from "next/headers";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import { useBottomBar } from "~/context/BottombarContext";
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import axios from "axios";
+import TrackSection from "../components/TrackSection"; // Import component vừa tạo
+import style from "../homepage.module.scss";
 
-export default function Home() {
-  const { bottomBarRef } = useBottomBar();
-  const [recentTracks, setRecentTracks] = useState([]);
-  const [mostPlayedTracks, setMostPlayedTracks] = useState([]);
-  const [listenedTracks, setListenedTracks] = useState([]);
+// 1. Hàm fetch data chạy trên Server
+async function getHomepageData() {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
 
-  const listTracks = useRef(null);
-  const listTracks1 = useRef(null);
-  const listTracks2 = useRef(null);
-  const listRef = {
-    0: listTracks,
-    1: listTracks1,
-    2: listTracks2
-  }
+  try {
+    // Gọi API Backend
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/display`, {
+      method: "GET",
+      headers: {
+        // Truyền token từ cookie lên backend
+        token: accessToken ? `Bearer ${accessToken}` : "",
+        "Content-Type": "application/json",
+      },
+      // Revalidate: Cache dữ liệu trong 60 giây rồi mới fetch lại (Thay thế cho setInterval)
+      next: { revalidate: 60 }, 
+    });
 
-  const toggleTrack = async (trackId) => {
-    await bottomBarRef.current.play(trackId);
-  };
+    if (!res.ok) {
+      console.error("Failed to fetch tracks", res.status);
+      return { recent: [], mostPlayed: [], listened: [] };
+    }
 
-  const scrollTracks = (e, targetList) => {
-    const scrollAmount = 700;
-    const direction = e.currentTarget.classList.contains(style.left) ? "left" : "right";
-    const targetRef = listRef[targetList];
-    targetRef.current.scrollBy({ left: direction === "left" ? -scrollAmount : scrollAmount, behavior: "smooth" });
-  };
-
-  const router = useRouter()
-
-	useEffect(() => {
-		if (document.cookie.split('accessToken=')[1]) return;
-
-		const refreshAccessToken = async () => {
-      try{
-        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`, {}, {
-          withCredentials: true
-        })
-
-        document.cookie = `accessToken=${res.data.data.accessToken}; expires=${new Date(res.data.data.accessExpireTime).toUTCString()}; path=/;` ;
-      } catch(err) {
-        console.log('Error refreshing access token', err);
-      }
-		}
-
-		refreshAccessToken()
-
-	}, [])
-
-  useEffect(() => {
-    const homepageDisplay = async () => {
-      try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/display`, {
-          headers: {
-            token: `Bearer ${document.cookie.split('accessToken=')[1]}`
-          }
-        });
-        setRecentTracks(res.data.recent);
-        setMostPlayedTracks(res.data.mostPlayed);
-        setListenedTracks(res.data.listened);
-      } catch(err)  {
-        console.error('Error getting tracks to display', err);
-      }
+    const data = await res.json();
+    // Giả sử API trả về cấu trúc như cũ
+    return {
+        recent: data.recent || [],
+        mostPlayed: data.mostPlayed || [],
+        listened: data.listened || []
     };
-    homepageDisplay();
-    const interval = setInterval(homepageDisplay, 30000);
-    return () => clearInterval(interval);
-  }, [])
+
+  } catch (error) {
+    console.error("Error loading homepage:", error);
+    return { recent: [], mostPlayed: [], listened: [] };
+  }
+}
+
+// 2. Main Page Component (Async)
+export default async function Home() {
+  // Fetch dữ liệu trước khi render HTML
+  const { recent, mostPlayed, listened } = await getHomepageData();
 
   return (
     <div className={style.background}>
-      {/* Header */}
       <Header />
-      {/* Sidebar */}
       <Sidebar />
-      {/* Main content */}
+      
       <main>
-        {/* Featured section */}
         <section className={style.featured}>
-          {/* Featured container 1 */}
-          <article className={style["featured-section"]}>
-            {/* <h1>More of what you like</h1>
-                    <p>Recommended for you</p> */}
-            {/* Scroll buttons */}
-            {
-              listTracks.current ? (
-                <div>
-                  <h1>Recently Added </h1>
-                  <p>Check out the newest tracks</p>
-                  <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 0)}>
-                    <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
-                  </button>
-                  <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 0)}>
-                    <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
-                  </button>
-                </div>         
-              ) : (
-                <></>
-              )
-            }
-            {/* Featured items */}
-            <div className={style["featured-container"]} ref={listTracks}>
-              {recentTracks.map(track => (
-                <a className={style["featured-item"]} key={track._id} onClick={() => toggleTrack(track._id)}>
-                  <span className={style["track-container"]}>
-                    <Image src={track.thumbnailUrl} width={600} height={600} alt={track.title} priority={true} />
-                    {track.title}
-                  </span>
-                </a>
-              ))}
-            </div>
-          </article>
-          {/* Featured container 2 */}
-            <article className={style["featured-section"]}>
-              {/* <h1>Trending by genre</h1>
-              <p>Discover what's popular</p> */}
-              {/* Scroll buttons */}
-                {
-                  listTracks1.current ? (
-                    <div>
-                      <h1>Most Played Tracks</h1>
-                      <p>See which songs top the play charts this week.</p>
-                      <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 1)}>
-                        <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
-                      </button>
-                      <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 1)}>
-                        <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
-                      </button>
-                    </div>         
-                  ) : (
-                    <div></div>
-                  )
-                }
-              {/* Featured items */}
-              <div className={style["featured-container"]} ref={listTracks1}>
-                {mostPlayedTracks.map(track => (
-                  <a className={style["featured-item"]} key={track._id} onClick={() => toggleTrack(track._id)}>
-                    <span className={style["track-container"]}>
-                      <Image src={track.thumbnailUrl} width={500} height={500} alt={track.title} priority={true} />
-                      {track.title}
-                    </span>
-                  </a>
-                ))}
-              </div>
-            </article>
-        {/* Featured container 3 */}
-          {listenedTracks.length !== 0 && (<article className={style["featured-section"]}>
-            {/* Scroll buttons */}
-            <div>
-              <h1>Recently Listened Tracks</h1>
-              <p>These are the tracks you've listened to recently.</p>
-              <button className={`${style["scroll-btn"]} ${style.left}`} onClick={(e) => scrollTracks(e, 2)}>
-                <Image src="/chevron-left.png" width={500} height={500} alt="Scroll Left" />
-              </button>
-              <button className={`${style["scroll-btn"]} ${style.right}`} onClick={(e) => scrollTracks(e, 2)}>
-                <Image src="/chevron-right.png" width={500} height={500} alt="Scroll Right" />
-              </button>
-            </div>
-            {/* Featured items */}
-            <div className={style["featured-container"]} ref={listTracks2}>
-              {listenedTracks.map(track => (
-                <a className={style["featured-item"]} key={track._id} onClick={() => toggleTrack(track._id)}>
-                  <span className={style["track-container"]} width={220}>
-                    <Image src={track.thumbnailUrl} width={500} height={500} alt={track.title} priority={true} />
-                    {track.title}
-                  </span>
-                </a>
-              ))}
-            </div>
-          </article>)}
+          
+          {/* Section 1: Recently Added */}
+          <TrackSection 
+            title="Recently Added" 
+            subtitle="Check out the newest tracks"
+            tracks={recent}
+            priority={true} // Ưu tiên load ảnh section này
+          />
+
+          {/* Section 2: Most Played */}
+          <TrackSection 
+            title="Most Played Tracks" 
+            subtitle="See which songs top the play charts this week."
+            tracks={mostPlayed}
+          />
+
+          {/* Section 3: Recently Listened (Chỉ hiện nếu có dữ liệu) */}
+          {listened.length > 0 && (
+            <TrackSection 
+              title="Recently Listened Tracks" 
+              subtitle="These are the tracks you've listened to recently."
+              tracks={listened}
+            />
+          )}
+
         </section>
       </main>
     </div>
