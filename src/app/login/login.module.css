@@ -10,107 +10,107 @@
 }
 
 .background h1 {
-	font-weight: bold;
+  font-weight: bold;
 }
 
 .background h2 {
-	text-align: center;
+  text-align: center;
 }
 
 .background p {
-	font-size: 14px;
-	font-weight: 100;
-	line-height: 20px;
-	letter-spacing: 0.5px;
-	margin: 20px 0 30px;
+  font-size: 14px;
+  font-weight: 100;
+  line-height: 20px;
+  letter-spacing: 0.5px;
+  margin: 20px 0 30px;
 }
 
 .background span {
-	font-size: 12px;
+  font-size: 12px;
 }
 
 .background a {
-	color: white;
-	font-size: 14px;
-	text-decoration: none;
-	margin: 15px 0;
+  color: white;
+  font-size: 14px;
+  text-decoration: none;
+  margin: 15px 0;
 }
 
 .background button {
-	border-radius: 20px;
-	border: 1px solid hsl(217, 100%, 48%);
-	background-color: #005ff6;
-	color: #FFFFFF;
-	font-size: 12px;
-	font-weight: bold;
-	padding: 12px 45px;
-	letter-spacing: 1px;
-	text-transform: uppercase;
-	transition: transform 80ms ease-in;
+  border-radius: 20px;
+  border: 1px solid hsl(217, 100%, 48%);
+  background-color: #005ff6;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 12px 45px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: transform 80ms ease-in;
 }
 
 .background button:hover {
-	cursor: pointer;
-	transition: all 0.3s ease;
-	background-color: #e8dfdf;
-	color: #2563eb;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #e8dfdf;
+  color: #2563eb;
 }
 
 .background button:active {
-	transform: scale(0.95);
+  transform: scale(0.95);
 }
 
 .background button:focus {
-	outline: none;
+  outline: none;
 }
 
 .background button.ghost {
-	background-color: transparent;
-	border-color: #FFFFFF;
+  background-color: transparent;
+  border-color: #FFFFFF;
 }
 
 .background button.ghost:hover {
-	background-color: #FFFFFF;
-	color: #2563eb;
+  background-color: #FFFFFF;
+  color: #2563eb;
 }
 
 .background form {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-	padding: 0 50px;
-	height: 100%;
-	text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 50px;
+  height: 100%;
+  text-align: center;
 }
 
 .background input {
-	background-color: #c9c9c9;
-	border: none;
-	border-radius: 30px;
-	padding: 12px 15px;
-	margin: 8px 0;
-	width: 100%;
-	color:rgb(0, 0, 0);
-	font-family: inherit;
+  background-color: #c9c9c9;
+  border: none;
+  border-radius: 30px;
+  padding: 12px 15px;
+  margin: 8px 0;
+  width: 100%;
+  color: rgb(0, 0, 0);
+  font-family: inherit;
 }
 
 .container {
-	border-radius: 10px;
-	position: relative;
-	overflow: hidden;
-	width: 61vw;
-  	height: 75vh;
-	max-width: 100%;
-	min-height: 480px;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  width: 61vw;
+  height: 75vh;
+  max-width: 100%;
+  min-height: 480px;
 }
 
 .form-container {
-	position: absolute;
-	top: 0;
-	height: 100%;
-  	backdrop-filter: blur(25px);
-	transition: all 0.6s ease-in-out;
+  position: absolute;
+  top: 0;
+  height: 100%;
+  backdrop-filter: blur(25px);
+  transition: all 0.6s ease-in-out;
 }
 
 .form-container h1, .form-container span{
@@ -127,28 +127,34 @@
 }
 
 .sign-in-container {
-	left: 0;
-	width: 50%;
-	z-index: 2;
+  left: 0;
+  width: 50%;
+  z-index: 2;
 }
 
 .input-container {
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	margin-left: -20px;
-	gap: 5px;
-	width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  /* margin-left: -20px; <--- Đã xóa margin âm để layout cân bằng hơn */
+  gap: 5px;
+  width: 100%;
 }
 
+/* --- ĐOẠN CODE ĐƯỢC CHỈNH SỬA TẠI ĐÂY --- */
 .email-input, .password-input, .confirm-password-input {
-	display: flex;
-	align-items: center;
-	flex-direction: row;
-	justify-content: center;
-	position: relative;
-
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+  position: relative;
+  
+  /* Cập nhật: Set độ rộng cố định hoặc % cho container bao ngoài */
+  width: 90%; 
+  max-width: 500px;
+  margin: 0 auto; /* Tự động căn giữa */
 }
+
 .email-border, .password-border, .confirm-password-border {
   z-index: 10;
   --icon-size: 2.8rem;
@@ -159,199 +165,200 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 10px;	
+  margin-right: 10px;
+  flex-shrink: 0; /* Ngăn icon bị méo khi màn hình nhỏ */
 }
 
 .password-input img {
-  	height: 2rem;
-	width: auto;
-
+  height: 2rem;
+  width: auto;
 }
 .confirm-password-input img {
-	height: 2.6rem;
-	width: auto;
-
+  height: 2.6rem;
+  width: auto;
 }
 .email-input img {
-	height: 2rem;
-	width: auto;
-
+  height: 2rem;
+  width: auto;
 }
 
 .email-input input, .password-input input, .confirm-password-input input {
-	width: 500px;
-	height: 2.8rem;
-	padding-right: 40px;
+  /* Cập nhật: width 100% để input chiếm hết khoảng trống còn lại */
+  width: 100%; 
+  height: 2.8rem;
+  /* Thêm padding bên phải để chữ không đè lên nút mắt */
+  padding-right: 45px; 
+  /* Quan trọng: giữ kích thước input không bị phình to */
+  box-sizing: border-box; 
 }
+
 .email-input input:focus, .password-input input:focus, .confirm-password-input input:focus {
-	outline: none;
-	box-shadow: 0 0 5px rgba(81, 203, 238, 1);
-	border: 1px solid rgba(81, 203, 238, 1);
+  outline: none;
+  box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+  border: 1px solid rgba(81, 203, 238, 1);
 }
+/* --- KẾT THÚC ĐOẠN CHỈNH SỬA --- */
 
 .container.right-panel-active .sign-in-container {
-	transform: translateX(100%);
-	opacity: 0;
+  transform: translateX(100%);
+  opacity: 0;
 }
 
+/* --- CẬP NHẬT TOGGLE PASSWORD (NÚT MẮT) --- */
 .background .toggle-password {
-	all: unset;
-	background: transparent;
-	border: none;
-	position: relative;
-	margin-left: -40px;
-	outline: none;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	z-index: 1;
+  all: unset;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  
+  /* Chuyển sang Absolute Position */
+  position: absolute;
+  right: 15px; /* Cách lề phải input 15px */
+  top: 50%;
+  transform: translateY(-50%); /* Căn giữa theo chiều dọc */
+  
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20; /* Tăng z-index để nằm trên input */
 }
-
 
 .background .toggle-password img {
-	width: 24px;
-	height: 24px;
-	object-fit: contain;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .background .toggle-password:focus {
-	outline: none;
+  outline: none;
 }
 
 .background .toggle-password:hover {
-	cursor: pointer;
-	background: none;
+  cursor: pointer;
+  background: none;
 }
-.nothing {
-	all: unset;
-	background: transparent;
-	border: none;
-	position: relative;
-	margin-left: -16px;
-	outline: none;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	z-index: 1;
 
+.nothing {
+  display: none; /* Ẩn đi vì không còn dùng margin âm */
 }
+
 .sign-up-container {
-	left: 0;
-	width: 50%;
-	opacity: 0;
-	z-index: 1;
+  left: 0;
+  width: 50%;
+  opacity: 0;
+  z-index: 1;
 }
 
 .container.right-panel-active .sign-up-container {
-	transform: translateX(100%);
-	opacity: 1;
-	z-index: 5;
-	animation: show 0.6s;
+  transform: translateX(100%);
+  opacity: 1;
+  z-index: 5;
+  animation: show 0.6s;
 }
 
 @keyframes show {
-	0%, 49.99% {
-		opacity: 0;
-		z-index: 1;
-	}
-	
-	50%, 100% {
-		opacity: 1;
-		z-index: 5;
-	}
+  0%, 49.99% {
+      opacity: 0;
+      z-index: 1;
+  }
+  
+  50%, 100% {
+      opacity: 1;
+      z-index: 5;
+  }
 }
 
 .overlay-container {
-	position: absolute;
-	top: 0;
-	left: 50%;
-	width: 50%;
-	height: 100%;
-	overflow: hidden;
-	transition: transform 0.6s ease-in-out;
-	z-index: 100;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100;
 }
 
 .container.right-panel-active .overlay-container{
-	transform: translateX(-100%);
+  transform: translateX(-100%);
 }
 
 .overlay {
-	background: linear-gradient(to right, #005ff6, #005ff6);
-	background-repeat: no-repeat;
-	background-size: cover;
-	background-position: 0 0;
-	color: #FFFFFF;
-	position: relative;
-	left: -100%;
-	height: 100%;
-	width: 200%;
-  	transform: translateX(0);
-	transition: transform 0.6s ease-in-out;
+  background: linear-gradient(to right, #005ff6, #005ff6);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0 0;
+  color: #FFFFFF;
+  position: relative;
+  left: -100%;
+  height: 100%;
+  width: 200%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
 }
 
 .container.right-panel-active .overlay {
-  	transform: translateX(50%);
+  transform: translateX(50%);
 }
 
 .overlay-panel {
-	position: absolute;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-	padding: 0 40px;
-	text-align: center;
-	top: 0;
-	height: 100%;
-	width: 50%;
-	transform: translateX(0);
-	transition: transform 0.6s ease-in-out;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 40px;
+  text-align: center;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
 }
 
 .overlay-left {
-	transform: translateX(-20%);
+  transform: translateX(-20%);
 }
 
 .container.right-panel-active .overlay-left {
-	transform: translateX(0);
+  transform: translateX(0);
 }
 
 .overlay-right {
-	right: 0;
-	transform: translateX(0);
+  right: 0;
+  transform: translateX(0);
 }
 
 .container.right-panel-active .overlay-right {
-	transform: translateX(20%);
+  transform: translateX(20%);
 }
 
 .social-container {
-	margin-bottom: 20px;
-  	display: flex;
-  	flex-direction: row;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: row;
 }
 
 .social-container a,
 .social-container button.social {
-	border: 1px solid #DDDDDD;
-	border-radius: 50%;
-	display: inline-flex;
-	justify-content: center;
-	align-items: center;
-	margin: 0 5px;
-	height: 40px;
-	width: 40px;
-	background: transparent;
-	cursor: pointer;
-	text-decoration: none;
-	padding: 0;
-	transition: all 0.3s ease;
+  border: 1px solid #DDDDDD;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 5px;
+  height: 40px;
+  width: 40px;
+  background: transparent;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 0;
+  transition: all 0.3s ease;
 }
 
 .social-container button.social:hover {
-	background-color: rgba(255, 255, 255, 0.1);
-	transform: scale(1.05);
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
 }
 
 .facebook-icon {
