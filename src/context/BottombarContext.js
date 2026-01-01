@@ -59,6 +59,8 @@ export function BottomBarProvider({ children }) {
             if (!raw) return [];
             const parsed = JSON.parse(raw); 
             const accessToken = parsed?.accessToken || null;
+            
+            if (!accessToken) return [];
 
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/recommend/${songID}?refresh=${refresh}`, {
                 headers: {
@@ -67,7 +69,7 @@ export function BottomBarProvider({ children }) {
                 withCredentials: true,
             });
 
-            return [nowPlaying.current, ...res.data.data] || [];
+            return [nowPlaying.current, ...res.data.data];
         } catch (err) {
             console.error("Can't get recommended playlist", err);
             return [];

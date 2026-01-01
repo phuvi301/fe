@@ -7,17 +7,21 @@ import axios from "axios";
 import clsx from "clsx";
 import style from "./login.module.css";
 
-// --- Helper: Set Cookie an toàn ---
+// --- Set Cookie an toàn ---
 function setAuthCookie(token, expireTime) {
     const expires = new Date(expireTime).toUTCString();
     document.cookie = `accessToken=${token}; expires=${expires}; path=/; Secure; SameSite=Lax`;
 }
 
+const handleFocus = (e) => {
+    e.target.removeAttribute('readonly');
+};
+
 export default function LoginPage() {
     const router = useRouter();
     const [oauthConfig, setOauthConfig] = useState(null);
     
-    // State điều khiển hiệu ứng trượt (Thay thế cho useRef + addEventListener)
+    // State điều khiển hiệu ứng trượt 
     const [isSignUpActive, setIsSignUpActive] = useState(false);
 
     // State quản lý hiển thị password
@@ -27,9 +31,7 @@ export default function LoginPage() {
 
     // --- 1. Fetch OAuth Config ---
     useEffect(() => {
-        // Clear session cũ khi vào trang login
         localStorage.removeItem("userInfo");
-
         axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/oauth-config`)
             .then(res => setOauthConfig(res.data))
             .catch(err => console.error("OAuth config error:", err));
@@ -38,7 +40,6 @@ export default function LoginPage() {
     // --- 2. Init Facebook SDK ---
     useEffect(() => {
         if (!oauthConfig?.facebookAppId) return;
-
         window.fbAsyncInit = function() {
             window.FB.init({
                 appId: oauthConfig.facebookAppId,
@@ -71,7 +72,7 @@ export default function LoginPage() {
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, { email, password });
             alert("Registration successful! Please log in.");
-            setIsSignUpActive(false); // Chuyển về tab Sign In sau khi đăng ký xong
+            setIsSignUpActive(false); 
         } catch (error) {
             console.error(error);
             alert(error.response?.data?.message || "Registration failed");
@@ -101,7 +102,6 @@ export default function LoginPage() {
         if (!oauthConfig || !window.google) {
             return alert("Google Service not ready. Please try again.");
         }
-
         window.google.accounts.oauth2.initTokenClient({
             client_id: oauthConfig.googleClientId,
             scope: 'email profile',
@@ -118,7 +118,7 @@ export default function LoginPage() {
                         const msg = error.response?.data?.message;
                         if (error.response?.data?.requireRegistration) {
                             alert("Account not found. Switching to Register...");
-                            setIsSignUpActive(true); // Tự động chuyển tab
+                            setIsSignUpActive(true); 
                         } else {
                             alert(msg || "Google authentication failed");
                         }
@@ -132,7 +132,6 @@ export default function LoginPage() {
         if (!oauthConfig || !window.FB) {
             return alert("Facebook Service not ready.");
         }
-
         window.FB.login((response) => {
             if (response.authResponse) {
                 axios.post(
@@ -155,12 +154,14 @@ export default function LoginPage() {
             <Script src="https://connect.facebook.net/en_US/sdk.js" strategy="lazyOnload" />
 
             <div className={style.background}>
-                {/* Container: Dùng state isSignUpActive để toggle class */}
                 <div className={clsx(style.container, isSignUpActive && style["right-panel-active"])}>
                     
                     {/* --- Sign Up Form --- */}
                     <div className={clsx(style["form-container"], style["sign-up-container"])}>
-                        <form onSubmit={handleSubmitSignUp}>
+                        <form onSubmit={handleSubmitSignUp} autoComplete="off">
+                            <input type="text" style={{opacity: 0, position: 'absolute', zIndex: -1, height: 0, width: 0}} />
+                            <input type="password" style={{opacity: 0, position: 'absolute', zIndex: -1, height: 0, width: 0}} />
+
                             <div className={style["logo-container"]}>
                                 <img className={style.logo_image} src="/logo&text.png" alt="Logo" />
                             </div>
@@ -177,30 +178,70 @@ export default function LoginPage() {
                             <div className={style["input-container"]}>
                                 <div className={style["email-input"]}>
                                     <div className={style["email-border"]}><img src="/mail.png" className={style["email-icon"]} alt="" /></div>
-                                    <input type="email" placeholder="Email" name="signUpEmail" required />
+                                    <input 
+                                        type="email" 
+                                        placeholder="Email" 
+                                        name="signUpEmail" 
+                                        id="signUpEmail"
+                                        autoComplete="off"
+                                        readOnly
+                                        onFocus={handleFocus}
+                                        required 
+                                    />
                                 </div>
                                 <div className={style["password-input"]}>
                                     <div className={style["password-border"]}><img src="/pw.png" className={style["password-icon"]} alt="" /></div>
-                                    <input type={showSignUpPass ? "text" : "password"} placeholder="Password" name="signUpPassword" className={style.password} required />
+                                    <input 
+                                        type={showSignUpPass ? "text" : "password"} 
+                                        placeholder="Password" 
+                                        name="signUpPassword" 
+                                        id="signUpPassword"
+                                        autoComplete="new-password"
+                                        className={style.password} 
+                                        readOnly
+                                        onFocus={handleFocus}
+                                        required 
+                                    />
                                     <button type="button" className={style["toggle-password"]} onClick={() => setShowSignUpPass(!showSignUpPass)}>
                                         <img src={showSignUpPass ? "/eye_off.svg" : "/eye.png"} alt="Toggle" />
                                     </button>
                                 </div>
                                 <div className={style["confirm-password-input"]}>
                                     <div className={style["confirm-password-border"]}><img src="/tick.png" className={style["confirm-password-icon"]} alt="" /></div>
-                                    <input type={showConfirmPass ? "text" : "password"} placeholder="Confirm Password" name="signUpConfirmPassword" className={style["confirm-password"]} required />
+                                    <input 
+                                        type={showConfirmPass ? "text" : "password"} 
+                                        placeholder="Confirm Password" 
+                                        name="signUpConfirmPassword" 
+                                        id="signUpConfirmPassword"
+                                        autoComplete="new-password"
+                                        className={style["confirm-password"]} 
+                                        readOnly
+                                        onFocus={handleFocus}
+                                        required 
+                                    />
                                     <button type="button" className={style["toggle-password"]} onClick={() => setShowConfirmPass(!showConfirmPass)}>
                                         <img src={showConfirmPass ? "/eye_off.svg" : "/eye.png"} alt="Toggle" />
                                     </button>
                                 </div>
                             </div>
                             <button type="submit" style={{ marginTop: "20px" }}>Sign Up</button>
+                            
+                            <button 
+                                type="button" 
+                                className={style["mobile-toggle-btn"]}
+                                onClick={() => setIsSignUpActive(false)}
+                            >
+                                Already have an account? Sign In
+                            </button>
                         </form>
                     </div>
 
                     {/* --- Sign In Form --- */}
                     <div className={clsx(style["form-container"], style["sign-in-container"])}>
-                        <form onSubmit={handleSubmitSignIn}>
+                        <form onSubmit={handleSubmitSignIn} autoComplete="off">
+                            <input type="text" style={{opacity: 0, position: 'absolute', zIndex: -1, height: 0, width: 0}} />
+                            <input type="password" style={{opacity: 0, position: 'absolute', zIndex: -1, height: 0, width: 0}} />
+
                             <div className={style["logo-container"]}>
                                 <img className={style.logo_image} src="/logo&text.png" alt="Logo" />
                             </div>
@@ -217,11 +258,30 @@ export default function LoginPage() {
                             <div className={style["input-container"]}>
                                 <div className={style["email-input"]}>
                                     <div className={style["email-border"]}><img src="/mail.png" className={style["email-icon"]} alt="" /></div>
-                                    <input type="email" placeholder="Email" name="signInEmail" required />
+                                    <input 
+                                        type="email" 
+                                        placeholder="Email" 
+                                        name="signInEmail" 
+                                        id="signInEmail"
+                                        autoComplete="off"
+                                        readOnly
+                                        onFocus={handleFocus}
+                                        required 
+                                    />
                                 </div>
                                 <div className={style["password-input"]}>
                                     <div className={style["password-border"]}><img src="/pw.png" className={style["password-icon"]} alt="" /></div>
-                                    <input type={showSignInPass ? "text" : "password"} placeholder="Password" name="signInPassword" className={style.password} required />
+                                    <input 
+                                        type={showSignInPass ? "text" : "password"} 
+                                        placeholder="Password" 
+                                        name="signInPassword" 
+                                        id="signInPassword"
+                                        autoComplete="new-password"
+                                        className={style.password} 
+                                        readOnly
+                                        onFocus={handleFocus}
+                                        required 
+                                    />
                                     <button type="button" className={style["toggle-password"]} onClick={() => setShowSignInPass(!showSignInPass)}>
                                         <img src={showSignInPass ? "/eye_off.svg" : "/eye.png"} alt="Toggle" />
                                     </button>
@@ -229,16 +289,23 @@ export default function LoginPage() {
                             </div>
                             <a href="#">Forgot your password?</a>
                             <button type="submit">Sign In</button>
+
+                            <button 
+                                type="button" 
+                                className={style["mobile-toggle-btn"]}
+                                onClick={() => setIsSignUpActive(true)}
+                            >
+                                Don't have an account? Sign Up
+                            </button>
                         </form>
                     </div>
 
-                    {/* --- Overlay (Sliding Logic) --- */}
+                    {/* --- Overlay (Ẩn trên Mobile) --- */}
                     <div className={style["overlay-container"]}>
                         <div className={style.overlay}>
                             <div className={clsx(style["overlay-panel"], style["overlay-left"])}>
                                 <h1>Welcome Back!</h1>
                                 <p>To keep connected with us please login with your personal info</p>
-                                {/* Nút này chuyển state về false để hiện Sign In */}
                                 <button className={style.ghost} onClick={() => setIsSignUpActive(false)}>
                                     Sign In
                                 </button>
@@ -246,7 +313,6 @@ export default function LoginPage() {
                             <div className={clsx(style["overlay-panel"], style["overlay-right"])}>
                                 <h1>Hello, Friend!</h1>
                                 <p>Enter your personal details and start journey with us</p>
-                                {/* Nút này chuyển state về true để hiện Sign Up */}
                                 <button className={style.ghost} onClick={() => setIsSignUpActive(true)}>
                                     Sign Up
                                 </button>

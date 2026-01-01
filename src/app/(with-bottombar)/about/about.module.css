@@ -1,10 +1,15 @@
+/* about.module.css */
+
 .container {
+    /* Desktop: Sidebar bên trái (250px) */
     position: absolute;
     top: var(--header-height, 9vh);
     left: 250px;
     right: 0;
     margin: 0 auto;
     padding: 32px 150px 120px;
+    /* Đảm bảo nội dung không bị dính sát lề trên màn hình nhỏ */
+    box-sizing: border-box; 
 }
 
 .hero {
@@ -75,6 +80,7 @@
 
 .featuresGrid {
     display: grid;
+    /* Desktop: 4 cột */
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
 }
@@ -109,6 +115,7 @@
     display: grid;
     gap: 10px;
     list-style: none;
+    padding: 0; /* Reset default padding */
 }
 
 .steps li {
@@ -132,6 +139,7 @@
     background: #82c3d9;
     color: #0e0e0f;
     font-weight: 800;
+    flex-shrink: 0; /* Đảm bảo badge không bị méo */
 }
 
 .cta {
@@ -155,26 +163,62 @@
     color: rgba(255, 255, 255, 0.85);
 }
 
+/* ========================================= */
+/* RESPONSIVE DESIGN */
+/* ========================================= */
+
+/* Tablet (Dưới 1024px) */
 @media (max-width: 1024px) {
+    .container {
+        padding: 32px 40px 120px; /* Giảm padding ngang */
+    }
+
     .featuresGrid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 cột */
     }
 }
 
+/* Mobile & Small Tablet (Dưới 992px) - Khớp với breakpoint của trang chủ */
+@media (max-width: 992px) {
+    .container {
+        /* Sidebar bị ẩn/chuyển xuống dưới -> Main full width */
+        left: 0;
+        width: 100%;
+        /* Tăng padding đáy để tránh bị che bởi Bottom Nav Bar + Player */
+        padding: 20px 20px 200px; 
+    }
+}
+
+/* Mobile (Dưới 640px) */
 @media (max-width: 640px) {
     .container {
-        padding: 24px 16px 100px;
+        top: 60px; /* Header mobile thường nhỏ hơn */
+        padding: 20px 16px 200px;
     }
 
     .title {
-        font-size: 30px;
+        font-size: 28px; /* Giảm size chữ tiêu đề */
+    }
+
+    .subtitle {
+        font-size: 14px;
     }
 
     .featuresGrid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* 1 cột duy nhất */
     }
 
     .actions {
-        flex-direction: column;
+        flex-direction: column; /* Nút xếp dọc */
+        width: 100%;
+    }
+
+    .primaryBtn, .secondaryBtn {
+        width: 100%; /* Nút full width dễ bấm */
+        text-align: center;
+    }
+    
+    .card {
+        min-height: auto; /* Chiều cao tự động */
     }
 }

@@ -13,9 +13,10 @@
 html,
 body {
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: hidden; /* Quan trọng: Ngăn trượt ngang trên mobile */
 }
 
+/* Custom Scrollbar */
 body::-webkit-scrollbar {
   width: 8px;
 }
@@ -44,11 +45,8 @@ a {
   text-decoration: none;
 }
 
-
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
   }
 }
-
-
