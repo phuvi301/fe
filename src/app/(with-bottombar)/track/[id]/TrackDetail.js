@@ -7,7 +7,7 @@ import { useBottomBar } from "~/context/BottombarContext";
 import Sidebar from "../../../components/Sidebar";
 import Header from "../../../components/Header";
 import clsx from "clsx";
-import layout from "~/app/homepage.module.scss";
+import layout from "~/app/styles/homepage.module.scss";
 import style from "./track.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faChevronUp, faPaperPlane, faThumbsUp, faTrashCan, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";

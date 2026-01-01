@@ -1,5 +1,5 @@
 import Link from "next/link";
-import layout from "~/app/homepage.module.scss";
+import layout from "~/app/styles/homepage.module.scss";
 import styles from "./about.module.css";
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";

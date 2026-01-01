@@ -8,7 +8,7 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPencil, faXmark } from "@fortawesome/free-solid-svg-icons";
 
-import layout from "~/app/homepage.module.scss";
+import layout from "~/app/styles/homepage.module.scss";
 import styles from "./playlists.module.css";
 import Header from "~/app/components/Header";
 import Sidebar from "~/app/components/Sidebar";

@@ -1,0 +1,753 @@
+/* Bottom bar */
+.bottom-bar-container {
+    display: flex;
+    background-color: #000000;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 75px;
+    position: fixed;
+    bottom: 0;
+    z-index: 1000;
+    gap: 170px;
+}
+
+.song-in-bottom-bar {
+    width: 200px;
+    height: 60px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.mini-thumbnail2 {
+    all: unset;
+    border-radius: 3px;
+    margin-right: 10px;
+}
+
+.cover2 {
+    width: 50px;
+    height: 50px;
+    border-radius: 3px;
+    object-fit: cover;
+}
+
+.song-detail2 {
+    width: 140px;
+    height: 30px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.mini-song-name {
+    width: 140px;
+    height: 15px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: text-decoration 0.2s ease;
+}
+
+.mini-song-name:hover {
+    text-decoration: underline;
+}
+
+.mini-artist-name {
+    height: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+    font-size: 12px;
+}
+
+.mini-artist-name:hover {
+    text-decoration: underline;
+}
+
+.music-player {
+    width: 550px;
+    height: 65px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.current-time {
+    width: 50px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.duration {
+    width: 50px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.progress {
+    width: 550px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    height: 25px;
+}
+
+.progress-bar {
+    width: 420px;
+    appearance: none;
+    height: 6px;
+    background: #333;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+
+}
+
+/* Thanh kéo */
+.progress-bar::-webkit-slider-thumb {
+    appearance: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    background-color: #ccc;
+}
+
+.progress-bar:hover::-webkit-slider-thumb {
+    opacity: 1;
+    transition: filter 0.3s, opacity 0.3s;
+}
+
+.bottom-menu {
+    width: 200px;
+    height: 40px;
+    display: flex;
+    border-radius: 5px;
+}
+
+.shuffle,
+.previous,
+.play,
+.next,
+.repeat {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+}
+
+.menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+}
+
+.no-select {
+    user-select: none;
+}
+
+.bold-text {
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    color: white;
+    text-decoration: none;
+    transition: text-decoration 0.2s ease;
+    cursor: pointer;
+}
+
+.bold-text:hover {
+    text-decoration: underline;
+}
+
+/* Lyrics button */
+.lyrics-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    /* transition: filter 0.3s, opacity 0.3s; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lyrics-btn:hover img {
+    opacity: 1;
+    filter: brightness(1.2);
+}
+
+/* Lyrics Panel */
+.lyrics-overlay {
+    position: fixed;
+    top: 9vh;
+    left: 250px;
+    /* Chiều rộng của sidebar */
+    right: 0;
+    bottom: 75px;
+    /* Chiều cao của bottom bar */
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.5s ease;
+}
+
+.lyrics-panel {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    color: #ffffff;
+    background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.901), rgba(30, 30, 30, 0.338));
+    -webkit-backdrop-filter: blur(8px);
+    transition: background 0.5s ease;
+    backdrop-filter: blur(10px);
+
+}
+
+.lyrics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #333;
+    background: linear-gradient(rgba(0, 0, 0, 0.901), rgba(30, 30, 30, 0.4));
+    transition: background 0.5s ease, border-bottom 0.5s ease;
+}
+
+.lyrics-details {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-left: 10px;
+}
+
+.lyrics-thumbnail {
+    border-radius: 5px;
+    object-fit: cover;
+    width: 80px;
+    height: 80px;
+    transition: box-shadow 0.5s ease;
+}
+
+.lyrics-song-info {
+    display: flex;
+    flex-direction: column;
+    margin-left: 5px;
+}
+
+.lyrics-song-title:hover {
+    text-decoration: underline;
+}
+
+.lyrics-song-artist:hover {
+    text-decoration: underline;
+}
+
+.lyrics-song-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: bold;
+    transition: color 0.5s ease;
+}
+
+.lyrics-song-artist {
+    margin: 5px 0 0 0;
+    font-size: 16px;
+    font-weight: normal;
+    color: #aaa;
+    transition: color 0.5s ease;
+}
+
+.lyrics-content {
+    height: auto;
+    padding: 20px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #666 transparent;
+    margin-left: 120px;
+
+}
+
+.lyrics-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.lyrics-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.lyrics-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.lyrics-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.lyric-line {
+    position: relative;
+    border-radius: 6px;
+    margin: 4px 0;
+    padding: 12px 16px;
+    color: #aaa;
+    font-size: 26px;
+    font-weight: bold;
+    line-height: 1.4;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-radius: 4px;
+    user-select: none;
+    /* Không cho select text khi click */
+    transition: all 0.3s ease;
+}
+
+.lyric-line:hover {
+    color: #ffffff;
+    /* transform: translateX(5px); //Hiệu ứng dịch chuyển nhẹ */
+    transform: scale(1.20x);
+}
+
+.current-lyric {
+    /* color: #3c74cfff !important; */
+    /* background-color: rgba(60, 116, 207, 0.15) !important;
+        border-left: 4px solid #3c74cfff !important; */
+    padding-left: 15px;
+    font-weight: bold;
+}
+
+.current-lyric:hover {
+    background-color: rgba(60, 116, 207, 0.2) !important;
+}
+
+.timestamp {
+    font-size: 10px;
+    color: #666;
+    margin-right: 10px;
+    min-width: 40px;
+    display: inline-block;
+}
+
+.no-lyrics {
+    text-align: center;
+    color: #aba8a8;
+    font-style: italic;
+    font-weight: bold;
+    padding: 40px 20px;
+    user-select: none;
+    font-size: 30px;
+}
+
+.lyrics-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* height: 110px; */
+}
+
+.close-lyrics {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.close-lyrics:hover {
+    background-color: #fc0000;
+}
+
+.close-lyrics img {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
+}
+
+.like-btn-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-left: 15px;
+}
+
+.like-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    /* transition: filter 0.3s, opacity 0.3s; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.right-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* Queue button */
+.queue-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.queue-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    /* transition: filter 0.3s, opacity 0.3s; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.queue-btn:hover img {
+    opacity: 1;
+    filter: brightness(1.2);
+}
+
+/* NEW: volume control styles for bottom bar */
+.volume-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.volume-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+/* slider base */
+.volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 120px;
+    height: 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+    background: linear-gradient(to right, #3c74cfff 50%, #333 50%);
+}
+
+/* webkit thumb */
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
+}
+
+/* firefox thumb */
+.volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
+}
+
+.like-toast {
+    position: fixed;
+    bottom: calc(var(--bottom-bar-height, 75px) + 16px);
+    /* sits above bottom bar */
+    background: rgba(6, 98, 226, 0.85);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(3, 7, 239, 0.33);
+    font-weight: 600;
+    z-index: 2000;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(6px);
+    animation: likeToastInOut 2.5s ease forwards;
+    white-space: nowrap;
+    right: 16px;
+}
+
+/* Simple fade in & out: appear quickly, stay, then fade */
+@keyframes likeToastInOut {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    8% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    88% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+}
+
+/* ========= Queue Overlay (global across with-bottombar) ========= */
+.queueOverlay {
+    position: fixed;
+    right: 20px;
+    top: calc(var(--header-height, 70px) + 10px);
+    bottom: calc(var(--bottom-bar-height, 75px) + 15px);
+    width: 380px;
+    z-index: 2000;
+}
+
+.queuePanel {
+    background: rgba(10, 10, 10, 0.95);
+    border-radius: 12px;
+    overflow: hidden;
+    height: 100%;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.queuePlaying {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.queueSectionHeader {
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.queuePlayingRow {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.queueThumb {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.queueThumbSmall {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.queueMeta {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.queueTrackTitle {
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.queueTrackArtist {
+    color: #aaa;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.queueTrackArtist:hover {
+    text-decoration: underline;
+}
+.queueTrackTitle:hover {
+    text-decoration: underline;
+}
+.queueUpNextHeader {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.queueList {
+    flex: 1;
+    overflow-y: auto;
+    /* scrollbar-width: thin;
+    scrollbar-color: rgba(85, 85, 85, 0.7) transparent; */
+}
+
+.queueList::-webkit-scrollbar {
+    width: 4px;
+}
+
+.queueList::-webkit-scrollbar-thumb {
+    background-color: rgba(87, 87, 87, 0.7);
+    border-radius: 10px;
+}
+
+.queueListItem {
+    display: flex;
+    position: relative;
+    gap: 10px;
+    padding: 10px;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.2);
+
+        .queuePlayButton {
+            opacity: 1;
+        }
+
+        .queueThumbSmall {
+            filter: brightness(0.6);
+        }
+    }
+}
+
+.queuePlayButton {
+    position: absolute;
+    left: 25px;  
+    width: 20px;
+    aspect-ratio: 1 / 1;
+    opacity: 0;
+    transition: 0.3s;
+    z-index: 10;
+}
+
+.queueEmpty {
+    padding: 12px;
+    color: #ccc;
+}
+
+
+/* Responsive */
+@media (max-width: 700px) {
+    .volume-slider {
+        width: 80px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* --- PLAYER (BOTTOM BAR) --- */
+    /* Đẩy Player lên trên Nav Bar */
+    .bottom-bar-container {
+        bottom: 60px; /* Cách đáy 60px (chiều cao của Sidebar mới) */
+        height: auto;
+        padding: 5px 10px;
+        gap: 5px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        background-color: rgba(0,0,0,0.95); /* Làm mờ chút để tách biệt */
+        border-top: 1px solid #333;
+    }
+
+    /* Thanh tiến trình lên đầu */
+    .progress {
+        width: 100%;
+        order: -1;
+        margin-bottom: 5px;
+        height: 10px;
+    }
+
+    /* Thông tin bài hát */
+    .song-in-bottom-bar {
+        width: 50%;
+        height: auto;
+        order: 2;
+    }
+    
+    .mini-song-name { font-size: 13px; }
+    .mini-artist-name { font-size: 11px; }
+
+    /* Nút điều khiển */
+    .music-player {
+        width: 50%;
+        height: auto;
+        order: 3;
+        align-items: flex-end;
+        flex: unset;
+    }
+    
+    .bottom-menu {
+        width: auto;
+        gap: 10px;
+    }
+
+    /* Ẩn các nút phụ không cần thiết trên mobile */
+    .right-container {
+        display: none;
+    }
+
+    /* Thu nhỏ nút Player */
+    .shuffle, .previous, .play, .next, .repeat {
+        width: 32px;
+        height: 32px;
+    }
+    .play { font-size: 24px; }
+
+    /* Queue List */
+    .queueOverlay {
+        width: 100%;
+        right: 0;
+        left: 0;
+        top: 60px;
+        bottom: 180px; /* Tránh Nav + Player */
+    }
+
+    .lyrics-panel {
+        width: calc(100vw - 40px);
+        right: 20px;
+        left: 20px;
+    }
+}
+
+@media (max-width: 1024px) {
+    /* Lyrics full màn hình */
+    .lyrics-overlay {
+        left: 0;
+        bottom: 60px; /* Tránh thanh Nav Bar */
+    }
+}

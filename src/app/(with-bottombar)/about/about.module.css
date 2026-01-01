@@ -170,11 +170,13 @@
 /* Tablet (Dưới 1024px) */
 @media (max-width: 1024px) {
     .container {
-        padding: 32px 40px 120px; /* Giảm padding ngang */
+        left: 0;
+        top: 100px;
+        padding: 32px 40px 120px;
     }
 
     .featuresGrid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 cột */
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 

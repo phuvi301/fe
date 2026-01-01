@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import style from "../homepage.module.scss"; // Đảm bảo đường dẫn đúng
+import style from "../styles/homepage.module.scss";
 import { useBottomBar } from "~/context/BottombarContext";
 
 export default function TrackSection({ title, subtitle, tracks, priority = false }) {

@@ -2,7 +2,7 @@
 import { useState, useRef } from "react";
 import Select from 'react-select';
 import Image from "next/image";
-import layout from "~/app/homepage.module.scss"
+import layout from "~/app/styles/homepage.module.scss"
 import style from "./upload.module.css";
 import Header from "~/app/components/Header";
 import Sidebar from "~/app/components/Sidebar";
@@ -188,11 +188,11 @@ export default function Upload() {
     };
 
     return (
-        <div className={clsx(layout.background)}>
+        <div className={layout.background}>
             <Header />
             <Sidebar />
 
-            <main className={clsx(layout.main)}>
+            <main className={layout.mainContent}>
                 <div className={style.uploadContainer}>
                     {!selectedFile ? (
                         <div className={style.uploadBox}>

@@ -1,0 +1,153 @@
+/* ================================================= */
+/* 1. CORE STYLES */
+/* ================================================= */
+
+.background {
+    --header-height: 9vh;
+    --aside-width: 350px;
+    --bottom-bar-height: 75px;
+    --theme-color-black: #000000;
+    --theme-color-blue: #0d046f;
+}
+
+/* Main features */
+.mainContent {
+    position: absolute;
+    left: 0;
+    top: var(--header-height);
+    flex: 1;
+    /* Padding này trừ hao cho Sidebar (đè lên bên trái) và Bottombar (đè lên bên dưới) */
+    padding: 20px 20px calc(20px + 10vh) calc(var(--aside-width) + 40px);
+    box-sizing: border-box;
+    background-image: linear-gradient(#000000 50%, #0d046f);
+    max-height: fit-content;
+    min-height: calc(100vh - var(--header-height));
+    width: 100%;
+}
+
+.featured {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 50px;
+}
+
+.featured-section {
+    color: white;
+    position: relative;
+    width: 90%;
+    overflow: hidden;
+}
+
+.featured-section p {
+    margin: 5px 0;
+    font-size: 18px;
+    color: rgb(173, 173, 173);
+}
+
+/* Song items */
+.featured-container {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 20px;
+    justify-content: flex-start;
+    padding-bottom: 10px;
+    
+    /* Ẩn thanh scrollbar */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    scrollbar-width: none;
+}
+
+.featured-item {
+    flex: 0 0 auto;
+    width: 200px;
+    padding: 10px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: scale(1.05);
+    }
+}
+
+.track-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.track-image {
+    border-radius: 8px;
+    object-fit: cover;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1/1;
+}
+
+.track-title {
+    font-size: clamp(12px, 2.5vw, 14px);
+    font-weight: 500;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.scroll-btn {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 50%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 30px;
+    transition: background-color 0.3s;
+    z-index: 10;
+    width: 30px;
+    aspect-ratio: 1 / 1;
+}
+
+.scroll-btn img {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
+}
+
+.scroll-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.scroll-btn.left {
+    left: 5px;
+    padding-right: 2px;
+}
+
+.scroll-btn.right {
+    right: 5px;
+    padding-left: 2px;
+}
+
+/* ========================================================= */
+/* 2. RESPONSIVE - MOBILE & TABLET */
+/* ========================================================= */
+
+@media (max-width: 1024px) {
+    /* --- CHỈNH MAIN --- */
+    .mainContent {
+        /* Bỏ padding trái của sidebar */
+        padding-left: 20px; 
+        
+        /* Tăng padding đáy cực lớn để nội dung không bị che bởi (Nav Bar + Player) */
+        /* Nav(60) + Player(~120) + Buffer(20) = ~200px */
+        padding-bottom: calc(60px + var(--bottom-bar-height, 75px) + 40px);
+    }
+}

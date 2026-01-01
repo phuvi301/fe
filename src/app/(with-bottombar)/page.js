@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import TrackSection from "../components/TrackSection"; // Import component vừa tạo
-import style from "../homepage.module.scss";
+import TrackSection from "../components/TrackSection";
+import style from "../styles/homepage.module.scss";
 
 // 1. Hàm fetch data chạy trên Server
 async function getHomepageData() {
@@ -51,7 +51,7 @@ export default async function Home() {
       <Header />
       <Sidebar />
       
-      <main>
+      <main className={style.mainContent}>
         <section className={style.featured}>
           
           {/* Section 1: Recently Added */}

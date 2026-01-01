@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import style from "../homepage.module.scss";
+import style from "../styles/Header.module.scss";
 import axios from "axios";
 import MusicRecognitionModal from '../(with-bottombar)/recognition/Recognition';
 
@@ -79,35 +79,36 @@ export default function Header() {
 		}
 	};
 
-	const markNotificationAsRead = async (notificationId) => {
-		try {
-			const token = getAccessToken();
-			if (!token) return;
+	/* Unused function to mark a single notification as read */
+	// const markNotificationAsRead = async (notificationId) => {
+	// 	try {
+	// 		const token = getAccessToken();
+	// 		if (!token) return;
 
-			await axios.patch(
-				`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/${notificationId}/read`,
-				{}, 
-				{
-					headers: {
-						token: `Bearer ${token}`,
-					},
-					withCredentials: true
-				}
-			);
+	// 		await axios.patch(
+	// 			`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/${notificationId}/read`,
+	// 			{}, 
+	// 			{
+	// 				headers: {
+	// 					token: `Bearer ${token}`,
+	// 				},
+	// 				withCredentials: true
+	// 			}
+	// 		);
 
-			// Update local state
-			setNotifications(prev => 
-				prev.map(notif => 
-					notif._id === notificationId 
-						? { ...notif, isRead: true }
-						: notif
-				)
-			);
-			setUnreadCount(prev => Math.max(0, prev - 1));
-		} catch (error) {
-			console.error("Error marking notification as read:", error);
-		}
-	};
+	// 		// Update local state
+	// 		setNotifications(prev => 
+	// 			prev.map(notif => 
+	// 				notif._id === notificationId 
+	// 					? { ...notif, isRead: true }
+	// 					: notif
+	// 			)
+	// 		);
+	// 		setUnreadCount(prev => Math.max(0, prev - 1));
+	// 	} catch (error) {
+	// 		console.error("Error marking notification as read:", error);
+	// 	}
+	// };
 
 	const handleNotificationClick = async (notification) => {
 		try {
@@ -280,7 +281,7 @@ export default function Header() {
 
 	return (
 		<>
-			<header>
+			<header className={style.header}>
 				{/* Logo */}
 				<Link href="/"><img id={style.logo} src="/logo&text.png" alt="Logo" /></Link>
 				{/* Search bar */}

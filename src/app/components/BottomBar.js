@@ -1,6 +1,6 @@
 'use client'
-import style from "../homepage.module.scss";
-import { forwardRef, useState, useRef, useImperativeHandle, useEffect, use } from "react";
+import style from "../styles/BottomBar.module.scss";
+import { forwardRef, useState, useRef, useImperativeHandle, useEffect } from "react";
 import Hls from "hls.js";
 import axios from "axios";
 import Link from "next/link";

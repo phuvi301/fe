@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 import clsx from 'clsx';
 import { useBottomBar } from '~/context/BottombarContext';
 import Sidebar from "../../../components/Sidebar";
 import Header from '../../../components/Header';
-import layout from "~/app/homepage.module.scss";
+import layout from "~/app/styles/homepage.module.scss";
 import style from "./artist.module.css";
 
 // --- Helper Functions ---
