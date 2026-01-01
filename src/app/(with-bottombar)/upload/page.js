@@ -7,7 +7,6 @@ import style from "./upload.module.css";
 import Header from "~/app/components/Header";
 import Sidebar from "~/app/components/Sidebar";
 import axios from "axios";
-import clsx from "clsx";
 
 export default function Upload() {
     const [selectedFile, setSelectedFile] = useState(null);

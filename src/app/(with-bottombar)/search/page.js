@@ -1,4 +1,4 @@
-import layout from "~/app/homepage.module.scss";
+import layout from "~/app/styles/homepage.module.scss";
 import clsx from "clsx";
 import Header from "~/app/components/Header";
 import Sidebar from "~/app/components/Sidebar";
