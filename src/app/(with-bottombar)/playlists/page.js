@@ -285,7 +285,7 @@ export default function PlaylistsPage() {
             <Header />
             <Sidebar />
 
-            <main className={styles.main}>
+            <main className={layout.mainContent}>
                 {loading ? (
                     <div className={styles.centerMsg}>
                         <div className={styles.loader}></div> Loading your library...

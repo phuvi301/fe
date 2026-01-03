@@ -1,6 +1,6 @@
 /* === LAYOUT & GRID === */
 .main {
-    padding: 20px 20px 20px calc(var(--aside-width) + 40px);
+    padding: calc(var(--header-height) + 20px) 20px 20px calc(var(--aside-width) + 20px);
 }
 
 .grid {

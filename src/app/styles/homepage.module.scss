@@ -4,8 +4,10 @@
 
 .background {
     --header-height: 9vh;
-    --aside-width: 350px;
+    --aside-width: 250px;
     --bottom-bar-height: 75px;
+    --left-right-padding: 70px;
+    --top-bottom-padding: 30px;
     --theme-color-black: #000000;
     --theme-color-blue: #0d046f;
 }
@@ -13,16 +15,16 @@
 /* Main features */
 .mainContent {
     position: absolute;
-    left: 0;
     top: var(--header-height);
+    left: var(--aside-width);
+    right: 0;
     flex: 1;
     /* Padding này trừ hao cho Sidebar (đè lên bên trái) và Bottombar (đè lên bên dưới) */
-    padding: 20px 20px calc(20px + 10vh) calc(var(--aside-width) + 40px);
-    box-sizing: border-box;
+    padding: var(--top-bottom-padding) var(--left-right-padding) calc(var(--bottom-bar-height) + var(--top-bottom-padding)) var(--left-right-padding);
+    // box-sizing: border-box;
     background-image: linear-gradient(#000000 50%, #0d046f);
-    max-height: fit-content;
     min-height: calc(100vh - var(--header-height));
-    width: 100%;
+    height: fit-content;
 }
 
 .featured {
@@ -35,7 +37,7 @@
 .featured-section {
     color: white;
     position: relative;
-    width: 90%;
+    width: 100%;
     overflow: hidden;
 }
 
@@ -89,7 +91,7 @@
 }
 
 .track-title {
-    font-size: clamp(12px, 2.5vw, 14px);
+    font-size: 16px;
     font-weight: 500;
     color: #fff;
     white-space: nowrap;

@@ -51,7 +51,7 @@ export default async function SearchPage({ searchParams }) {
             <Header />
             <Sidebar />
             
-            <main className={clsx(layout.main)}>
+            <main className={layout.mainContent}>
                 {/* Truyền dữ liệu đã fetch xuống Client Component */}
                 <SearchResults results={searchResults} query={query} />
             </main>

@@ -1,9 +1,9 @@
 .pageWrapper {
     position: absolute;
     top: var(--header-height, 9vh);
-    left: 250px;
+    left: var(--aside-width, 250px);
     right: 0;
-    bottom: 60px; /* Adjust for bottom bar height */
+    bottom: var(--bottom-bar-height, 75px); /* Adjust for bottom bar height */
     overflow-y: auto;
     font-family: 'Montserrat', sans-serif;
 }
