@@ -12,6 +12,10 @@
     gap: 170px;
 }
 
+.audio-player {
+    display: none;
+}
+
 .song-in-bottom-bar {
     width: 200px;
     height: 60px;
@@ -664,90 +668,92 @@
 
 
 /* Responsive */
-@media (max-width: 700px) {
-    .volume-slider {
-        width: 80px;
-    }
-}
-
-@media (max-width: 768px) {
-    /* --- PLAYER (BOTTOM BAR) --- */
-    /* Đẩy Player lên trên Nav Bar */
+@media (max-width: 1024px) {
+    /* 1. Thiết lập Container chính */
     .bottom-bar-container {
-        bottom: 60px; /* Cách đáy 60px (chiều cao của Sidebar mới) */
-        height: auto;
-        padding: 5px 10px;
-        gap: 5px;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        background-color: rgba(0,0,0,0.95); /* Làm mờ chút để tách biệt */
-        border-top: 1px solid #333;
+        bottom: 60px; /* Nâng lên chút để tránh chạm viền */
+        justify-content: space-between; /* Đẩy 2 phần tử sang 2 bên */
+        padding: 0 15px; /* Thêm lề 2 bên cho thoáng */
+        gap: 0; /* Bỏ khoảng cách cố định của PC */
+        height: 70px; /* Chiều cao cố định trên mobile */
     }
 
-    /* Thanh tiến trình lên đầu */
-    .progress {
-        width: 100%;
-        order: -1;
-        margin-bottom: 5px;
-        height: 10px;
-    }
-
-    /* Thông tin bài hát */
+    /* 2. Song Info (Bên Trái) */
     .song-in-bottom-bar {
-        width: 50%;
-        height: auto;
+        width: 50%; /* Để tự co giãn theo nội dung */
+        max-width: 60%; /* Không chiếm quá nhiều chỗ của nút bấm */
+        height: 100%;
+        margin-right: 10px;
+    }
+    
+    /* Chỉnh lại text cho gọn */
+    .mini-song-name { font-size: 13px }
+    .mini-artist-name { font-size: 11px }
+
+    /* 3. Music Player (Bên Phải) */
+    /* Container chứa cả Menu và Progress */
+    .music-player {
+        width: auto; /* Bỏ width cố định 550px của PC */
+        height: 100%;
+        flex-direction: column; 
+        justify-content: center;
+        align-items: flex-end; /* Căn các nút sang phải */
+        position: static; /* Quan trọng: để con absolute tham chiếu theo bottom-bar */
+    }
+
+    /* 4. Controls (Các nút Play/Pause...) */
+    .bottom-menu {
+        width: auto; /* Bỏ width 200px của PC */
+        gap: 15px; /* Khoảng cách giữa các nút */
+    }
+
+    .play {
         order: 2;
     }
-    
-    .mini-song-name { font-size: 13px; }
-    .mini-artist-name { font-size: 11px; }
 
-    /* Nút điều khiển */
-    .music-player {
-        width: 50%;
-        height: auto;
-        order: 3;
-        align-items: flex-end;
-        flex: unset;
-    }
-    
-    .bottom-menu {
-        width: auto;
-        gap: 10px;
+    /* Ẩn bớt nút Shuffle/Repeat/Previous/Next nếu màn hình quá bé để đỡ rối (Tuỳ chọn) */
+    .shuffle, .repeat, .previous, .next { display: none; }
+
+    /* 5. Progress Bar (Nằm dưới cùng, full chiều ngang) */
+    .progress {
+        position: absolute; /* Tách ra khỏi dòng chảy layout */
+        left: 0;
+        bottom: 0; /* Ghim xuống đáy */
+        width: 100%; /* Full màn hình */
+        height: 4px; /* Thanh mảnh hơn trên mobile */
+        padding: 0;
+        gap: 0;
     }
 
-    /* Ẩn các nút phụ không cần thiết trên mobile */
+    .progress-bar {
+        width: 100%;
+        border-radius: 0; /* Vuông góc để ôm sát cạnh dưới */
+        height: 4px;
+    }
+
+    /* Ẩn thời gian (00:00) trên mobile cho gọn, chỉ để lại thanh chạy */
+    .current-time, 
+    .duration {
+        display: none;
+    }
+
+    /* 6. Ẩn Volume và các nút phụ bên phải (Right Container) */
     .right-container {
         display: none;
     }
 
-    /* Thu nhỏ nút Player */
-    .shuffle, .previous, .play, .next, .repeat {
-        width: 32px;
-        height: 32px;
-    }
-    .play { font-size: 24px; }
-
-    /* Queue List */
+    /* Các phần xử lý Overlay khác giữ nguyên */
     .queueOverlay {
         width: 100%;
         right: 0;
-        left: 0;
         top: 60px;
-        bottom: 180px; /* Tránh Nav + Player */
+        bottom: 70px; /* Tránh bottom bar */
     }
-
+    
     .lyrics-panel {
-        width: calc(100vw - 40px);
-        right: 20px;
-        left: 20px;
-    }
-}
-
-@media (max-width: 1024px) {
-    /* Lyrics full màn hình */
-    .lyrics-overlay {
+        width: 100%;
         left: 0;
-        bottom: 60px; /* Tránh thanh Nav Bar */
+        top: 0;
+        bottom: 70px;
     }
 }

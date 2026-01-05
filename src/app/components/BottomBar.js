@@ -448,7 +448,10 @@ const BottomBar = forwardRef((props, ref) => {
 
     // Tăng playCount và lưu vào danh sách đã nghe khi nghe hơn 40% duration của bài
     const handleListendSegments = () => {
-        const {_id} = JSON.parse(localStorage.getItem("userInfo")); 
+        const rawInfo = localStorage.getItem("userInfo");
+        if (!rawInfo) return;
+
+        const {_id} = JSON.parse(rawInfo); 
         if (!_id) return; // Chỉ khi đăng nhập mới chạy
 
         const saved = localStorage.getItem("listenedSegments");
@@ -480,7 +483,10 @@ const BottomBar = forwardRef((props, ref) => {
     }
 
     const saveProgressToRedis = async (plID = null, idx = null) => {
-        const {_id} = JSON.parse(localStorage.getItem("userInfo")); 
+        const rawInfo = localStorage.getItem("userInfo");
+        if (!rawInfo) return;
+
+        const {_id} = JSON.parse(rawInfo); 
         if (!_id || !nowPlaying.current) return; // Chỉ đăng nhập mới lưu vào redis
 
         try {
@@ -499,7 +505,10 @@ const BottomBar = forwardRef((props, ref) => {
     }
 
     const updatePlaybackTime = async () => {
-        const {_id} = JSON.parse(localStorage.getItem("userInfo")); 
+        const rawInfo = localStorage.getItem("userInfo");
+        if (!rawInfo) return;
+
+        const {_id} = JSON.parse(rawInfo); 
         if (!_id || !nowPlaying.current) return; // Chỉ đăng nhập mới lưu vào redis
 
         try {
@@ -788,7 +797,7 @@ const BottomBar = forwardRef((props, ref) => {
         <>
         <div className={style["bottom-bar-container"]} hidden={true}>
             <div className={style["audio-player"]}>
-                <audio controls type="audio/mpeg" ref={playerRef} autoPlay hidden />
+                <audio controls type="audio/mpeg" ref={playerRef} autoPlay />
             </div>
             {nowPlaying.current ? (
             <div className={style["song-in-bottom-bar"]}>

@@ -145,11 +145,19 @@
 @media (max-width: 1024px) {
     /* --- CHỈNH MAIN --- */
     .mainContent {
-        /* Bỏ padding trái của sidebar */
-        padding-left: 20px; 
-        
-        /* Tăng padding đáy cực lớn để nội dung không bị che bởi (Nav Bar + Player) */
-        /* Nav(60) + Player(~120) + Buffer(20) = ~200px */
-        padding-bottom: calc(60px + var(--bottom-bar-height, 75px) + 40px);
+        // Do sidebar thu nhỏ xuống bottom nên dời left về 0
+        left: 0;
+    }
+
+    @media (max-width: 600px) {
+        .mainContent {
+            /* Padding nhỏ lại cho
+                mobile */
+            padding: var(--top-bottom-padding) 20px calc(var(--bottom-bar-height) + var(--top-bottom-padding)) 20px;
+        }
+
+        .featured-item {
+            width: 150px;
+        }
     }
 }
