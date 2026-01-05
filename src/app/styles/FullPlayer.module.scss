@@ -1,0 +1,179 @@
+/* --- FULL PLAYER OVERLAY --- */
+
+/* Container chính bao phủ toàn màn hình */
+.full-player-overlay {
+    position: fixed;
+    top: 100vh; /* Mặc định đẩy xuống khỏi màn hình */
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(to bottom, #444444, #121212); /* Giả lập màu nền */
+    z-index: 9999; /* Cao hơn tất cả */
+    display: flex;
+    flex-direction: column;
+    padding: 20px 24px 40px 24px; /* Padding cho thoáng */
+    box-sizing: border-box;
+    transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Hiệu ứng trượt mượt mà */
+    overflow-y: auto; /* Cho phép cuộn nếu màn hình quá bé */
+}
+
+/* Class kích hoạt khi mở */
+.full-player-overlay.open {
+    top: 0; /* Trượt lên full màn hình */
+}
+
+/* 1. Header (Nút đóng) */
+.fp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px;
+    flex-shrink: 0;
+}
+
+.fp-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+}
+.fp-close-btn img {
+    width: 24px;
+    height: 24px;
+    filter: invert(1); /* Chuyển icon sang trắng */
+}
+
+.fp-header-title {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.fp-header-placeholder { width: 44px; } /* Cân bằng layout flex */
+
+/* 2. Artwork (Ảnh đĩa) */
+.fp-artwork-container {
+    flex: 1; /* Chiếm khoảng trống còn lại ở giữa */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.fp-artwork {
+    width: 100%;
+    max-width: 350px;
+    aspect-ratio: 1/1; /* Vuông */
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    object-fit: cover;
+}
+
+/* 3. Song Info */
+.fp-song-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.fp-text-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.fp-title {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fp-artist {
+    color: #b3b3b3;
+    font-size: 16px;
+    margin: 5px 0 0 0;
+}
+
+.fp-like-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.fp-like-btn img {
+    width: 28px;
+    height: 28px;
+}
+
+/* 4. Progress Bar (Style riêng cho bản to) */
+.fp-progress-container {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.fp-progress-bar {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: #4d4d4d;
+    outline: none;
+    cursor: pointer;
+}
+.fp-progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+}
+
+.fp-time-info {
+    display: flex;
+    justify-content: space-between;
+    color: #b3b3b3;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+/* 5. Controls */
+.fp-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.fp-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fp-btn img {
+    width: 24px; /* Icon thường */
+    filter: invert(1);
+}
+
+.play-large img {
+    width: 64px; /* Nút Play to bự */
+    height: 64px;
+    /* transition: transform 0.2s; */
+}
+.play-large:active { transform: scale(0.95); }
+
+/* --- RESPONSIVE LOGIC --- */
+/* Chỉ hiện Full Player Overlay trên mobile/tablet */
+@media (min-width: 1025px) {
+    .full-player-overlay {
+        display: none !important; /* Ẩn trên PC */
+        pointer-events: none; /* Vô hiệu hóa tương tác */
+        visibility: hidden;
+    }
+}

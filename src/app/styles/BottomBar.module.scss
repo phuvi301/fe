@@ -669,91 +669,101 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-    /* 1. Thiết lập Container chính */
+    /* 1. Thiết lập Container chính làm mốc toạ độ */
     .bottom-bar-container {
-        bottom: 60px; /* Nâng lên chút để tránh chạm viền */
-        justify-content: space-between; /* Đẩy 2 phần tử sang 2 bên */
-        padding: 0 15px; /* Thêm lề 2 bên cho thoáng */
-        gap: 0; /* Bỏ khoảng cách cố định của PC */
-        height: 70px; /* Chiều cao cố định trên mobile */
+        bottom: 60px;
+        justify-content: space-between;
+        padding: 0 15px;
+        gap: 0;
+        height: 70px;
+        position: fixed; /* Giữ nguyên fixed nhưng cần đảm bảo để con absolute tham chiếu */
     }
 
     /* 2. Song Info (Bên Trái) */
     .song-in-bottom-bar {
-        width: 50%; /* Để tự co giãn theo nội dung */
-        max-width: 60%; /* Không chiếm quá nhiều chỗ của nút bấm */
+        /* Trừ hao khoảng trống bên phải cho nút Like và Play để text không bị đè */
+        width: calc(100% - 110px); 
+        max-width: unset; /* Bỏ max-width cũ */
         height: 100%;
-        margin-right: 10px;
+        margin-right: 0;
     }
     
-    /* Chỉnh lại text cho gọn */
-    .mini-song-name { font-size: 13px }
-    .mini-artist-name { font-size: 11px }
+    .mini-song-name { font-size: 13px; width: 100%; }
+    .mini-artist-name { font-size: 11px; max-width: 100%; }
 
-    /* 3. Music Player (Bên Phải) */
-    /* Container chứa cả Menu và Progress */
+    /* --- PHẦN QUAN TRỌNG: ĐƯA LIKE BUTTON SANG CẠNH PLAY --- */
+    
+    /* "Nhấc" nút Like ra khỏi song-in-bottom-bar và đặt cạnh Play */
+    .like-btn-container {
+        position: absolute; /* Tách khỏi dòng chảy văn bản */
+        right: 70px; /* Cách mép phải 70px (chừa chỗ cho nút Play) */
+        top: 50%; /* Căn giữa theo chiều dọc */
+        transform: translateY(-50%); /* Căn chỉnh chính xác giữa */
+        margin: 0;
+        z-index: 1002;
+    }
+
+    /* --- KẾT THÚC PHẦN LIKE --- */
+
+
+    /* 3. Music Player (Chỉ chứa nút Play) */
     .music-player {
-        width: auto; /* Bỏ width cố định 550px của PC */
+        width: 50px; /* Thu gọn chiều rộng chỉ đủ cho nút Play */
         height: 100%;
-        flex-direction: column; 
-        justify-content: center;
-        align-items: flex-end; /* Căn các nút sang phải */
-        position: static; /* Quan trọng: để con absolute tham chiếu theo bottom-bar */
+        flex-direction: row; /* Để ngang hàng */
+        justify-content: flex-end; /* Dính sát lề phải */
+        align-items: center;
+        position: static; 
+        margin-right: 0; /* Sát mép phải */
     }
 
-    /* 4. Controls (Các nút Play/Pause...) */
+    /* 4. Controls */
     .bottom-menu {
-        width: auto; /* Bỏ width 200px của PC */
-        gap: 15px; /* Khoảng cách giữa các nút */
+        width: auto;
+        gap: 0;
+        justify-content: flex-end;
     }
 
-    .play {
-        order: 2;
-    }
-
-    /* Ẩn bớt nút Shuffle/Repeat/Previous/Next nếu màn hình quá bé để đỡ rối (Tuỳ chọn) */
+    /* Chỉ hiện nút Play, ẩn các nút khác */
     .shuffle, .repeat, .previous, .next { display: none; }
+    
+    /* Chỉnh lại nút Play cho cân đối */
+    .play {
+        width: 40px;
+        height: 40px;
+        margin: 0;
+        padding: 0;
+    }
 
-    /* 5. Progress Bar (Nằm dưới cùng, full chiều ngang) */
+    /* 5. Progress Bar (Nằm dưới cùng) */
     .progress {
-        position: absolute; /* Tách ra khỏi dòng chảy layout */
+        position: absolute;
         left: 0;
-        bottom: 0; /* Ghim xuống đáy */
-        width: 100%; /* Full màn hình */
-        height: 4px; /* Thanh mảnh hơn trên mobile */
+        bottom: 0;
+        width: 100%;
+        height: 2px; /* Mỏng hơn */
         padding: 0;
         gap: 0;
     }
 
     .progress-bar {
         width: 100%;
-        border-radius: 0; /* Vuông góc để ôm sát cạnh dưới */
-        height: 4px;
+        border-radius: 0;
+        height: 2px;
+    }
+    
+    /* Ẩn cục tròn ở đầu thanh trượt khi không hover */
+    .progress-bar::-webkit-slider-thumb {
+        transform: scale(0); 
     }
 
-    /* Ẩn thời gian (00:00) trên mobile cho gọn, chỉ để lại thanh chạy */
     .current-time, 
-    .duration {
-        display: none;
-    }
-
-    /* 6. Ẩn Volume và các nút phụ bên phải (Right Container) */
+    .duration,
     .right-container {
         display: none;
     }
-
-    /* Các phần xử lý Overlay khác giữ nguyên */
-    .queueOverlay {
-        width: 100%;
-        right: 0;
-        top: 60px;
-        bottom: 70px; /* Tránh bottom bar */
-    }
     
-    .lyrics-panel {
-        width: 100%;
-        left: 0;
-        top: 0;
-        bottom: 70px;
-    }
+    /* ... Các phần overlay giữ nguyên ... */
+    .queueOverlay { width: 100%; right: 0; top: 60px; bottom: 70px; }
+    .lyrics-panel { width: 100%; left: 0; top: 0; bottom: 70px; }
 }

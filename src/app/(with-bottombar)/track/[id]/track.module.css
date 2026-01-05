@@ -8,6 +8,7 @@
     overflow: hidden;
     background: transparent;
     color: white;
+    max-height: fit-content;
     padding: 0;
 }
 
@@ -681,39 +682,19 @@
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
-    .trackPageWrapper,
-    .trackLoading,
-    .trackError {
-        left: 200px;
-    }
-    .trackHeaderSection {
-        padding: 0 30px 24px;
-        min-height: 320px;
-    }
-    .trackBodySection {
-        padding: 24px 30px 50px;
-    }
-    .trackImage {
-        width: 220px;
-        height: 220px;
-    }
-    .trackTitle {
-        font-size: clamp(2rem, 5vw, 3.5rem);
-    }
-}
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .trackPageWrapper,
     .trackLoading,
     .trackError {
         left: 0;
+        top: 66px;
     }
     .trackHeaderSection {
         flex-direction: column;
         align-items: center;
         text-align: center;
-        padding: 0 24px 24px;
-        min-height: 280px;
+        padding: 24px;
+        min-height: fit-content;
     }
     .trackImageContainer {
         margin-right: 0;
@@ -753,8 +734,8 @@
 }
 @media (max-width: 480px) {
     .trackHeaderSection {
-        padding: 0 16px 20px;
-        min-height: 250px;
+        padding: 16px 16px 20px;
+        min-height: fit-content;
     }
     .trackBodySection {
         padding: 20px 16px 30px;

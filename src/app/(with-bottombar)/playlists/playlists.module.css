@@ -1,6 +1,11 @@
-/* === LAYOUT & GRID === */
+/* =========================================
+   PHẦN 1: GIAO DIỆN CHUNG & PC
+   ========================================= */
+
 .main {
-    padding: calc(var(--header-height) + 20px) 20px 20px calc(var(--aside-width) + 20px);
+    /* Padding tính toán để tránh Header và Sidebar */
+    padding: calc(var(--header-height, 64px) + 20px) 20px 20px calc(var(--aside-width, 240px) + 20px);
+    min-height: 100vh;
 }
 
 .grid {
@@ -23,21 +28,96 @@
     grid-template-columns: 1fr;
 }
 
+/* --- PLAYLIST LIST VIEW (GRID) --- */
+.playlistGrid {
+    display: grid;
+    /* Tự động chia cột linh hoạt, tối thiểu 160px/card */
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.plItem {
+    position: relative;
+    height: 100%;
+}
+
+.playlistCard {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    background: #1a1a1a;
+    border: 1px solid #5e5c5c;
+    border-radius: 12px;
+    padding: 12px;
+    /* Chừa chỗ dưới đáy cho nút Delete trên mobile nếu cần */
+    padding-bottom: 40px; 
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.playlistCard:hover,
+.plItem:hover .playlistCard {
+    transform: translateY(-4px);
+    border-color: #fff;
+    background: #222;
+}
+
+.playlistCard.active {
+    outline: 2px solid #005ff6;
+    border-color: #005ff6;
+}
+
+.cover {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px;
+    background-color: #333;
+    margin-bottom: 12px;
+}
+
+.plName {
+    display: block;
+    font-weight: 700;
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+}
+
+.plMeta {
+    display: block;
+    color: #aaa;
+    font-size: 13px;
+}
+
+/* Nút xóa playlist (Hiện khi hover) */
 .hoverDelete {
     position: absolute;
-    right: 10px;
-    bottom: 10px;
-    z-index: 2;
+    right: 12px;
+    bottom: 12px;
+    z-index: 5;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.15s ease, transform 0.15s ease;
+    transition: all 0.2s ease;
     transform: translateY(4px);
-    border-radius: 10px;
+    border-radius: 6px;
     border: 1px solid #b84a4a;
     background: #3b0a0a;
     color: #ffdede;
-    padding: 6px 10px;
+    padding: 6px 12px;
     font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
 }
 
@@ -48,7 +128,7 @@
     transform: translateY(0);
 }
 
-/* === DETAIL VIEW === */
+/* --- PLAYLIST DETAIL HEADER --- */
 .detailFull {
     width: 100%;
     margin: 0;
@@ -57,713 +137,392 @@
 .detailTopBar {
     display: flex;
     justify-content: flex-start;
-    margin-bottom: 8px;
+    margin-bottom: 16px;
 }
 
 .backBtn {
     display: inline-flex;
     align-items: center;
-    border-radius: 10px;
+    border-radius: 8px;
     border: 1px solid #5e5c5c;
     background: #111;
     color: #fff;
-    padding: 8px 12px;
+    padding: 8px 16px;
     cursor: pointer;
-    font-family: inherit;
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background 0.2s;
 }
-
-.backBtn:hover {
-    border-color: #fff;
-}
+.backBtn:hover { background: #333; border-color: #fff; }
 
 .sectionHeader {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.sectionHeader h1 {
-    font-size: 22px;
-}
-
-.sectionHeader p {
-    color: #adadad;
-    font-size: 14px;
-    margin-top: 4px;
+    /* Flex column để trên mobile dễ stack, desktop sẽ dùng row bên trong */
+    flex-direction: column; 
+    gap: 24px;
+    margin-bottom: 32px;
 }
 
 .detailHeader {
     display: flex;
-    align-items: center;
-    gap: 16px;
-    min-width: 0;
-    flex: 1 1 auto;
+    align-items: flex-end; /* Căn đáy ảnh với text */
+    gap: 24px;
+    width: 100%;
 }
 
 .detailCover {
-    width: 120px;
-    height: 120px;
-    border-radius: 16px;
-    border: 1px solid #5e5c5c;
+    width: 180px;
+    height: 180px;
+    border-radius: 12px;
     object-fit: cover;
-    flex: 0 0 auto;
-    cursor: pointer;
-    transition: all .2s ease-in;
+    flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     position: relative;
-}
-
-.detailCover:hover {
-    opacity: 0.8;
+    cursor: pointer;
+    background: #222;
 }
 
 .detailIcon {
     position: absolute;
     bottom: 10px;
     right: 10px;
+    background: rgba(0,0,0,0.7);
+    padding: 8px;
+    border-radius: 50%;
+    color: #fff;
     font-size: 16px;
-    visibility: hidden;
     opacity: 0;
-    transition: all .2s ease-in;
+    transition: opacity 0.2s;
 }
-
-.detailCover:hover .detailIcon {
-    visibility: visible;
-    opacity: 1;
-}
+.detailCover:hover .detailIcon { opacity: 1; }
 
 .detailText {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    min-width: 0;
+    justify-content: flex-end;
+    padding-bottom: 4px;
 }
 
 .detailTitle {
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-    word-break: break-word;
-    overflow-wrap: anywhere;
-    max-width: 100%;
-    margin: 0;
+    font-size: 48px; /* Tên Playlist to đậm */
+    font-weight: 800;
+    line-height: 1.1;
+    margin: 0 0 12px 0;
     cursor: pointer;
-}
-
-.detailDesc {
-    color: #adadad;
-    font-size: 15px;
-}
-
-.detailMeta {
-    color: #adadad;
-    font-size: 15px;
-}
-
-/* === PLAYLIST GRID & LIST === */
-.playlistGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 12px;
-    list-style: none;
-}
-
-.playlistCard {
-    position: relative;
-    overflow: hidden;
-    width: 100%;
-    text-align: left;
-    background: #1a1a1a;
-    border: 1px solid #5e5c5c;
-    border-radius: 12px;
-    padding: 10px;
-    padding-bottom: 22px;
-    color: #fff;
-    cursor: pointer;
-    font-family: inherit;
-    transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
-}
-
-.playlistCard:hover,
-.plItem:hover .playlistCard {
-    transform: translateY(-2px);
-    border-color: #fff;
-    background: #161616;
-}
-
-.playlistCard.active {
-    outline: 2px solid #fff;
-}
-
-.plName {
-    display: block;
-    font-weight: 600;
-    margin-top: 8px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100%;
 }
 
-.plMeta {
-    display: block;
-    color: #adadad;
-    font-size: 12px;
-    margin-top: 2px;
+.detailDesc {
+    color: #ccc;
+    font-size: 14px;
+    margin-bottom: 8px;
+    line-height: 1.5;
 }
 
-.cover {
-    width: 100%;
-    aspect-ratio: 1/1;
-    object-fit: cover;
-    display: block;
-    border-radius: 8px;
+.detailMeta {
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
 }
 
-.plItem {
-    position: relative;
+/* Nút chức năng (Play, Add...) */
+.rowGap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-/* === TABLE STYLES === */
+/* --- TABLE STYLES (ĐÃ FIX LỖI CĂN CHỈNH) --- */
 .table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
+    border-collapse: collapse;
     color: #fff;
     font-size: 14px;
+    table-layout: fixed;
 }
 
 .table thead th {
     text-align: left;
-    color: #d8d8d8;
-    font-weight: 500;
-    padding: 8px 6px;
-    border-bottom: 1px solid #5e5c5c;
+    color: #b3b3b3;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-bottom: 1px solid #333;
+    letter-spacing: 1px;
 }
 
+/* Chiều cao cố định cho hàng để dễ căn giữa */
 .table tbody tr {
-    position: relative;
+    height: 56px; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s;
 }
 
-.table tbody tr::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 1px;
-    background: #2d2d2d;
+.table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.table tbody tr.active {
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
 .table td {
-    padding: 10px 6px;
+    padding: 0 16px; /* Bỏ padding dọc, dùng height của tr để căn */
+    vertical-align: middle;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
+/* Căn giữa cột Bài hát (Ảnh + Tên) */
 .songCell {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 16px;
+    width: 100%;
+    height: 100%; /* Full chiều cao ô td */
 }
 
 .songCell img {
     width: 40px;
     height: 40px;
-    border-radius: 6px;
+    border-radius: 4px;
     object-fit: cover;
-    background: #fff;
+    background: #333;
+    flex-shrink: 0;
+    display: block;
+}
+
+.songCell span {
+    font-size: 15px;
+    color: #fff;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: normal; /* Reset line-height */
+}
+
+/* Căn giữa cột Hành động (Play/Delete) */
+.table td:last-child {
+    padding-right: 16px;
+    text-align: right;
 }
 
 .rowActions {
     display: flex;
-    gap: 6px;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: flex-end; /* Đẩy sang phải */
+    gap: 12px;
+    height: 100%; /* Full height để căn giữa dọc */
 }
 
 .iconBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
     background: transparent;
-    border: 1px solid #5e5c5c;
-    color: #fff;
-    border-radius: 8px;
-    padding: 4px 8px;
+    border: none;
+    color: #ccc;
     cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    padding: 0;
 }
 
 .iconBtn:hover {
-    border-color: #fff;
-}
-
-/* === UTILITY & STATE STYLES === */
-.centerMsg {
-    display: grid;
-    place-items: center;
-    min-height: 240px;
     color: #fff;
+    transform: scale(1.1);
 }
 
-.errorBox {
-    background: #3b0a0a;
-    color: #ffdede;
-    border: 1px solid #8a2b2b;
-    padding: 12px;
-    border-radius: 12px;
-}
+/* Căn chỉnh các cột khác */
+.table th:first-child, 
+.table td:first-child { 
+    width: 48px; 
+    text-align: center; 
+    color: #999; 
+} /* Index */
 
-.emptyState {
-    display: grid;
-    place-items: center;
-    gap: 10px;
-    border: 1px dashed #5e5c5c;
-    border-radius: 12px;
-    padding: 24px;
-}
+.table th:nth-child(3), 
+.table td:nth-child(3) { 
+    color: #b3b3b3; 
+} /* Artist */
 
-.rowGap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 0 0 auto;
-    flex-wrap: nowrap;
+.table th:nth-child(4), 
+.table td:nth-child(4) { 
+    width: 80px; 
+    text-align: right; 
+    color: #b3b3b3; 
+    font-variant-numeric: tabular-nums; 
+} /* Duration */
+
+.table th:last-child {
+    width: 100px; 
+    text-align: right; 
+} /* Action Header */
+
+/* Link Artist */
+.Artist {
+    color: #b3b3b3;
+    text-decoration: none;
+}
+.Artist:hover {
+    color: #fff;
+    text-decoration: underline;
 }
 
 /* === BUTTONS === */
-.primary,
-.secondary,
-.ghost,
-.danger {
+.primary, .secondary, .ghost, .danger {
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.1s, filter 0.1s;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 40px;
-    padding: 0 14px;
     white-space: nowrap;
-    line-height: 1;
-    border-radius: 10px;
-    cursor: pointer;
-    font-family: "Montserrat", sans-serif;
-    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
 }
 
-.primary {
-    border-radius: 10px;
-    border: 1px solid hsl(217, 100%, 48%);
-    background-color: #005ff6;
-    color: #fff;
-    font-weight: 700;
-    padding: 10px 14px;
-}
+.primary { background: #005ff6; color: #fff; }
+.primary:hover { filter: brightness(1.1); transform: scale(1.02); }
 
-.primary:hover {
-    background: #e8dfdf;
-    color: #2563eb;
-}
+.secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+.secondary:hover { border-color: #fff; }
 
-.secondary {
-    border-radius: 10px;
-    border: 1px solid #5e5c5c;
-    background: transparent;
-    color: #fff;
-    font-weight: 600;
-    padding: 10px 14px;
-}
+.ghost { background: transparent; color: #aaa; }
+.ghost:hover { color: #fff; }
 
-.ghost {
-    border-radius: 10px;
-    border: 1px solid #5e5c5c;
-    background: #111;
-    color: #fff;
-    padding: 8px 12px;
-}
+.danger { background: transparent; color: #ff5555; border: 1px solid #ff5555; }
+.danger:hover { background: #ff5555; color: #fff; }
 
-.danger {
-    border-radius: 10px;
-    border: 1px solid #b84a4a;
-    background: #3b0a0a;
-    color: #ffdede;
-    padding: 8px 12px;
-}
-
-.danger:hover {
-    border-color: #ff6b6b;
-    background: #5a1414;
-    color: #ffecec;
-    box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.18) inset;
-}
-
-.secondary:hover,
-.ghost:hover {
-    border-color: #ffffff;
-    background-color: #1a1a1a;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08) inset;
-}
-
-.primary:focus-visible,
-.secondary:focus-visible,
-.ghost:focus-visible,
-.danger:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12) inset, 0 0 0 2px #fff;
-}
-
-/* === MODAL & OVERLAYS === */
+/* === MODALS (Basic) === */
 .modalBackdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    display: grid;
-    place-items: center;
-    z-index: 2000;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000;
+    display: grid; place-items: center; backdrop-filter: blur(4px);
 }
-
 .modal {
-    width: min(560px, 94vw);
-    background: #1c1c1c;
-    border: 1px solid #5e5c5c;
-    border-radius: 16px;
-    padding: 18px;
-    color: #fff;
+    width: min(500px, 90vw); background: #282828; padding: 24px;
+    border-radius: 12px; color: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
-
-.modal h2 {
-    font-size: 20px;
-    margin-bottom: 8px;
-}
-
-.muted {
-    color: #adadad;
-    font-size: 13px;
-    margin-bottom: 10px;
-}
-
+.modal h2 { margin-bottom: 12px; font-size: 20px; }
 .input {
-    width: 100%;
-    background: #0f0f0f;
-    color: #fff;
-    border: 1px solid #5e5c5c;
-    border-radius: 10px;
-    padding: 10px 12px;
-    font: inherit;
-    margin: 6px 0 2px;
+    width: 100%; background: #3e3e3e; border: 1px solid transparent;
+    padding: 12px; border-radius: 4px; color: #fff; margin: 10px 0; outline: none;
 }
+.input:focus { border-color: #666; background: #333; }
+.modalActions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 
-.inlineError {
-    color: #ffdede;
-    font-size: 12px;
-}
-
-.modalActions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 12px;
-}
-
+/* Search Results in Modal */
 .searchList {
-    margin-top: 10px;
-    list-style: none;
-    max-height: 40vh;
-    overflow: auto;
-    /* border: 1px solid #2d2d2d; */
-    border-radius: 12px;
+    margin-top: 10px; max-height: 300px; overflow-y: auto; list-style: none;
 }
-
 .resultRow {
-    width: 100%;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 12px;
-    align-items: center;
-    background: transparent;
-    color: #fff;
-    border: none;
-    padding: 8px 10px;
-    text-align: left;
+    display: flex; gap: 12px; align-items: center; padding: 8px;
+    width: 100%; background: transparent; border: none; color: #fff;
+    text-align: left; cursor: pointer; border-radius: 4px;
 }
+.resultRow:hover { background: #3e3e3e; }
+.resultRow img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; }
 
-.resultRow:hover {
-    background: #111;
-}
+/* Edit Popup Specifics */
+.edit-popup { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2100; display: flex; justify-content: center; align-items: center; }
+.edit-wrapper { background: #282828; padding: 24px; border-radius: 8px; width: 520px; max-width: 90vw; }
+.edit-header-wrapper { display: flex; justify-content: space-between; margin-bottom: 20px; }
+.edit-header-close { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; }
+.edit-main-wrapper { display: flex; gap: 20px; }
+.edit-image-wrapper { width: 180px; height: 180px; position: relative; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+.edit-image { width: 100%; height: 100%; object-fit: cover; }
+.edit-image-placeholder { position: absolute; inset: 0; background: rgba(0,0,0,0.7); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; cursor: pointer; }
+.edit-image-wrapper:hover .edit-image-placeholder { opacity: 1; }
+.edit-image-placeholder-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.edit-info-wrapper { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.edit-title-input, .edit-desc-input { width: 100%; background: #3e3e3e; border: 1px solid transparent; padding: 10px; border-radius: 4px; color: #fff; outline: none; }
+.edit-action-button { margin-top: 20px; padding: 10px 24px; border-radius: 20px; border: none; background: #fff; color: #000; font-weight: 700; cursor: pointer; float: right; }
 
-.resultRow img {
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
-    border: none;
-    object-fit: cover;
-    background: #fff;
-}
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #005ff6; color: #fff; padding: 10px 24px; border-radius: 8px; z-index: 3000; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.toast.error { background: #e74c3c; }
 
-.songTitle {
-    font-weight: 600;
-}
+/* =========================================
+   PHẦN 2: RESPONSIVE
+   ========================================= */
 
-.Artist:hover{
-    text-decoration: underline;
-}
-.songArtist {
-    color: #adadad;
-    font-size: 12px;
-}
-.songArtist:hover {
-    text-decoration: underline;
-}
-.duration {
-    color: #d8d8d8;
-    font-variant-numeric: tabular-nums;
-}
+/* 1. TABLET & SMALL LAPTOPS (Max 1024px) */
 
-.toast {
-    position: fixed;
-    right: 16px;
-    bottom: 16px;
-    background: #111;
-    color: #fff;
-    border: 1px solid #5e5c5c;
-    border-radius: 10px;
-    padding: 10px 12px;
-    z-index: 3000;
-}
-
-.toast.success {
-    border-color: #5cb85c;
-}
-
-.toast.error {
-    border-color: #e74c3c;
-}
-
-.toast.info {
-    border-color: #5dade2;
-}
-
-/* === RESPONSIVE MEDIA QUERIES === */
-@media (max-width: 900px) {
-    .detailCover {
-        width: 88px;
-        height: 88px;
-    }
-    .detailTitle {
-        font-size: 28px;
-    }
-    .detailMeta {
-        font-size: 14px;
-    }
-}
-
-@media (max-width: 600px) {
-    .detailHeader {
-        align-items: flex-start;
+/* 2. MOBILE (Max 768px) */
+@media (max-width: 768px) {
+    /* Playlist Grid */
+    .playlistGrid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 12px;
     }
+    
+    .hoverDelete {
+        opacity: 1; pointer-events: auto; transform: none;
+        background: #2a0505; right: 8px; bottom: 40px;
+    }
+
+    /* Detail Header: Stack dọc */
+    .detailHeader {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
     .detailCover {
-        width: 72px;
-        height: 72px;
+        width: 160px; height: 160px; margin: 0;
     }
+    
     .detailTitle {
-        font-size: 22px;
+        font-size: 28px; white-space: normal;
     }
+    
+    .rowGap {
+        justify-content: center;
+    }
+    
+    .rowGap button {
+        flex: 1 1 auto;
+    }
+
+    /* Table Optimization */
+    /* Ẩn Artist và Duration */
+    .table th:nth-child(3), .table td:nth-child(3), 
+    .table th:nth-child(4), .table td:nth-child(4) {
+        display: none; 
+    }
+    
+    .songCell span {
+        font-size: 14px;
+    }
+    
+    /* Edit Modal Stack */
+    .edit-main-wrapper { flex-direction: column; align-items: center; }
+    .edit-image-wrapper { width: 140px; height: 140px; }
+    .edit-info-wrapper { width: 100%; }
 }
 
-.edit-popup {
-    position: absolute;
-    z-index: 2000;
-    inset: 0;
-    background-color: #44444444;
-}
-
-/* EditPlaylistInfoPopup */
-.edit-wrapper {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #333333;
-    padding: 20px;
-    border-radius: 15px;
-    display: flex;
-    flex-direction: column;
-    max-width: 500px;
-}
-
-.edit-header-wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.edit-header-close {
-    outline: none;
-    border: none;
-    background: transparent;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-.edit-main-wrapper {
-    display: flex;
-}
-
-.edit-image-wrapper {
-    position: relative;
-    width: 180px;
-    height: 180px;
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.edit-image {
-    width: inherit;
-    height: inherit;
-}
-
-.edit-image-placeholder {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.1s cubic-bezier(0.165, 0.84, 0.44, 1);
-    cursor: pointer;
-}
-
-.edit-image-placeholder-input {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-}
-
-.edit-image-placeholder-icon {
-    font-size: 36px;
-}
-
-.edit-image-placeholder-text {
-    margin-top: 10px;
-    font-size: 18px;
-}
-
-.edit-image:hover ~ .edit-image-placeholder,
-.edit-image-placeholder:hover {
-    opacity: 1;
-    visibility: visible;
-    background-color: #333333cc;
-}
-
-.edit-image-options {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    border: none;
-    outline: none;
-    background-color: #33333333;
-    border-radius: 999999px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.edit-info-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    margin-left: 18px;
-}
-
-.edit-title-group {
-    position: relative;
-}
-
-.edit-desc-group {
-    margin-top: 18px;
-    position: relative;
-    flex: 1;
-}
-
-.edit-title,
-.edit-desc {
-    position: absolute;
-    top: 0;
-    left: 10px;
-    transform: translateY(-50%);
-    opacity: 0;
-    visibility: hidden;
-    font-size: 12px;
-    transition: all 0.1s linear;
-    padding: 2px;
-    background-color: #333333;
-}
-
-.edit-title-input {
-    height: 40px !important;
-}
-
-.edit-desc-input {
-    resize: none;
-}
-
-.edit-title-input,
-.edit-desc-input {
-    height: 100%;
-    width: 100%;
-    outline: none;
-    border: 1px solid transparent;
-    background-color: hsla(0, 0%, 100%, 0.1);
-    border-radius: 5px;
-    transition: all 0.1s linear;
-    padding: 8px;
-    font-size: 14px;
-}
-
-.edit-title-input.error, .edit-title-input.error ~ .edit-title {
-    border-color: #e74c3c !important;
-    opacity: 1;
-    visibility: visible;
-    color: #e74c3c;
-}
-
-.edit-title-input:focus,
-.edit-desc-input:focus,
-.edit-title-input.active,
-.edit-desc-input.active {
-    background-color: #333;
-    border: 1px solid #535353;
-    outline: none;
-}
-
-.edit-title-input:focus ~ .edit-title,
-.edit-desc-input:focus ~ .edit-desc,
-.edit-title-input.active ~ .edit-title,
-.edit-desc-input.active ~ .edit-desc {
-    opacity: 1;
-    visibility: visible;
-}
-
-.edit-action-button {
-    align-self: flex-end;
-    margin: 15px 8px;
-    padding: 8px 15px;
-    border-radius: 9999px;
-    outline: none;
-    border: none;
-    background-color: #eee;
-    font-size: 16px;
-    color: #333;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .4s ease-in;
-}
-
-.edit-action-button.active {
-    background-color: #005ff6;
-    color: #fff;
-}
-
-.edit-details {
-    font-size: 12px;
-    max-width: inherit;
-    overflow: hidden;
+/* 3. SMALL MOBILE (Max 480px) */
+@media (max-width: 480px) {
+    .playlistGrid {
+        grid-template-columns: 1fr 1fr; /* 2 cột cố định */
+        gap: 10px;
+    }
+    
+    .plName { font-size: 13px; }
+    
+    /* Thu nhỏ cột index */
+    .table th:first-child, .table td:first-child { width: 32px; padding: 0 4px; font-size: 12px; }
+    
+    /* Thu nhỏ ảnh */
+    .songCell img { width: 36px; height: 36px; }
+    .songCell span { font-size: 13px; }
 }

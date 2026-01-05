@@ -131,7 +131,7 @@
 /* Body Section */
 .artistBodySection {
     background: linear-gradient(180deg, rgba(18,18,18,0.6) 0%, #121212 20%);
-    padding: 32px 40px 60px;
+    padding: 32px 40px 20px;
     min-height: 50vh;
 }
 
@@ -480,79 +480,107 @@
     }
 }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
-    .artistNameLarge {
-        font-size: clamp(2.5rem, 6vw, 5rem);
+/* Responsive */
+@media (max-width: 1024px) {
+    .artistPageWrapper {
+        top: 66px;
+        left: 0;
+        bottom: 130px;
+        height: calc(100vh - 66px - 130px);
+        overflow-y: auto;
     }
-    
-    .trackRow {
-        grid-template-columns: 40px 3fr 1fr 80px;
+
+    .artistPageWrapper::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .artistHeaderSection {
+        padding: 0 24px 24px;
+        min-height: 320px;
+    }
+
+    .artistBodySection {
+        padding: 24px 24px 40px;
+    }
+
+    .artistNameLarge {
+        font-size: clamp(2.5rem, 6vw, 4rem);
+    }
+
+    .artistTrackList {
+        max-height: calc(100vh - 66px - 130px - 320px);
+        overflow-y: auto;
     }
 }
 
 @media (max-width: 768px) {
-    .artistPageWrapper {
-        left: 0;
-        top: var(--header-height, 9vh);
-    }
-    
     .artistHeaderSection {
-        padding: 0 24px 24px;
+        padding: 0 20px 20px;
         min-height: 280px;
+        background-position: center 30%;
     }
-    
+
     .artistBodySection {
-        padding: 24px 24px 40px;
+        padding: 20px 20px 32px;
     }
-    
+
     .artistNameLarge {
         font-size: clamp(2rem, 8vw, 3.5rem);
     }
-    
+
     .btnPlayBig {
         width: 56px;
         height: 56px;
     }
-    
+
     .trackRow {
-        grid-template-columns: 40px 2fr 1fr;
+        grid-template-columns: 40px minmax(0, 1fr) 1fr;
         padding: 10px 12px;
     }
-    
+
     .trackDuration {
         display: none;
     }
-    
+
     .trackPlays {
-        font-size: 0.85rem;
+        justify-self: end;
+        white-space: nowrap;
+    }
+
+    .artistTrackList {
+        max-height: calc(100vh - 66px - 130px - 280px);
+        overflow-y: auto;
     }
 }
 
 @media (max-width: 480px) {
-    .artistPageWrapper {
-        left: 0;
-    }
-    
     .artistLoading,
     .artistError {
         left: 0;
     }
-    
-    .trackRow {
-        grid-template-columns: 30px 1fr;
+
+    .artistPageWrapper {
+        bottom: 120px;
     }
-    
+
+    .trackRow {
+        grid-template-columns: 30px minmax(0, 1fr);
+    }
+
     .trackPlays {
         display: none;
     }
-    
+
     .verifiedBadge {
         font-size: 0.75rem;
     }
-    
+
     .verifiedBadge img {
         width: 20px;
         height: 20px;
+    }
+
+    .artistNameLarge {
+        font-size: clamp(1.75rem, 9vw, 2.5rem);
     }
 }

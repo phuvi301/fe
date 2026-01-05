@@ -147,15 +147,12 @@
     .mainContent {
         // Do sidebar thu nhỏ xuống bottom nên dời left về 0
         left: 0;
+        // Top di chuyển lên trên do header ngắn hơn
+        top: 66px; 
+        padding: var(--top-bottom-padding) 20px calc(130px + var(--top-bottom-padding)) 20px;
     }
 
     @media (max-width: 600px) {
-        .mainContent {
-            /* Padding nhỏ lại cho
-                mobile */
-            padding: var(--top-bottom-padding) 20px calc(var(--bottom-bar-height) + var(--top-bottom-padding)) 20px;
-        }
-
         .featured-item {
             width: 150px;
         }
