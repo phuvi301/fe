@@ -1,652 +1,608 @@
-/* --- GIỮ NGUYÊN CSS GỐC CỦA BẠN --- */
+/* =========================================
+   PHẦN 1: GIAO DIỆN CHUẨN CHO PC (> 1024px)
+   ========================================= */
 
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.958);
-    z-index: 9999;
-}
-
+/* --- LAYOUT CHÍNH --- */
 .overview {
     position: absolute;
     top: 70px;
-    left: 250px;
+    left: 250px; /* Chừa chỗ cho Sidebar chính của App */
     right: 0;
     bottom: 0;
     color: #ccc;
     overflow: hidden;
-    /* Thêm transition để mượt khi resize */
     transition: all 0.3s ease;
+    background-color: #000; /* Fallback color */
 }
 
 .main {
     height: 100%;
     width: 100%;
     display: flex;
-    column-gap: 1px;
-    background-image: linear-gradient(#000000 50%, #0d046f );
+    flex-direction: row; /* PC: Menu nằm bên phải */
+    background-image: linear-gradient(#000000 50%, #0d046f); /* Giữ lại gradient gốc */
 }
 
+/* Khu vực hiển thị nội dung (Artist, User, Security) */
 .main-wrapper {
-    flex: 1; 
-    padding: 30px;
+    flex: 1;
+    padding: 40px;
     overflow-y: auto;
+    scroll-behavior: smooth;
+    max-height: calc(100vh - 66px - 130px - 57px);
+    /* Tùy chỉnh thanh cuộn */
+    scrollbar-width: thin;
+    scrollbar-color: #333 transparent;
 }
 
+/* --- MENU BÊN PHẢI (ACCOUNT TABS) --- */
 .sidebar-list {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    padding-top: 10px;
-    width: 250px;
+    width: 280px; /* Rộng hơn chút cho thoải mái */
     height: 100%;
-    border-left: 2px solid #333; 
-    background-color: #000000;
-    flex-shrink: 0; 
+    border-left: 2px solid #222; /* Border rõ ràng hơn */
+    background-color: rgba(0, 0, 0, 0.5); /* Bán trong suốt để hòa vào nền */
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+    padding-top: 20px;
 }
 
 .sidebar-item {
     width: 100%;
-    text-align: left;
-    font-size: 16px;
-    background-color: transparent;
-    border: unset;
-    padding: 20px;
-    transition: all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
-    cursor: pointer;
-    position: relative;
+    padding: 20px 25px;
     display: flex;
     align-items: center;
-    color: #ccc;
-}
-
-.sidebar-item::before {
-    content: "";
-    transition: all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
-    background-color: skyblue;
-    visibility: hidden;
-    opacity: 0;
-    position: absolute;
-    top: 0;
-    right: 0; 
-    bottom: 0;
-    width: 5px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    transition: all 0.3s ease;
+    position: relative;
+    text-align: left;
 }
 
 .sidebar-item:hover {
-    background-color: #333333;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #fff;
 }
 
 .sidebar-item.active {
-    background-color: #333333;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* Thanh highlight bên phải khi active (Style gốc) */
+.sidebar-item::before {
+    content: "";
+    transition: all 0.3s ease;
+    background-color: #007bff; /* Màu xanh chủ đạo */
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 4px;
+    opacity: 0;
+    transform: scaleY(0);
 }
 
 .sidebar-item.active::before {
-    visibility: visible;
     opacity: 1;
+    transform: scaleY(1);
 }
 
 .sidebar-icon {
+    width: 24px;
+    height: 24px;
     margin-right: 15px;
-    width: 25px;
-    height: 25px;
+    object-fit: contain;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+}
+
+.sidebar-item.active .sidebar-icon {
+    opacity: 1;
 }
 
 .sidebar-text {
     font-family: 'Montserrat', sans-serif;
-    font-weight: 500;
-    font-size: 17px;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.5px;
 }
 
+/* =========================================
+   PHẦN 2: STYLE CHO CÁC COMPONENT CON
+   ========================================= */
+
+/* --- ARTIST TAB --- */
 .personal-info-wrapper {
     display: flex;
     align-items: center;
-    padding: 15px 5px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 30px;
 }
 
 .personal-info-image {
-    border-radius: 99999px;
-    width: 180px;
-    height: 180px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
     object-fit: cover;
-    margin: 0 15px;
-    border: 3px solid rgb(255, 255, 255);
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+    margin-right: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
 
 .personal-name-group {
     flex: 1;
-    margin: 0 15px;
 }
 
 .personal-name {
-    font-size: 28px;
-    margin-bottom: 5px;
+    font-size: 36px;
+    margin: 0 0 10px 0;
+    color: #fff;
+    font-weight: 700;
 }
 
 .personal-bio {
     font-size: 16px;
+    color: #bbb;
     margin-bottom: 15px;
+    line-height: 1.6;
+    max-width: 600px;
 }
 
 .personal-follower {
-    font-size: 14px;
+    font-size: 15px;
+    color: #ccc;
+    display: inline-block;
+}
+.personal-follower strong {
+    color: #fff;
+    font-size: 16px;
 }
 
-.personal-share-btn {
-    align-self: flex-end;
-    background-color: #333333;
-    border: unset;
-    padding: 8px 10px;
-    border-radius: 4px;
-    margin-right: 15px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    color: #ccc; /* Thêm màu chữ để tránh bị chìm */
-}
-
-.personal-share-btn:hover {
-    scale: 1.05;
-    color: rgb(0, 108, 232);
-}
-
-.button-icon {
-    margin: 0 5px;
-}
-
-.button-info {
-    margin: 0 5px;
-}
-
-.personal-upload-wrapper {
-    margin: 15px;
-    border-top: 2px solid #333333;
-    padding: 15px;
-}
-
+/* Upload List - Grid Layout */
 .personal-upload-title {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 600;
-    margin: 8px 0;
+    margin-bottom: 20px;
+    color: #fff;
 }
 
 .personal-upload-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: flex-start;
-    padding-right: 8px; 
-    --upload-item-height: calc(145px + 32px + 22px); 
-    --upload-rows: 2;
-    max-height: calc(var(--upload-item-height) * var(--upload-rows) + (var(--upload-rows) - 1) * 12px);
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-color: rgba(0, 95, 246, 0.7) transparent;
+    display: grid;
+    /* Tự động chia cột linh hoạt */
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
+    padding-bottom: 20px;
 }
 
 .personal-upload-item {
-    display: flex;
-    flex-direction: column;
-    position: relative;
+    background-color: rgba(255, 255, 255, 0.03);
     padding: 12px;
-    border-radius: 8px;
-    transition: all 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+    border-radius: 12px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
 }
 
 .personal-upload-item:hover {
-    background-color: #333333;
-    scale: 1.05;
-}
-
-.personal-upload-item:hover .personal-upload-item-play-btn {
-    opacity: 1;
-    visibility: visible;
-}
-
-.personal-upload-item:hover .personal-upload-item-delete-btn {
-    opacity: 1;
-    visibility: visible;
-}
-
-.personal-upload-item:hover .personal-upload-item-name {
-    color: #eee;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-5px);
 }
 
 .personal-upload-item-overlay {
-    width: 145px;
-    height: 145px;
-    position: relative;
-    flex-shrink: 0;
-    border-radius: 15px;
+    width: 100%;
+    aspect-ratio: 1/1;
+    border-radius: 8px;
     overflow: hidden;
+    position: relative;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 .personal-upload-item-image {
-    width: 145px;
-    height: 145px;
-    border-radius: 15px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.personal-upload-item:hover .personal-upload-item-image {
+    transform: scale(1.1);
 }
 
 .personal-upload-item-name {
-    margin-top: 8px;
     font-size: 15px;
     font-weight: 600;
-    color: #ccc;
-    max-width: 145px;
-    white-space: normal;
-    overflow-wrap: break-word;
-    word-break: break-word;
+    color: #eee;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     text-align: center;
 }
 
-.personal-upload-item-play-btn {
+/* Buttons Play/Delete trong item */
+.personal-upload-item-play-btn,
+.personal-upload-item-delete-btn {
     position: absolute;
-    border: none;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    padding: 6px;
-    background-color: rgb(0, 102, 219);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: white;
+    z-index: 2;
+}
+
+.personal-upload-item-play-btn {
     bottom: 10px;
     right: 10px;
-    font-size: 16px;
-    visibility: hidden;
-    opacity: 0;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
-    color: white; /* Thêm màu */
+    background-color: #007bff;
+    transform: translateY(20px);
+    font-size: 18px;
 }
 
 .personal-upload-item-delete-btn {
-    position: absolute;
-    border: none;
-    border-radius: 50%;
-    padding: 6px;
-    background-color: rgb(191, 0, 0);
     top: 10px;
     right: 10px;
+    background-color: rgba(220, 53, 69, 0.9);
+    transform: translateY(-20px);
     font-size: 16px;
-    opacity: 0;
-    visibility: hidden;
+}
+
+.personal-upload-item:hover .personal-upload-item-play-btn,
+.personal-upload-item:hover .personal-upload-item-delete-btn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- SECURITY TAB (FIX NÚT 2FA) --- */
+.security-title {
+    margin-bottom: 30px;
+    font-size: 28px;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
+}
+
+.security-wrapper {
+    max-width: 800px; /* Giới hạn chiều rộng cho đẹp */
+}
+
+.security-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Canh lề trên để layout ko bị nhảy */
+    padding: 25px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.security-item-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.security-item-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.security-item-desc {
+    font-size: 14px;
+    color: #888;
+}
+
+/* --- 2FA TOGGLE BUTTON (ĐÃ FIX) --- */
+.security-item-btn {
+    width: 50px;
+    height: 26px;
+    background-color: #333;
+    border-radius: 15px;
+    position: relative;
+    border: none;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
-    color: white; /* Thêm màu */
+    transition: background-color 0.3s ease;
+    flex-shrink: 0; /* Không bị co lại */
+    margin-left: 20px;
 }
 
-.personal-upload-item-play-btn:hover {
-    color: rgb(210, 210, 210);
+/* Cái nút tròn chạy chạy */
+.security-item-btn::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-.personal-upload-item-delete-btn:hover {
-    color: rgb(210, 210, 210);
+/* Trạng thái Active (Bật) */
+.security-item-btn.active {
+    background-color: #007bff; /* Màu xanh khi bật */
 }
 
+.security-item-btn.active::before {
+    transform: translateX(24px); /* Di chuyển nút tròn sang phải */
+}
+
+/* Form đổi mật khẩu */
+.security-item-password {
+    width: 100%;
+}
+
+/* --- USER INFO FORM --- */
 .user-title {
-    margin: 35px 40px 0 40px;
+    margin-bottom: 30px;
+    font-size: 28px;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
 }
 
 .user-wrapper {
-    margin: 20px 35px;
     display: grid;
     grid-template-columns: 2fr 1fr;
-    column-gap: 15px;
-    max-height: 100%;
-}
-
-.user-form-wrapper {
-    width: 80%;
-    height: 80%;
-    display: flex;
-    flex-direction: column;
+    gap: 50px;
 }
 
 .user-form-group {
-    margin: 15px 20px;
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 20px;
 }
 
 .user-form-label {
-    margin: 10px 0;
-    font-size: 17px;
-}
-.user-form-label span {
-    color: red;
-}
-
-.user-form-input {
-    width: 60%;
-    height: 40px;
-    font-size: 16px;
-    padding: 5px 15px;
-    border: none;
-    border-radius: 8px;
-    outline: none;
+    display: block;
+    margin-bottom: 8px;
     color: #ccc;
-    background-color: #333; /* Thêm background tối nếu cần, hoặc để transparent */
+    font-size: 15px;
 }
 
-.user-form-input:focus {
-    border: 2px solid rgb(29, 69, 143);
+.user-form-input, .user-form-textarea {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px 15px;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.user-form-input:focus, .user-form-textarea:focus {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.1);
 }
 
 .user-form-input.deactivate {
-    cursor: not-allowed;
-    opacity: 0.5;
-    color: #fff;
-}
-.user-form-input.deactivate:focus {
-    border: none
-}
-
-.user-form-input.error {
-    border: 2px solid rgb(172, 45, 23);
-}
-
-.user-form-text {
-    border: 1px solid #444444;
-    padding: 1px;
-    border-radius: 8px;
-    background-color: #333;
-    width: 100%;
-}
-
-.user-form-textarea {
-    width: 100%;
-    min-height: 100px;
-    max-height: 150px;
-    padding: 10px;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: #ccc;
-    resize: vertical;
-    font-size: 16px;
-}
-.user-form-textarea::placeholder {
-    color: #aaa;
+    opacity: 0.6;
+    cursor: default;
+    border-color: transparent;
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
 .user-form-submit {
-    font-size: 16px;
-    border-radius: 8px;
-    outline: none;
+    background-color: #007bff;
+    color: white;
     border: none;
-    max-width: 20%;
-    padding: 8px;
-    align-self: flex-start;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
     opacity: 0.5;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    cursor: not-allowed;
-    background-color: #555; /* Thêm màu nền cho nút disabled */
-    color: #ccc;
+    transition: all 0.3s;
+    margin-top: 10px;
 }
-
 .user-form-submit.changed {
     opacity: 1;
-    background-color: rgb(29, 69, 143);
-    color: #eee;
-    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
 }
 
+/* Ảnh Avatar trong User Tab */
 .user-image-wrapper {
     position: relative;
-    width: 260px;
-    height: 260px;
-    border-radius: 99999px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
     overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #aaa;
+    margin: 0 auto;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    background: #000;
 }
 
 .user-image {
-    width: inherit;
-    height: inherit;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .user-image-placeholder {
     position: absolute;
     inset: 0;
+    background: rgba(0,0,0,0.7);
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     opacity: 0;
-    visibility: hidden;
-    transition: all 0.1s cubic-bezier(0.165, 0.84, 0.44, 1);
-    cursor: pointer;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(2px);
+}
+.user-image-wrapper:hover .user-image-placeholder {
+    opacity: 1;
 }
 
+.user-image-placeholder-icon {
+    font-size: 30px;
+    margin-bottom: 10px;
+    color: #fff;
+}
 .user-image-placeholder-input {
     position: absolute;
     inset: 0;
     opacity: 0;
     cursor: pointer;
 }
-
-.user-image-placeholder-icon {
-    font-size: 36px;
-}
-
-.user-image-placeholder-text {
-    margin-top: 10px;
-    font-size: 18px;
-}
-
-.user-image:hover ~ .user-image-placeholder,
-.user-image-placeholder:hover {
-    opacity: 1;
-    visibility: visible;
-    background-color: #333333cc;
-}
-
 .user-image-options {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 15px;
+    right: 15px;
+    background: rgba(255,255,255,0.2);
     border: none;
-    outline: none;
-    background-color: #33333333;
-    border-radius: 999999px;
-    font-size: 16px;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
     cursor: pointer;
-    color: #fff; /* Màu icon */
-}
-
-.security-title {
-    margin: 35px 40px 0 40px;
-}
-
-.security-wrapper {
-    margin: 0 35px;
-}
-
-.security-item {
-    display: flex;
-    flex-direction: column;
-    padding: 25px 0;
-}
-.security-item + .security-item {
-    border-top: 2px solid #333;
-}
-
-.security-item-wrapper {
+    color: #fff;
     display: flex;
     align-items: center;
-    margin: 5px 15px 10px;
+    justify-content: center;
 }
 
-.security-item-name {
-    margin-right: 30px;
-    font-size: 18px;
-}
+/* =========================================
+   PHẦN 3: RESPONSIVE (ÁP DỤNG CHO 1024PX TRỞ XUỐNG)
+   ========================================= */
 
-.security-item-btn {
-    width: 60px;
-    height: 30px;
-    position: relative;
-    outline: none;
-    border: none;
-    background-color: #333;
-    border-radius: 5px;
-    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
-.security-item-btn::before {
-    content: "";
-    position: absolute;
-    top: calc(10px / 2);
-    left: calc(10px / 2);
-    width: calc((100% - 10px * 2) / 2);
-    height: calc(100% - 10px);
-    background-color: #999;
-    border-radius: 5px;
-    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
-.security-item-btn.active {
-    background-color: rgb(29, 69, 143);
-}
-
-.security-item-btn.active::before {
-    transform: translate(150%, 0);
-}
-
-.security-item-desc {
-    margin: 0 15px;
-    opacity: 0.8;
-    color: #999;
-    font-size: 14px;
-}
-
-.security-item-title {
-    font-weight: 600;
-}
-
-.security-item-password {
-    display: flex;
-    flex-direction: column;
-}
-
-
-/* --- PHẦN THÊM MỚI: RESPONSIVE --- */
-
-/* Tablet & Mobile (Màn hình nhỏ hơn 992px) */
-@media (max-width: 992px) {
-    /* Mở rộng Main chiếm hết chiều ngang */
+@media (max-width: 1024px) {
+    /* 1. Mở rộng khung nhìn */
     .overview {
-        left: 0; 
-        /* Nếu bạn có Header cao 70px, có thể cần chỉnh top/height tùy ý, nhưng để mặc định sẽ ok */
+        left: 0; /* Bỏ Sidebar trái của App */
+        top: 66px; /* Chỉnh lại top nếu header thấp hơn */
     }
 
-    /* Đổi Layout chính thành cột dọc, đưa thanh Tab Sidebar xuống dưới cùng */
+    /* 2. Đổi trục Layout chính thành Dọc */
     .main {
         flex-direction: column;
     }
 
-    /* Thanh Sidebar (Tab) nằm ngang, cuộn được */
+    /* 3. Đưa Sidebar Account lên trên đầu làm Tab Bar */
     .sidebar-list {
+        order: -1; 
         width: 100%;
         height: auto;
-        flex-direction: row;
+        flex-direction: row; /* Xếp ngang */
         border-left: none;
-        border-top: 2px solid #333;
-        overflow-x: auto;
-        padding: 5px 0;
-        justify-content: space-around; /* Căn đều các tab */
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0;
+        overflow-x: auto; /* Cho phép cuộn ngang */
+        background-color: rgba(0, 0, 0, 0.8);
     }
 
+    /* Style lại item tab cho gọn */
     .sidebar-item {
-        padding: 10px 15px;
-        flex-direction: column; /* Icon trên, chữ dưới */
-        align-items: center;
-        text-align: center;
-        font-size: 12px;
-        width: auto; /* Tự động co giãn */
         flex: 1;
+        justify-content: center;
+        padding: 15px 20px;
+        white-space: nowrap;
+        border-bottom: 3px solid transparent; /* Chuẩn bị cho active state */
     }
     
-    .sidebar-icon {
-        margin-right: 0;
-        margin-bottom: 5px;
-        width: 20px;
-        height: 20px;
+    /* Bỏ border bên phải (style gốc của PC) đi, dùng border bottom */
+    .sidebar-item::before {
+        display: none; 
     }
 
-    /* Sửa lại Grid User Info thành 1 cột */
+    /* Highlight Active state kiểu Tab */
+    .sidebar-item.active {
+        background-color: transparent;
+        border-bottom-color: #007bff;
+        color: #007bff;
+    }
+    
+    .sidebar-item.active .sidebar-icon {
+        opacity: 1;
+        filter: drop-shadow(0 0 5px #007bff); /* Icon sáng lên */
+    }
+
+    .sidebar-icon {
+        margin-right: 8px;
+    }
+
+    /* 4. Điều chỉnh nội dung bên trong */
+    .main-wrapper {
+        padding: 20px;
+    }
+
+    /* User Form: 1 cột dọc */
     .user-wrapper {
         grid-template-columns: 1fr;
-        margin: 20px;
-    }
-    
-    /* Đưa ảnh đại diện lên đầu */
-    .user-image-wrapper {
-        order: -1;
-        margin: 0 auto 20px auto; /* Căn giữa */
+        gap: 30px;
     }
 
-    .user-form-wrapper {
-        width: 100%;
-    }
-    
-    .user-form-input {
-        width: 100%; /* Full width trên mobile */
-    }
-    
-    .user-form-submit {
-        max-width: unset;
-        width: 100%; /* Nút full width dễ bấm */
+    /* Đưa Avatar lên đầu */
+    .user-image-wrapper {
+        order: -1; 
+        width: 160px;
+        height: 160px;
     }
 }
 
-/* Mobile nhỏ (Màn hình nhỏ hơn 576px) */
+/* Mobile Nhỏ (Dưới 576px) */
 @media (max-width: 576px) {
+    .sidebar-text {
+        display: none; /* Ẩn chữ, chỉ hiện icon cho gọn */
+    }
+    
+    .sidebar-item {
+        padding: 15px;
+    }
+    .sidebar-icon {
+        margin: 0;
+    }
+
+    /* Artist Info dọc */
     .personal-info-wrapper {
         flex-direction: column;
         text-align: center;
+        border: none;
     }
 
     .personal-info-image {
+        margin-right: 0;
         margin-bottom: 15px;
-        width: 140px;
-        height: 140px;
-    }
-    
-    .personal-share-btn {
-        margin-top: 15px;
-        align-self: center;
+        width: 130px;
+        height: 130px;
     }
 
-    /* Danh sách bài hát upload: 2 cột */
+    .personal-name {
+        font-size: 26px;
+    }
+
+    /* List nhạc: 2 cột bé */
+    .personal-upload-list {
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 10px;
+    }
+    
     .personal-upload-item {
-        width: 45%; /* Chia đôi màn hình */
         padding: 8px;
     }
-    
-    .personal-upload-item-overlay {
-        width: 100%;
-        height: auto;
-        aspect-ratio: 1/1; /* Giữ tỷ lệ vuông */
-    }
-    
-    .personal-upload-item-image {
-        width: 100%;
-        height: 100%;
-    }
 
-    /* Security: 2FA switch */
-    .security-item-wrapper {
+    /* Security */
+    .security-item {
         flex-direction: column;
         align-items: flex-start;
     }
     
     .security-item-btn {
-        margin-top: 10px;
+        margin-left: 0;
+        margin-top: 15px;
     }
 }

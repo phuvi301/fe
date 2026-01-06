@@ -1,78 +1,87 @@
+/* Container chung */
+.resultsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    width: 100%;
+}
+
 .resultItem {
-    margin-left: 2rem;
-    margin-top: 1.5rem ;
-    margin-bottom: 1.5rem;
     display: flex;
     flex-direction: row;
-    gap: 2rem;
+    gap: 20px;
     align-items: flex-start;
-    text-align: left;
-
+    background-color: rgba(255, 255, 255, 0.03);
+    padding: 15px;
+    border-radius: 12px;
+    transition: background-color 0.2s;
 }
+
+.resultItem:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Wrapper cho ảnh thumbnail */
+.imageWrapper {
+    flex-shrink: 0;
+}
+
+.resultItem img.thumbnail {
+    object-fit: cover;
+    border-radius: 8px;
+    width: 150px;
+    height: 150px;
+}
+
+/* Thông tin bài hát */
+.songInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+    min-width: 0;
+}
+
 .playAndTitle {
     display: flex;
     flex-direction: row;
-    gap: 1rem;
+    gap: 15px;
     align-items: center;
-    margin-top: 1rem;
-}
-.resultItem img {
-    object-fit: cover;
-    border-radius: 0.25rem;
+    margin-bottom: 15px;
 }
 
-.resultItemDetails {
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-}
 .playButtonContainer {
     display: flex;
     align-items: center;
     justify-content: center;
-    align-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background-color: #f0f0f0;
+    background-color: #007bff;
     cursor: pointer;
-}
-.ButtonContainer {
-    margin-right: 0.5rem;
-    margin-top: 2rem;
-    display: flex;
-    align-items: center;    
-    justify-content: center;
-    width: fit-content;
-    height: 2rem;
-    border-radius: 0.5rem;
-    background-color: #f0f0f0;
-    cursor: pointer;
-    padding: 0 0.75rem;
+    transition: all 0.3s;
 }
 
-.playButton img {
-    width: 100%;
-    height: 100%;
+/* Ép cứng kích thước ảnh bên trong nút Play */
+.playButtonContainer img {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px;
+    object-fit: contain;
 }
 
 .playButtonContainer:hover {
-    background-color: #056ff9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s, box-shadow 0.3s;
+    background-color: #007bff;
+    transform: scale(1.1);
 }
 
-.buttonText {
-    margin-left: 0.5rem;
-    font-size: 12px;
-    color: #000000;
-    font-weight: bold;
-}
-
-.ButtonContainer:hover {
-    background-color: #056ff9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s, box-shadow 0.3s;
+.titleArtist {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
 }
 
 .title {
@@ -82,17 +91,131 @@
 
 .title h3 {
     margin: 0;
-    color: white;
-    font-size: 1.1rem;
+    font-size: 18px;
     font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.title:hover, .artist:hover {
-    text-decoration: underline !important;
+.artist {
+    color: #aaa;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.title:hover h3, .artist:hover {
+    text-decoration: underline;
+    color: #007bff;
+}
+
+/* Khu vực các nút thao tác */
+.resultItemDetails {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Nút thao tác (Like, Download...) */
+.ButtonContainer {
+    display: flex;
+    align-items: center;    
+    justify-content: center;
+    height: 36px;
+    border-radius: 18px;
+    background-color: rgb(255, 255, 255);
     cursor: pointer;
+    padding: 0 15px;
+    transition: all 0.3s;
+    flex-shrink: 0;
 }
 
+.ButtonContainer img {
+    width: 18px !important;  /* Fix cứng kích thước */
+    height: 18px !important;
+    min-width: 18px;         /* Không cho co lại */
+    object-fit: contain;
+    display: block;          /* Tránh lỗi khoảng trắng inline */
+}
 
+/* Do nút like to hơn mấy nút kia nên thêm id riêng */
+#likeIcon {
+    width: 15px !important;
+    height: 15px !important;
+    min-width: 15px !important;
+}
 
+.ButtonContainer:hover {
+    background-color: #007bff;
+}
 
+.buttonText {
+    margin-left: 8px;
+    font-size: 13px;
+    color: #000000;
+    font-weight: 800;
+    white-space: nowrap;
+}
 
+/* --- RESPONSIVE --- */
+
+/* Tablet (Dưới 1024px) */
+@media (max-width: 1024px) {
+    .resultItem img.thumbnail {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .title h3 {
+        font-size: 16px;
+    }
+}
+
+/* Mobile (Dưới 768px) */
+@media (max-width: 768px) {
+    .resultsContainer {
+        padding: 10px;
+    }
+
+    .resultItem {
+        padding: 10px;
+        gap: 15px;
+    }
+
+    /* Thu nhỏ thumbnail */
+    .resultItem img.thumbnail {
+        width: 90px;
+        height: 90px;
+    }
+
+    /* Thu nhỏ nút Play */
+    .playButtonContainer {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .playAndTitle {
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    /* Chế độ icon-only cho các nút thao tác */
+    .buttonText {
+        display: none; /* Ẩn chữ */
+    }
+
+    .ButtonContainer {
+        padding: 0; 
+        width: 36px; /* Hình tròn */
+        border-radius: 50%;
+        justify-content: center;
+        background-color: rgb(255, 255, 255);
+    }
+    
+    /* Đảm bảo icon vẫn giữ size chuẩn */
+    .ButtonContainer img {
+        margin: 0 !important; 
+    }
+}

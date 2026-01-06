@@ -89,7 +89,6 @@ function Artist() {
                     src={userInfo?.thumbnailUrl || "/hcmut.png"}
                     alt="Avatar"
                     className={styles["personal-info-image"]}
-                    style={{ width: 150, height: 150, objectFit: "cover", borderRadius: "50%" }}
                 />
                 <div className={styles["personal-name-group"]}>
                     <h4 className={styles["personal-name"]}>{userInfo?.nickname || userInfo?.username || "Unknown"}</h4>

@@ -50,6 +50,7 @@ export default function SearchResults({ results, query }) {
                                 alt={song.title}
                                 width={150}
                                 height={150}
+                                className={style.thumbnail}
                             />
                             <div className={style.songInfo}>
                                 <div className={style.playAndTitle}>
@@ -76,7 +77,7 @@ export default function SearchResults({ results, query }) {
                                 </div>
                                 <div className={style.resultItemDetails}>
                                     <div className={style.ButtonContainer}>
-                                        <Image src="/like.png" alt="Like" width={15} height={15}/>
+                                        <Image src="/like.png" alt="Like" width={15} height={15} id={style.likeIcon}/>
                                         <span className={style.buttonText}> Like</span>
                                     </div>
                                     <div className={style.ButtonContainer}>

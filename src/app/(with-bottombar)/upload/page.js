@@ -54,7 +54,7 @@ export default function Upload() {
                 withCredentials: true,
             });
 
-            resetRef.current.style.display = 'block';
+            if (resetRef.current) resetRef.current.style.display = 'block';
             console.log('File converted successfully:', res.data);
         } catch (error) {
             console.error('Error converting file:', error);
@@ -104,7 +104,6 @@ export default function Upload() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // ... validate title, artist giữ nguyên
 
         const metaData = new FormData();
         metaData.append('title', titleRef.current.value);
@@ -124,38 +123,43 @@ export default function Upload() {
                 alert('You need to login.');
                 return;
             }
-            // ⚠️ QUAN TRỌNG: Phải thêm "/upload" vào cuối đường dẫn
+            
             const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`, // Sửa dòng này
+                `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/upload`,
                 metaData, 
                 {
                     headers: { 
                         'Content-Type': 'multipart/form-data',
-                        // Backend yêu cầu header 'token' dạng 'Bearer <accessToken>'
                         token: `Bearer ${accessToken}`
                     },
                     withCredentials: true,
                 }
             );
+            
+            // Reset form sau khi upload thành công
             setSelectedFile(null);
             setImgFile(null);
             setImgPreview(null);
             setImgZoom(100);
             setSelectedGenre([]);
+            setLyricFile(null);
 
             if (fileInputRef.current) fileInputRef.current.value = null;
             if (imgInputRef.current) imgInputRef.current.value = null;
+            if (lyricInputRef.current) lyricInputRef.current.value = null;
+            if (titleRef.current) titleRef.current.value = "";
+            if (artistRef.current) artistRef.current.value = "";
             
-            // ... xử lý thành công ...
             console.log("Upload success:", res.data);
+            alert("Upload successful!");
         } catch (error) {
-            // In lỗi chi tiết ra để debug
             console.error("Upload error:", error.response ? error.response.data : error.message);
+            alert("Upload failed. Please try again.");
         }
     }
+
     // Đặt lại trạng thái và xóa file trên server
     const handleReset = async () => {
-        // Xóa file trên server
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/tracks/reset`, { name: selectedFile.name });
             const name = selectedFile.name;
@@ -171,6 +175,7 @@ export default function Upload() {
             if (lyricInputRef.current) lyricInputRef.current.value = null;
             if (fileInputRef.current) fileInputRef.current.value = null;
             if (imgInputRef.current) imgInputRef.current.value = null;
+            if (resetRef.current) resetRef.current.style.display = 'none';
 
             console.log('File deleted successfully:', name);
         } catch (error) {
@@ -194,15 +199,14 @@ export default function Upload() {
             <main className={layout.mainContent}>
                 <div className={style.uploadContainer}>
                     {!selectedFile ? (
-                        <div className={style.uploadBox}>
-                            <Image src="/upload_animated.png" width={1024} height={1024} alt="Upload Icon" className={style.uploadIcon} />
+                        <div className={style.uploadBox} onClick={handleFileSelect}>
+                            <Image src="/upload_animated.png" width={100} height={100} alt="Upload Icon" className={style.uploadIcon} />
                             <h1>Upload Your Music</h1>
                             <span className="upload-subtitle">
                                 Choose a file to upload
                             </span>
                             <button
                                 className={style.uploadButton}
-                                onClick={handleFileSelect}
                                 type="button"
                             >
                                 Select File
@@ -218,13 +222,14 @@ export default function Upload() {
                         </div>
                     ) : (
                         <div className={style.formBox}>
-                            {/* File Info Popup - di chuyển vào đây */}
+                            {/* CỘT TRÁI: ẢNH + LYRIC */}
                             <div className={style.leftformBox}>
+                                {/* Popup thông tin file */}
                                 {selectedFile && (
                                     <div className={style.fileInfoPopup}>
                                         <div className={style.popupContent}>
                                             <div className={style.fileInfo}>
-                                                <div className={style.fileIcon}><Image src="/songs.png" width={1024} height={1024} alt="Music Icon" /></div>
+                                                <div className={style.fileIcon}><Image src="/songs.png" width={30} height={30} alt="Music Icon" /></div>
                                                 <div className={style.fileDetails}>
                                                     <div className={style.fileName}>{selectedFile.name}</div>
                                                     <div className={style.fileSize}>
@@ -238,23 +243,23 @@ export default function Upload() {
                                                 type="button"
                                                 title="Change File"
                                                 ref={resetRef}
-                                                style={{ display: 'none' }}
                                             >
                                                 ✕
                                             </button>
                                         </div>
                                     </div>
                                 )}
+
+                                {/* Khu vực Upload Ảnh */}
                                 <div className={style.uploadImgContainer}>
                                     <div className={style.imgUploadBox}>
-
                                         {imgPreview ? (
                                             <div className={style.imagePreviewContainer}>
                                                 <div className={style.fixedImageFrame}>
                                                     <Image
                                                         src={imgPreview}
-                                                        width={1024}
-                                                        height={1024}
+                                                        width={500}
+                                                        height={500}
                                                         alt="Preview"
                                                         className={style.previewImage}
                                                         style={{
@@ -287,17 +292,17 @@ export default function Upload() {
                                             <>
                                                 <Image
                                                     src="/image.png"
-                                                    width={1024}
-                                                    height={1024}
+                                                    width={200}
+                                                    height={200}
                                                     alt="Upload Icon"
                                                     className={style.uploadedImage}
                                                 />
-                                                <h1>Add Your Image</h1>
+                                                <h3>Add Your Image</h3>
                                                 <span className="upload-subtitle">
                                                     Choose a file to upload
                                                 </span>
                                                 <button
-                                                    className={style.uploadButton}
+                                                    className={style.uploadMiniButton}
                                                     onClick={handleImgSelect}
                                                     type="button"
                                                 >
@@ -313,56 +318,60 @@ export default function Upload() {
                                             onChange={handleImgChange}
                                             style={{ display: 'none' }}
                                         /> 
-                            </div>
-                        </div>
-                        <div className={style.lyricUploadContainer}>
-                    <div className={style.lyricUploadBox}>
-                        {lyricFile ? (
-                            <div className={style.lyricFileInfo}>
-                                <Image src="/lyrics.png" width={40} height={40} alt="Lrc Icon" />
-                                <div className={style.lyricDetails}>
-                                    <span className={style.lyricName}>{lyricFile.name}</span>
-                                    <button 
-                                        className={style.changeLyricButton}
-                                        onClick={handleLyricSelect}
-                                        type="button"
-                                    >
-                                        Change .LRC
-                                    </button>
+                                    </div>
+                                </div>
+
+                                {/* Khu vực Upload Lyric */}
+                                <div className={style.lyricUploadContainer}>
+                                    <div className={style.lyricUploadBox}>
+                                        {lyricFile ? (
+                                            <div className={style.lyricFileInfo}>
+                                                <Image src="/lyrics.png" width={40} height={40} alt="Lrc Icon" />
+                                                <div className={style.lyricDetails}>
+                                                    <span className={style.lyricName}>{lyricFile.name}</span>
+                                                    <button 
+                                                        className={style.changeLyricButton}
+                                                        onClick={handleLyricSelect}
+                                                        type="button"
+                                                    >
+                                                        Change .LRC
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <Image
+                                                    src="/lyrics.png"
+                                                    width={50}
+                                                    height={50}
+                                                    alt="Lyric Icon"
+                                                    className={style.lyricIcon}
+                                                />
+                                                <h3>Add Lyrics</h3>
+                                                <span className="upload-subtitle" style={{fontSize: '12px', color: '#ccc'}}>
+                                                    (.lrc file)
+                                                </span>
+                                                <button 
+                                                    className={style.uploadMiniButton}
+                                                    onClick={handleLyricSelect}
+                                                    type="button"
+                                                >
+                                                    Select File
+                                                </button>
+                                            </>
+                                        )}
+                                        <input 
+                                            ref={lyricInputRef}
+                                            type="file" 
+                                            accept=".lrc,.txt" 
+                                            className={style.fileInput}
+                                            onChange={handleLyricChange}
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        ) : (
-                            <>
-                                <Image
-                                    src="/lyrics.png" // Đảm bảo bạn có icon này hoặc dùng icon khác
-                                    width={50}
-                                    height={50}
-                                    alt="Lyric Icon"
-                                    className={style.lyricIcon}
-                                />
-                                <h3>Add Lyrics</h3>
-                                <span className="upload-subtitle" style={{fontSize: '12px', color: '#ccc'}}>
-                                    (.lrc file)
-                                </span>
-                                <button 
-                                    className={style.uploadMiniButton}
-                                    onClick={handleLyricSelect}
-                                    type="button"
-                                >
-                                    Select File
-                                </button>
-                            </>
-                        )}
-                        <input 
-                            ref={lyricInputRef}
-                            type="file" 
-                            accept=".lrc,.txt" 
-                            className={style.fileInput}
-                            onChange={handleLyricChange}
-                        />
-                            </div>
-                        </div>
-                            </div>
+
+                            {/* CỘT PHẢI: METADATA FORM */}
                             <div className={style.metadataBox}>
                                 <div className={style.metadataHeader}>
                                     <h1>Song Metadata</h1>
@@ -408,4 +417,3 @@ export default function Upload() {
         </div>
     );
 }
-
